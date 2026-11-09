@@ -888,7 +888,7 @@ impl BackgroundService for Service {
                                 .inc();
                             st.failures += 1;
                             // About every 5 minutes while it lasts.
-                            if st.failures == 1 || st.failures % 30 == 0 {
+                            if st.failures == 1 || st.failures.is_multiple_of(30) {
                                 warn!(
                                     "crowdsec: pulling decisions from {} failed ({} in a row), \
                                      keeping {} held: {e}",

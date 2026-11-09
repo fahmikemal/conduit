@@ -82,7 +82,7 @@ Measured on 2 CPUs against nginx with a tuned config (PGO release build, idle ma
 
 Idle memory is about 26 MB with 100 sites. At half of peak load, p99 latency rises by about
 0.5 ms. Methods, more numbers, and a comparison with HAProxy, Envoy, Caddy, Traefik and Apache
-are in the [technical documentation](docs/teknis.md#benchmark).
+are in the [technical documentation](docs/technical.md#benchmark).
 
 ## Getting started
 
@@ -159,18 +159,18 @@ running out of file descriptors.
 
 conduit builds against Pingora 0.9.1 with a small set of patches. The fork is a git submodule
 in [`vendor/pingora`](vendor/README.md) (branch `conduit`, one commit per patch) and is wired in
-through `[patch.crates-io]`. Together with conduit-side work, the patches cut CPU per HTTP/1.1 request by about a
-quarter. One bounds
-the time for a whole request header (slowloris), and one makes the `Server` header of Pingora's
-own error responses configurable. Each patch and its measured effect is listed in
-[`vendor/README.md`](vendor/README.md).
+through `[patch.crates-io]`. Together with conduit-side work, the patches cut CPU per HTTP/1.1
+request by about a quarter. One bounds the time for a whole request header (slowloris), one
+makes the `Server` header of Pingora's own error responses configurable, and one backports an
+unreleased upstream fix that ends brotli streams properly. Each patch, its measured effect, and
+how each one stands against upstream are listed in [`vendor/README.md`](vendor/README.md).
 
 ## Documentation
 
-- [Technical documentation](docs/teknis.md) (Indonesian): every feature in detail, test
+- [Technical documentation](docs/technical.md): every feature in detail, test
   results, benchmarks and their method, profiling notes, and the roadmap.
 - [`conduit.example.yaml`](conduit.example.yaml): every configuration option.
-- [`vendor/README.md`](vendor/README.md) (Indonesian): the Pingora patches.
+- [`vendor/README.md`](vendor/README.md): the Pingora patches and how they stand against upstream.
 
 ## License
 

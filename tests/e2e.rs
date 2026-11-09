@@ -2688,6 +2688,37 @@ sites:
         "{:?}",
         r.header("etag")
     );
+    // Each encoding ends as a complete stream that a strict decoder takes whole. Pingora 0.9.1
+    // left brotli without its last meta-block (fixed in the fork, from upstream PR #1021).
+    for enc in ["br", "zstd", "gzip"] {
+        let mut conn = BufReader::new(TcpStream::connect(("127.0.0.1", http_port)).unwrap());
+        conn.get_ref()
+            .set_read_timeout(Some(Duration::from_secs(10)))
+            .unwrap();
+        let req =
+            format!("GET /big.txt HTTP/1.1\r\nHost: static.test\r\nAccept-Encoding: {enc}\r\n\r\n");
+        let a = keepalive_exchange(&mut conn, req.as_bytes()).unwrap();
+        assert_eq!(a.status, 200, "{enc}");
+        assert!(
+            a.body.len() < big.len() / 2,
+            "{enc}: {} bytes",
+            a.body.len()
+        );
+        let mut plain = Vec::new();
+        match enc {
+            "br" => brotli::BrotliDecompress(&mut &a.body[..], &mut plain).map(|_| ()),
+            "zstd" => zstd::stream::copy_decode(&a.body[..], &mut plain),
+            _ => flate2::read::GzDecoder::new(&a.body[..])
+                .read_to_end(&mut plain)
+                .map(|_| ()),
+        }
+        .unwrap_or_else(|e| panic!("{enc}: {e}"));
+        assert!(
+            plain == big.as_bytes(),
+            "{enc}: {} bytes decoded",
+            plain.len()
+        );
+    }
 
     // HEAD: headers only.
     let r = raw_http(

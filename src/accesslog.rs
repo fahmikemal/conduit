@@ -305,9 +305,9 @@ mod json {
             b'0' + (frac % 10) as u8,
         ];
         // ".0" for whole milliseconds, otherwise without trailing zeros.
-        let len = if frac % 100 == 0 {
+        let len = if frac.is_multiple_of(100) {
             2
-        } else if frac % 10 == 0 {
+        } else if frac.is_multiple_of(10) {
             3
         } else {
             4

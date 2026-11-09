@@ -431,8 +431,10 @@ dependencies = [
  "async-trait",
  "base64 0.22.1",
  "bcrypt",
+ "brotli",
  "bytes",
  "clap",
+ "flate2",
  "foldhash",
  "foreign-types",
  "futures",
@@ -456,6 +458,7 @@ dependencies = [
  "serde-saphyr",
  "serde_json",
  "tokio",
+ "zstd",
 ]
 
 [[package]]
