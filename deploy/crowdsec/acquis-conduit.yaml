@@ -1,0 +1,5 @@
+# /etc/crowdsec/acquis.d/conduit.yaml: conduit's access log (access_log.path).
+filenames:
+  - /var/log/conduit/access.log
+labels:
+  type: conduit

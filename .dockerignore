@@ -1,0 +1,6 @@
+target
+dist
+local
+.git
+vendor/**/.git
+vendor/**/target

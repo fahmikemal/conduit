@@ -1,0 +1,90 @@
+[package]
+name = "conduit"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+publish = false
+description = "Reverse proxy built on Pingora"
+license = "Apache-2.0"
+repository = "https://github.com/fahmikemal/conduit"
+readme = "README.md"
+keywords = ["reverse-proxy", "pingora", "http", "tls", "acme"]
+categories = ["network-programming", "web-programming::http-server"]
+
+[features]
+default = ["mimalloc"]
+# mimalloc keeps resident memory lower and steadier than glibc malloc's per-thread arenas.
+mimalloc = ["dep:mimalloc"]
+
+[dependencies]
+pingora = { version = "0.9.1", default-features = false, features = ["openssl", "proxy", "lb", "cache"] }
+# Static OpenSSL: the binary does not depend on the target host's libssl version.
+openssl = { version = "0.10", features = ["vendored"] }
+async-trait = "0.1"
+tokio = { version = "1.54", features = ["rt", "signal", "time", "sync", "macros", "net"] }
+arc-swap = "1.9"
+bytes = "1"
+http = "1"
+log = "0.4"
+regex = "1.13"
+# Multi-string search for body_replace (already in the tree through regex).
+aho-corasick = "1.1"
+# Byte searches for block_exploits (already in the tree through regex).
+memchr = "2.7"
+serde = { version = "1", features = ["derive"] }
+# YAML reader for the config file: pure Rust, panic-free, with parse budgets.
+serde-saphyr = { version = "2.1", default-features = false, features = ["deserialize"] }
+clap = { version = "4.6", features = ["derive"] }
+# Same major as pingora's own, so both register into one default registry.
+prometheus = { version = "0.14", default-features = false, features = ["process"] }
+serde_json = "1"
+# Integer formatting for the access log writer (already in the tree through serde_json).
+itoa = "1"
+# Only for FutureExt::now_or_never on static service discovery.
+futures = { version = "0.3", default-features = false, features = ["std"] }
+mimalloc = { version = "0.1.52", default-features = false, optional = true }
+libc = "0.2"
+# ACME (RFC 8555) protocol only: requests go through Pingora's own HTTP connector and
+# OpenSSL, so no second TLS stack. ring signs the account's JWS; `time` brings ARI.
+instant-acme = { version = "0.8.5", default-features = false, features = ["ring", "time"] }
+# For instant_acme::CertificateIdentifier (ARI), built from the certificate's AKI and serial.
+rustls-pki-types = "1"
+# To read instant-acme's request bodies (an http_body::Body).
+http-body = "1"
+# Hasher for the CrowdSec decision table (keys come from the local API, not from clients).
+foldhash = "0.2"
+# Count-min sketches behind the rate_limit and concurrency plugins.
+pingora-limits = "0.9.1"
+# Two OpenSSL calls the safe bindings lack, for mTLS: the ClientHello SNI and a per-connection
+# session ID context. Both are already in the tree through `openssl`.
+openssl-sys = "0.9"
+foreign-types = "0.3"
+bcrypt = "0.19"
+# Last-Modified / If-Modified-Since dates for the file server.
+httpdate = "1"
+base64 = "0.22"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = "symbols"
+
+# Pingora 0.9.1 with conduit's performance patches (vendor/pingora, branch `conduit`; each patch
+# is one commit on top of the 0.9.1 tag, see vendor/README.md). Every pingora-* crate comes from
+# the same tree so no crate is built twice. Cargo reads [patch] only from this root manifest.
+[patch.crates-io]
+pingora = { path = "vendor/pingora/pingora" }
+pingora-cache = { path = "vendor/pingora/pingora-cache" }
+pingora-core = { path = "vendor/pingora/pingora-core" }
+pingora-error = { path = "vendor/pingora/pingora-error" }
+pingora-header-serde = { path = "vendor/pingora/pingora-header-serde" }
+pingora-http = { path = "vendor/pingora/pingora-http" }
+pingora-ketama = { path = "vendor/pingora/pingora-ketama" }
+pingora-limits = { path = "vendor/pingora/pingora-limits" }
+pingora-load-balancing = { path = "vendor/pingora/pingora-load-balancing" }
+pingora-lru = { path = "vendor/pingora/pingora-lru" }
+pingora-openssl = { path = "vendor/pingora/pingora-openssl" }
+pingora-pool = { path = "vendor/pingora/pingora-pool" }
+pingora-proxy = { path = "vendor/pingora/pingora-proxy" }
+pingora-runtime = { path = "vendor/pingora/pingora-runtime" }
+pingora-timeout = { path = "vendor/pingora/pingora-timeout" }

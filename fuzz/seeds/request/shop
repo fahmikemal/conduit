@@ -1,0 +1,4 @@
+!HEAD http://shop.example.com/cart
+Cookie: session=abc; x=y
+Authorization: Basic dXNlcjpwYXNz
+X-Request-Id: abc-123

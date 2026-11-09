@@ -1,0 +1,7 @@
+# Pingora's own source (the vendored fork). Its patches are described in vendor/README.md.
+vendor/pingora/
+# Fuzzing: build output, generated corpus, crashes, and seed inputs (data, not code).
+fuzz/target/
+fuzz/corpus/
+fuzz/artifacts/
+fuzz/seeds/

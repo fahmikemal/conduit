@@ -1,0 +1,61 @@
+
+real_ip:
+  header: X-Forwarded-For
+  trusted: [127.0.0.0/8, "::1/128"]
+  recursive: true
+upstreams:
+  web:
+    backends: [http://10.0.0.1:80, http://10.0.0.2:80]
+    balance: hash
+    hash_key: "header:x-user"
+  sticky:
+    backends: [http://10.0.0.3:80, { url: "http://10.0.0.4:80", weight: 3 }]
+    balance: hash
+    hash_key: "cookie:session"
+sites:
+  - id: app
+    hosts: [app.example.com, "*.app.example.com"]
+    upstream: web
+    force_https: true
+    max_body_size: 1m
+  - id: git
+    hosts: [git.example.com]
+    upstream: http://10.0.0.20:3000
+    plugins:
+      - rules:
+          - match:
+              method: [GET, HEAD]
+              headers: { user-agent: { regex: "(?i)mozilla" } }
+            action: { redirect: { status: 302, to: "https://git.example.org{request_uri}" } }
+          - match: { path: { prefix: /old/ } }
+            action: { redirect: { to: "https://{host}{path}?moved=1" } }
+  - id: pb
+    hosts: [pb.example.com]
+    upstream:
+      backends: [http://10.0.0.26:8090]
+      balance: hash
+      hash_key: client_ip
+    plugins:
+      - ip_filter: { deny: [192.0.2.0/24] }
+      - rate_limit: { requests: 1000000, per: 1s }
+      - concurrency: { max: 1000000 }
+      - rules:
+          - match: { path: { regex: "^/_(/|$)" } }
+            action: { deny: 403 }
+          - match: { path: { exact: /wp-content/debug.log } }
+            action: { deny: 404 }
+          - match: { query: { regex: "(?i)debug=1" } }
+            action: { respond: { status: 400, headers: { Content-Type: text/plain }, body: "no\n" } }
+          - match: { headers: { x-middleware-subrequest: { present: true } } }
+            action: { deny: 403 }
+  - id: sso
+    hosts: [sso.example.com]
+    upstream:
+      backends: [http://10.0.0.28:3000]
+      balance: hash
+      hash_key: uri
+    plugins:
+      - forward_auth: { url: "http://127.0.0.1:9091/auth", copy_headers: [Remote-User] }
+  - id: shop
+    hosts: [shop.example.com]
+    upstream: sticky

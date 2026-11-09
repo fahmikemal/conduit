@@ -1,0 +1,13 @@
+# /etc/logrotate.d/conduit
+# conduit notices a rotated file within 5 s and reopens it; delaycompress keeps the old file
+# plain until then, and CrowdSec follows the rename.
+/var/log/conduit/*.log {
+    daily
+    rotate 14
+    missingok
+    notifempty
+    compress
+    delaycompress
+    create 0640 conduit adm
+    su conduit adm
+}

@@ -1,0 +1,54 @@
+# CrowdSec parser for conduit's access log (one JSON object per line).
+#
+# Install as /etc/crowdsec/parsers/s01-parse/conduit-logs.yaml, read the log with
+# acquis-conduit.yaml, and install the HTTP scenarios (cscli collections install
+# crowdsecurity/base-http-scenarios). It fills the same fields as the nginx parser, so
+# crowdsecurity/http-logs and the http-* scenarios work unchanged. Check a line with:
+#   cscli explain --file /var/log/conduit/access.log --type conduit
+name: conduit/conduit-logs
+description: "conduit reverse proxy: JSON access log"
+filter: "evt.Parsed.program == 'conduit' && evt.Parsed.message startsWith '{'"
+onsuccess: next_stage
+statics:
+  - parsed: json
+    expression: UnmarshalJSON(evt.Parsed.message, evt.Unmarshaled, "conduit")
+  - meta: log_type
+    value: http_access-log
+  - meta: service
+    value: http
+  - target: evt.StrTime
+    expression: evt.Unmarshaled.conduit.ts
+  # The real client address (real_ip), not the peer: behind Cloudflare, the visitor.
+  - parsed: remote_addr
+    expression: evt.Unmarshaled.conduit.client
+  - meta: source_ip
+    expression: evt.Unmarshaled.conduit.client
+  - parsed: verb
+    expression: evt.Unmarshaled.conduit.method
+  - meta: http_verb
+    expression: evt.Unmarshaled.conduit.method
+  # Path and query as received.
+  - parsed: request
+    expression: evt.Unmarshaled.conduit.uri
+  - meta: http_path
+    expression: evt.Unmarshaled.conduit.uri
+  - parsed: status
+    expression: Sprintf('%.0f', evt.Unmarshaled.conduit.status)
+  - meta: http_status
+    expression: Sprintf('%.0f', evt.Unmarshaled.conduit.status)
+  - parsed: body_bytes_sent
+    expression: Sprintf('%.0f', evt.Unmarshaled.conduit.bytes_sent)
+  - parsed: http_user_agent
+    expression: evt.Unmarshaled.conduit.user_agent
+  - meta: http_user_agent
+    expression: evt.Unmarshaled.conduit.user_agent
+  - parsed: http_referer
+    expression: evt.Unmarshaled.conduit.referer
+  - parsed: target_fqdn
+    expression: evt.Unmarshaled.conduit.host
+  - meta: target_fqdn
+    expression: evt.Unmarshaled.conduit.host
+  - parsed: http_version
+    expression: trimPrefix(evt.Unmarshaled.conduit.proto, 'HTTP/')
+  - meta: conduit_site
+    expression: evt.Unmarshaled.conduit.site

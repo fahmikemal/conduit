@@ -1,0 +1,5 @@
+6POST /_/../api/collections/_superusers/records?debug=1
+Host: PB.example.com.:8443
+X-Forwarded-For: 203.0.113.9, 127.0.0.1
+X-Middleware-Subrequest: 1
+Content-Length: 10

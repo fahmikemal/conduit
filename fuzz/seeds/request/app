@@ -1,0 +1,5 @@
+GET /x
+Host: [::1]:80
+Range: bytes=5-
+Accept-Encoding: gzip;q=0, br
+If-None-Match: W/"5f3-6a1b2c", "a"

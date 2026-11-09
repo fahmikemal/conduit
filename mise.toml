@@ -1,0 +1,44 @@
+[tools]
+# libz-ng-sys (via pingora-core's flate2) builds zlib-ng with cmake.
+cmake = "4.4.5"
+# Load generator for scripts/bench.sh.
+oha = "1.16.0"
+
+[tasks.test]
+description = "Run unit and integration tests"
+run = "cargo test --all-targets"
+
+[tasks.test-acme]
+description = "ACME end to end against Pebble, Let's Encrypt's test CA (needs docker)"
+run = "cargo test --test e2e acme_with_pebble -- --ignored --nocapture"
+
+[tasks.test-crowdsec]
+description = "CrowdSec bouncer, AppSec and the access log parser against a real CrowdSec (needs docker)"
+run = "cargo test --test e2e crowdsec_bouncer_and_appsec -- --ignored --nocapture"
+
+[tasks.lint]
+description = "Format check and clippy"
+run = """
+  cargo fmt --all --check
+  cargo clippy --all-targets -- -D warnings
+"""
+
+[tasks.bench]
+description = "conduit vs nginx (NPM-style and tuned) on 2 CPUs, with a regression gate (needs docker)"
+run = "cargo build --release && scripts/bench.sh"
+
+[tasks.compare]
+description = "dist/conduit vs nginx, Caddy, Apache, HAProxy, Traefik and Envoy on 2 CPUs (needs docker)"
+run = "scripts/compare.py"
+
+[tasks.release]
+description = "Build the profile-guided release binary for Ubuntu 22.04 (glibc 2.35) in Docker"
+run = "scripts/build-release.sh"
+
+[tasks.pgo]
+description = "Profile-guided build on this machine into target/pgo/conduit (needs rustup's llvm-tools)"
+run = "scripts/pgo.sh"
+
+[tasks.ab]
+description = "A/B conduit binaries or settings over alternating rounds, e.g. mise run ab base=old new=target/pgo/conduit"
+run = "scripts/ab.sh"

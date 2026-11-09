@@ -1,0 +1,4 @@
+[submodule "vendor/pingora"]
+	path = vendor/pingora
+	url = https://github.com/fahmikemal/pingora.git
+	branch = conduit

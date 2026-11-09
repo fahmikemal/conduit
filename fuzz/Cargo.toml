@@ -1,0 +1,93 @@
+[package]
+name = "conduit-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+conduit = { path = "..", default-features = false }
+
+# Its own workspace, so the fuzz build (nightly, sanitizers) never touches the main one.
+[workspace]
+members = ["."]
+
+[profile.release]
+debug = 1
+
+# The same Pingora fork as the main build (see ../Cargo.toml).
+[patch.crates-io]
+pingora = { path = "../vendor/pingora/pingora" }
+pingora-cache = { path = "../vendor/pingora/pingora-cache" }
+pingora-core = { path = "../vendor/pingora/pingora-core" }
+pingora-error = { path = "../vendor/pingora/pingora-error" }
+pingora-header-serde = { path = "../vendor/pingora/pingora-header-serde" }
+pingora-http = { path = "../vendor/pingora/pingora-http" }
+pingora-ketama = { path = "../vendor/pingora/pingora-ketama" }
+pingora-limits = { path = "../vendor/pingora/pingora-limits" }
+pingora-load-balancing = { path = "../vendor/pingora/pingora-load-balancing" }
+pingora-lru = { path = "../vendor/pingora/pingora-lru" }
+pingora-openssl = { path = "../vendor/pingora/pingora-openssl" }
+pingora-pool = { path = "../vendor/pingora/pingora-pool" }
+pingora-proxy = { path = "../vendor/pingora/pingora-proxy" }
+pingora-runtime = { path = "../vendor/pingora/pingora-runtime" }
+pingora-timeout = { path = "../vendor/pingora/pingora-timeout" }
+
+[[bin]]
+name = "config"
+path = "fuzz_targets/config.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "import"
+path = "fuzz_targets/import.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "path"
+path = "fuzz_targets/path.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "access_log"
+path = "fuzz_targets/access_log.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "request"
+path = "fuzz_targets/request.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "route"
+path = "fuzz_targets/route.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "body_replace"
+path = "fuzz_targets/body_replace.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "block_exploits"
+path = "fuzz_targets/block_exploits.rs"
+test = false
+doc = false
+bench = false

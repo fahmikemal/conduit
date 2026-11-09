@@ -1,0 +1,9 @@
+conduit
+Copyright 2026 Fahmi Kemal
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+It builds against a modified fork of Pingora (https://github.com/cloudflare/pingora),
+Copyright Cloudflare, Inc., licensed under the Apache License, Version 2.0.
+The fork lives in vendor/pingora; every change is a separate commit on its `conduit`
+branch, described in vendor/README.md.

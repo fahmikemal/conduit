@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 88 88" width="88" height="88" role="img" aria-label="Conduit">
+  <title>Conduit</title>
+  <g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round">
+    <path d="M90 10H50A40 40 0 0 0 50 90H90"/>
+    <path d="M80 24H50A26 26 0 0 0 50 76H80"/>
+    <path d="M70 38H50A12 12 0 0 0 50 62H70"/>
+  </g>
+</svg>

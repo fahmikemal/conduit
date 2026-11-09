@@ -1,0 +1,3 @@
+0GET /old/a%2Fb?x=1
+Host: git.example.com
+User-Agent: Mozilla/5.0

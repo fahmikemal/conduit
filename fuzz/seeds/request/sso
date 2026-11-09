@@ -1,0 +1,3 @@
+3OPTIONS *
+Host: sso.example.com
+X-Forwarded-Proto: https

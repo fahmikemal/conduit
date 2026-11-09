@@ -1,0 +1,472 @@
+# conduit configuration. Every key is optional unless marked required; values shown are the
+# defaults. Durations: 500ms, 30s, 10m, 1h, 30d or a bare number of seconds. Sizes: 512k, 100m,
+# 2g (1024-based) or bytes; 0 means unlimited. Unknown keys are rejected, so typos fail
+# `conduit check` instead of being ignored.
+
+server:
+  threads: 2                        # worker threads shared by all listeners
+  work_stealing: false              # false: one runtime per thread, a connection stays on the
+                                    # thread it was handed to (more req/s, lower p99 under load).
+                                    # true: threads steal tasks from each other, which evens out
+                                    # a few heavy long-lived connections (HTTP/2, WebSocket)
+  pid_file: /run/conduit/conduit.pid
+  upgrade_sock: /run/conduit/upgrade.sock
+  # error_log: /var/log/conduit/error.log   # unset: stderr (the journal under systemd)
+  upstream_keepalive_pool_size: 128 # idle upstream connections kept per thread
+  shutdown_grace: 60s               # in-flight requests get this long on stop/upgrade
+  shutdown_timeout: 5s
+  transparent_huge_pages: false     # true: ~1% more throughput, about twice the idle memory
+  write_buffer: 16k                 # per connection; header and body up to this size leave
+                                    # in one packet. A Content-Length body is flushed when
+                                    # complete or when this fills; chunked bodies stream as is
+
+# Changing listeners, `admin` or `access_log.path` needs `systemctl reload conduit` (a
+# graceful upgrade to a new process); everything else applies on SIGHUP or file change.
+listen:
+  http: ["0.0.0.0:80", "[::]:80"]
+  https: ["0.0.0.0:443", "[::]:443"]
+
+# /metrics (Prometheus), /healthz, /status (JSON) and POST /cache/purge?site=<id>[&prefix=/p]
+# (drops a site's cached responses, or those whose path and query start with the prefix,
+# as clients send them). No authentication: keep it on loopback or a management network.
+admin:
+  listen: "127.0.0.1:9180"          # unset: no admin listener
+
+defaults:
+  connect_timeout: 10s
+  read_timeout: 90s                 # max wait between reads from the upstream
+  write_timeout: 90s
+  upstream_idle_timeout: 60s        # pooled upstream connection lifetime while idle
+  keepalive_timeout: 75s            # idle client connection between requests (as nginx)
+  max_body_size: 2000m              # 413 above this
+  compression: true                 # gzip text responses the upstream left uncompressed
+  # server_header: conduit          # Server header on every response, exactly as written
+                                    # (no version), replacing the upstream's. Unset (default):
+                                    # conduit sends none, not even Pingora's name, and the
+                                    # upstream's passes through. Setting it makes conduit easy
+                                    # to fingerprint (Wappalyzer, scanners). A site can drop it
+                                    # with headers: { response: { remove: [server] } }.
+
+# One JSON object per request: ts, request_id, site, host, client, method, scheme, uri,
+# proto, status, bytes_sent, bytes_received, duration_ms, upstream, upstream_status,
+# upstream_connect_ms, upstream_header_ms, retries, tls, user_agent, referer, error,
+# blocked_by, cache (hit, stale, revalidated, miss, uncacheable, bypass; sites with cache:).
+# CrowdSec reads it with deploy/crowdsec/conduit-logs.yaml.
+access_log:
+  path: /var/log/conduit/access.log # unset: no access log
+  queue_capacity: 65536             # lines buffered before new ones are dropped (and counted);
+                                    # split across worker threads, at least 1024 each
+
+# Client address for X-Real-IP / X-Forwarded-For, plugins and the access log. The header is
+# believed only when the TCP peer is trusted; otherwise the peer address is the client.
+# Trusted peers may also pass X-Forwarded-Proto, X-Forwarded-Host and X-Request-Id through.
+real_ip:
+  header: CF-Connecting-IP
+  trusted: [cloudflare]             # CIDRs, or `cloudflare` for its published ranges
+  recursive: true
+
+tls:
+  # Selection per handshake: a site's `cert:`, then exact SAN, then `*.parent` SAN (one label),
+  # then default_cert. With no default, unknown names fail the handshake.
+  certs:
+    - name: wildcard-example
+      cert: /etc/conduit/certs/example.com/fullchain.pem   # leaf first, then chain
+      key: /etc/conduit/certs/example.com/privkey.pem
+    - name: git
+      cert: /etc/letsencrypt/live/git.example.org/fullchain.pem
+      key: /etc/letsencrypt/live/git.example.org/privkey.pem
+  # default_cert: wildcard-example
+  # acme_webroot: /var/lib/conduit/webroot  # files of an outside ACME client (certbot
+  #                                 # --webroot), served at /.well-known/acme-challenge/
+  watch_interval: 60s               # config, certificates and served files are re-read on change
+  # Certificates for sites with `acme: true`, without certbot: issued on first start, renewed
+  # in the window the CA suggests (ARI) or when a third of the lifetime is left, and swapped
+  # in without dropping a connection. conduit answers HTTP-01 itself on listen.http, so port
+  # 80 must reach it. Wildcards need a certificate file. Enabling this accepts the CA's terms.
+  acme:
+    directory: letsencrypt          # letsencrypt | letsencrypt-staging | a directory URL
+    email: ops@example.com          # optional; expiry and policy mail from the CA
+    storage: /var/lib/conduit/acme  # account key, and key + chain per site in one PEM (0600)
+    # profile: shortlived           # a certificate profile offered by the CA
+    # renew_before: 30d             # only when the CA suggests no window; capped at half the lifetime
+    # ca_file: /etc/conduit/test-ca.pem  # trust this CA for the directory's HTTPS (test CAs)
+
+default_site:
+  # page: /etc/conduit/default.html # 200 for unknown hosts; otherwise 404
+
+# CrowdSec bouncer for sites with the `crowdsec` plugin. Decisions are pulled from the local
+# API into memory (full list at start, then changes), so a check costs no network call, and
+# held decisions keep applying while the local API is down. Clients are checked by their real
+# address (real_ip), so visitors behind Cloudflare are blocked, not Cloudflare.
+crowdsec:
+  lapi_url: http://127.0.0.1:8080
+  api_key_file: /etc/conduit/crowdsec.key  # from `cscli bouncers add conduit`; or api_key: ...
+  update_interval: 10s
+  # origins: [crowdsec, cscli, CAPI, lists]  # only decisions from these; default: all
+  # scenarios_containing: [http]
+  # scenarios_not_containing: [ssh]
+  # ca_file: /etc/conduit/crowdsec-ca.pem    # for https:// URLs with a private CA
+  # ban_page: /etc/conduit/blocked.html      # served with 403; a built-in page by default
+  # AppSec (WAF) for sites with `crowdsec: { appsec: true }`: headers, and bodies of known
+  # length up to body_limit, are inspected before the request is proxied.
+  appsec:
+    url: http://127.0.0.1:7422
+    timeout: 200ms                  # longest wait for a verdict
+    failure_action: allow           # allow | block, when AppSec does not answer in time
+    body_limit: 64k                 # at most 64k; larger or chunked bodies: headers only
+
+# Memory for the response cache, shared by every site with `cache:` (sites cache nothing by
+# default). Entries live in memory only: a restart or graceful upgrade starts empty.
+cache:
+  max_size: 64m                     # all sites together; least recently used go first
+  max_object_size: 8m               # larger responses pass through without being stored
+  lock_timeout: 5s                  # concurrent misses for one URL wait this long for the
+                                    # first fetch instead of all going upstream (restart to
+                                    # change)
+
+# Named backend pools. A site may also write a URL, or a pool definition, as its upstream.
+# Host names resolve when the config loads; each address becomes a backend. A pool whose
+# definition is unchanged keeps its health state across reloads.
+upstreams:
+  web:
+    backends:                       # required; scheme://host[:port], no path
+      - http://10.0.0.10:3000
+      - { url: "http://10.0.0.11:3000", weight: 2 }
+    balance: round_robin            # round_robin | random | least_conn | hash
+    # hash_key: client_ip           # with hash: client_ip, uri, path, header:<name>, cookie:<name>
+    retries: 1                      # other backends tried when connecting fails
+    passive:                        # skip a backend after errors on live traffic
+      failures: 3                   # consecutive connect/upstream errors; 0 turns it off
+      eject: 30s
+    health_check:                   # unset: no active checks
+      type: http                    # http | tcp
+      path: /healthz
+      # host: app.example.com       # default: the backend URL's host
+      expect: [200]                 # default: any 2xx or 3xx
+      interval: 5s
+      timeout: 2s
+      rise: 2                       # consecutive passes to come back
+      fall: 3                       # consecutive failures to go out
+    # verify_tls: true              # for https:// backends
+    # sni: app.internal             # default: the URL's host
+
+  sessions:
+    backends: [http://10.0.0.30:8080, http://10.0.0.31:8080, http://10.0.0.32:8080]
+    balance: hash
+    hash_key: cookie:session_id     # the same session keeps its backend
+
+  registry:
+    backends: [http://10.0.0.21:5000]
+    health_check: { type: tcp, interval: 10s }
+
+# Plugins run in order on every request of the site. `rules`, `ip_filter` (and anything else
+# answering early) stop the request at the first local response; `headers` changes the
+# request sent upstream and every response, local ones included.
+#
+#   rules: the first rule whose `match` holds answers the request. All conditions in a match
+#     must hold. `path` is decoded and normalized (`/%5F/`, `//_` and `/a/../_` all become
+#     `/_/`), so encodings cannot slip past a rule; `uri` and `query` are raw. String matches
+#     are { exact: .. }, { prefix: .. } or { regex: .. }. Actions: { deny: <status> },
+#     { redirect: { status, to } } with {scheme} {host} {path} {request_uri} in `to`,
+#     { respond: { status, headers, body } } and { file: { path, content_type, headers } }.
+#     { proxy: { upstream, strip_prefix, add_prefix, rewrite } } proxies the request instead:
+#     to `upstream` (a pool name, a URL or a pool; default the site's), and with its path
+#     changed: strip_prefix removes a leading part, add_prefix puts one in front (after
+#     strip_prefix), rewrite: { regex, to } replaces the first match (`${1}`, `${name}`).
+#     Path changes start from the normalized path; the result is sent re-encoded with the
+#     original query, so an encoded %2F reaches the upstream as '/'. Unlike the other
+#     actions, the plugins after the rule still run, and `files` never serves the request.
+#   headers: { request: { set: {..}, remove: [..] }, response: { set: {..}, remove: [..] } }
+#   ip_filter: { allow: [CIDR..], deny: [CIDR..], status: 403 } on the real client address.
+#   crowdsec: refuse clients with a CrowdSec decision (403 and `crowdsec.ban_page`);
+#     { appsec: true } also sends each request to AppSec. Put it first.
+#   rate_limit: { requests: N, per: 1s, key: client_ip, match: {..}, status: 429 } admits at
+#     most N requests per key in any window of `per` (a sliding estimate over two windows) and
+#     answers the rest with `status` and Retry-After. `key` is client_ip (an IPv6 client counts
+#     as its /64), host or header:<name> (falls back to the client when the header is absent);
+#     with `match`, only matching requests count and are limited.
+#   concurrency: { max: N, key: client_ip, match: {..}, status: 429 } at most N requests of one
+#     key in flight at once, refused at once beyond that. It counts requests, not connections,
+#     so it limits clients behind a CDN too, where every connection comes from the CDN.
+#   Counts of both live in memory per process, survive reloads while the plugin's settings and
+#     place in the list stay the same, and may overcount (never undercount) under heavy load.
+#   basic_auth: { users: { name: hash }, htpasswd: file, realm: restricted, match: {..} } asks
+#     for a username and password (401 otherwise). Hashes are bcrypt, from `htpasswd -nB name`
+#     or `caddy hash-password`; an htpasswd file is re-read when it changes. A hash is checked
+#     once per password, off the request threads, then remembered until the next reload. Put a
+#     rate_limit before it against password guessing.
+#   forward_auth: { url, copy_headers: [..], timeout: 5s, ca_file, match: {..} } asks an auth
+#     service (Authelia, Authentik, oauth2-proxy) with a GET carrying the client's headers
+#     (cookies included) and X-Forwarded-Method/-Uri/-Host/-Proto/-For. A 2xx answer lets the
+#     request through and sets `copy_headers` upstream from it (removed when the answer lacks
+#     them, so clients cannot forge them); any other answer goes back to the client as it is,
+#     such as a redirect to the login page. No answer: 502. The request body is not touched.
+#   body_replace: { replace: [{ from, to }..], types: [text/html], match: {..} } replaces
+#     every `from` in the bodies of upstream responses of those content types ("*": any), as
+#     they stream. Case-sensitive; where several could match, the first listed wins. The
+#     upstream is asked for a whole, uncompressed body (Accept-Encoding, Range and If-Range
+#     are not forwarded); a response that is still compressed, a 206 and local answers are
+#     left alone. Changed responses lose Content-Length, ETag and Last-Modified.
+#   block_exploits: { mode: block, status: 403, categories: [..], disable: [rule ids],
+#     skip_params: [..], match: {..}, except: [{ match: {..}, categories: [..] }] } refuses
+#     requests carrying common exploit payloads, like NPM's "Block Exploits" but written to
+#     leave ordinary requests alone (an OAuth redirect_uri=http://..., a search for "union
+#     station", a repository file under etc/passwd). `- block_exploits:` alone is all defaults.
+#     It reads the query (decoded as applications read it, twice when it was encoded twice,
+#     and without SQL comments), the normalized path, the User-Agent, and other headers only
+#     for header payloads (Log4Shell, Shellshock, OGNL). Bodies are not read (AppSec does).
+#     Categories: traversal, dotfiles (/.env, /.git/ ... at the root only), sqli, xss, php,
+#     rce (Log4Shell, Shellshock, Spring4Shell, OGNL, template injection, shell commands,
+#     Next.js x-middleware-subrequest), ssrf (cloud metadata addresses), scanners (sqlmap,
+#     nikto, nuclei ... and NPM's list), spam (NPM's words; off unless listed). `mode: log`
+#     only counts and logs. Each detection is logged as a warning (at most 20 a second) with
+#     its rule id, which `disable` takes; `skip_params` leaves query parameters out (a search
+#     box); `except` skips categories (all when none are given) for matching requests.
+#     Refusals log blocked_by "block_exploits:<category>"; conduit_block_exploits_total counts
+#     them by site, category and action.
+#   Plugins run in the order written, waiting ones included: a rule after basic_auth is only
+#   reached with the password.
+
+sites:
+  - id: app                         # required; letters, digits, '.', '-', '_'
+    hosts: [app.example.com]        # required; exact names or *.example.com
+    upstream: web                   # a pool name, a URL or a pool definition; required
+                                    # unless the site serves `files:`
+    force_https: true
+    hsts: "max-age=63072000; includeSubDomains"
+    plugins:
+      - block_exploits:               # first, so nothing else sees such requests
+          skip_params: [q]            # the app's search box takes any text
+          except:                     # its editor previews posted HTML
+            - { match: { path: { prefix: /preview } }, categories: [xss] }
+      - crowdsec: { appsec: true }
+      - headers:
+          response:
+            set: { X-Frame-Options: SAMEORIGIN, X-Content-Type-Options: nosniff }
+            remove: [X-Powered-By]
+    # enabled: true
+    # cert: wildcard-example
+    # acme: true                    # certificate from tls.acme for all hosts; not with cert:
+    # max_body_size: 100m
+    # connect_timeout: 5s
+    # read_timeout: 600s
+    # write_timeout: 600s
+    # upgrade: websocket            # HTTP/1.1 protocol upgrades passed upstream: websocket
+    #                               # (WebSocket handshakes only), any (every Upgrade, headers
+    #                               # as sent: headscale/Tailscale, DERP; NPM's "Websockets
+    #                               # Support"), off (none). The switched stream is not a
+    #                               # request body: max_body_size does not apply to it
+    # upgrade_idle_timeout: 1h      # an upgraded connection closes after this long with no data
+    #                               # either way; default: read_timeout
+    # real_ip_header: X-Real-IP     # overrides real_ip.header for this site
+    # compression: false
+    # upstream_host: app.internal   # Host sent upstream; default: the client's Host
+    # mtls:                         # client certificates (mutual TLS)
+    #   ca: /etc/conduit/clients-ca.pem   # CAs that sign them; re-read when it changes
+    #   optional: false             # true: clients without one pass (X-Client-Verify: NONE)
+    # With mtls the upstream gets X-Client-Verify (SUCCESS or NONE), X-Client-Cert-Subject and
+    # X-Client-Cert-Fingerprint (SHA-256), never the client's own. No or a bad certificate:
+    # 403. A connection set up for another host (HTTP/2 reuse, SNI and Host differ): 421.
+    # cache: true                   # see the `cms` site below
+
+  - id: docs                        # a static site from disk, no upstream
+    hosts: [docs.example.com]
+    files:
+      root: /srv/docs               # required; a directory. Nothing outside it is served,
+                                    # symlinks included; dotfiles are hidden but .well-known
+      # index: [index.html, index.txt]   # served for a directory, first found wins
+      # browse: false               # true: an HTML listing of directories without an index
+      # precompressed: [br, zstd, gzip]  # send foo.css.br etc. when the client accepts it
+      # hide: ["*.bak", drafts]     # more names never served: exact names or *.ext
+    # Files get ETag and Last-Modified (304, 412), single byte ranges (206, 416), the
+    # canonical URL (a directory gets its slash, a file loses it: 308) and compression for
+    # whole text files. A site with files and no upstream answers other methods with 405.
+
+  - id: spa                         # a single-page app, its API behind it
+    hosts: [spa.example.com]
+    upstream: http://10.0.0.30:8080
+    files:
+      root: /srv/spa/dist
+      match: { path: { prefix: /app/ } }   # only these come from disk; the rest go upstream
+      strip_prefix: /app            # /app/main.js is /srv/spa/dist/main.js
+      try_files: ["{path}", "/index.html"] # client-side routes get the app; "{path}/" for
+                                    # directories
+      # pass_thru: true             # a missing file goes upstream instead of a 404
+
+  - id: cms                         # cache what the upstream allows, plus static assets
+    hosts: [cms.example.com]
+    upstream: http://10.0.0.31:80
+    cache:                          # or `cache: true` for the defaults
+      # match: { path: { prefix: /blog/ } }   # only these use the cache; default all GET/HEAD
+      default_ttl: 10m              # for 200, 301, 404.. that state no freshness; unset: not
+                                    # stored
+      stale_if_error: 1h            # an expired copy stands in while the upstream fails
+    # Stored: GET and HEAD without a body, whose response allows it (RFC 9111, as a shared
+    # cache: no private or no-store; with Authorization only if public or s-maxage). Never
+    # stored: Set-Cookie, 206, Vary: *. The key is the site, scheme, host and path with query,
+    # plus what conduit tells the upstream about the client (forward_auth/basic_auth headers,
+    # the mTLS fingerprint, a trusted proxy's X-Forwarded-Host), so users never share an
+    # entry. Vary is honoured; stale-while-revalidate refreshes in the background. Responses
+    # carry Cache-Status (RFC 9211), e.g. `conduit; hit` or `conduit; fwd=miss; stored`.
+    # The upstream decides what is shared: a page that differs per cookie must say private.
+
+  - id: shop                        # logged-in users stick to one backend
+    hosts: [shop.example.com, "*.shop.example.com"]
+    upstream: sessions
+
+  - id: git                         # browsers go to the new git host during a migration
+    hosts: [git.example.com]
+    upstream: http://10.0.0.20:3000
+    acme: true
+    plugins:
+      - crowdsec:                   # decisions only
+      - rules:
+          - name: browsers to new git host
+            match:
+              method: [GET, HEAD]
+              headers: { user-agent: { regex: "(?i)mozilla" } }
+            action: { redirect: { status: 302, to: "https://git.example.org{request_uri}" } }
+
+  - id: registry                    # CORS for a registry, preflight answered locally
+    hosts: [registry.example.com]
+    upstream: registry
+    max_body_size: 0
+    plugins:
+      - headers:
+          response: { set: { Access-Control-Allow-Origin: "*" } }
+      - rules:
+          - match: { method: [OPTIONS] }
+            action:
+              respond:
+                status: 204
+                headers:
+                  Access-Control-Allow-Methods: "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS"
+                  Access-Control-Allow-Headers: "Authorization, Content-Type, Accept"
+                  Access-Control-Max-Age: "1728000"
+
+  - id: dashboard                   # refuse Next.js middleware-bypass headers; office only
+    hosts: [dashboard.example.com]
+    upstream: http://10.0.0.22:3000
+    plugins:
+      - ip_filter: { allow: [10.0.0.0/8, 192.168.0.0/16] }
+      - rules:
+          - match: { headers: { x-middleware-subrequest: { present: true } } }
+            action: { deny: 403 }
+          - match: { headers: { x-action-redirect: { present: true } } }
+            action: { deny: 403 }
+
+  - id: www                         # www to apex
+    hosts: [www.example.com]
+    upstream: web
+    plugins:
+      - rules:
+          - action: { redirect: { status: 301, to: "https://example.com{request_uri}" } }
+
+  - id: academy                     # big uploads, slow PHP, hide a debug log
+    hosts: [academy.example.com]
+    upstream: http://10.0.0.23:80
+    max_body_size: 4096m
+    read_timeout: 600s
+    write_timeout: 600s
+    plugins:
+      - concurrency: { max: 8 }     # one client cannot tie up all PHP workers
+      - rules:
+          - match: { path: { exact: /wp-content/debug.log } }
+            action: { deny: 404 }
+
+  - id: api                         # one file served by the proxy itself, sticky clients
+    hosts: [api.example.com]
+    upstream:
+      backends: [http://10.0.0.24:8000, http://10.0.0.27:8000]
+      balance: hash
+      hash_key: client_ip
+    plugins:
+      - rules:
+          - match: { path: { exact: /mobile-config.json } }
+            action:
+              file:
+                path: /etc/conduit/files/mobile-config.json   # re-read when it changes
+                content_type: application/json
+                # headers: { Cache-Control: no-cache }
+
+  - id: s3                          # S3 API; the console for browsers without credentials
+    hosts: [s3.example.com]
+    upstream:
+      backends: [https://10.0.0.25:9000]
+      verify_tls: false             # self-signed backend on the LAN
+    max_body_size: 0
+    read_timeout: 600s
+    write_timeout: 600s
+    compression: false
+    plugins:
+      - rules:
+          - match:
+              path: { exact: / }
+              headers: { authorization: { present: false } }
+            action: { redirect: { to: "/rustfs/console/" } }   # status defaults to 302
+
+  - id: portal                      # one host, several backends; internal links fixed
+    hosts: [portal.example.com]
+    upstream: web
+    plugins:
+      - rules:
+          - match: { path: { prefix: /api/ } }           # /api/x reaches the API as /x
+            action: { proxy: { upstream: "http://10.0.0.30:8000", strip_prefix: /api } }
+          - match: { path: { prefix: /docs/ } }          # /docs/x -> /portal-docs/x
+            action:
+              proxy:
+                upstream: { backends: ["http://10.0.0.31:80", "http://10.0.0.32:80"] }
+                strip_prefix: /docs
+                add_prefix: /portal-docs
+          - match: { path: { regex: "^/blog/[0-9]{4}/" } }   # old permalinks, same backend
+            action: { proxy: { rewrite: { regex: "^/blog/[0-9]{4}/(.*)$", to: "/posts/${1}" } } }
+      - body_replace:                 # the backend writes its own address into pages
+          replace:
+            - { from: "http://10.0.0.21:8080", to: "https://portal.example.com" }
+          types: [text/html, application/javascript]
+
+  - id: headscale                   # Tailscale control server: not a WebSocket upgrade
+    hosts: [headscale.example.com]
+    upstream: http://127.0.0.1:8080
+    upgrade: any                    # clients switch with Upgrade: tailscale-control-protocol
+    upgrade_idle_timeout: 15m       # long-poll map sessions sit quiet between updates
+
+  - id: pb                          # keep the admin UI and auth collections private
+    hosts: [pb.example.com]
+    upstream: http://10.0.0.26:8090
+    plugins:
+      - rate_limit:                 # slow down password guessing
+          requests: 10
+          per: 1m
+          match: { method: [POST], path: { regex: "^/api/collections/[^/]+/auth-with-password$" } }
+      - rate_limit: { requests: 50, per: 1s }   # everything else, per client
+      - rules:
+          - match: { path: { regex: "^/_(/|$)" } }
+            action: { deny: 403 }
+          - match: { path: { regex: "^/api/collections/(_superusers|pbc_3142635823)(/|$)" } }
+            action: { deny: 403 }
+          - name: custom body
+            match: { query: { regex: "(?i)debug=1" } }
+            action:
+              respond:
+                status: 400
+                headers: { Content-Type: text/plain }
+                body: "debug is disabled\n"
+
+  - id: grafana                     # behind single sign-on
+    hosts: [grafana.example.com]
+    upstream: http://10.0.0.28:3000
+    plugins:
+      - forward_auth:
+          url: http://127.0.0.1:9091/api/authz/forward-auth   # Authelia
+          copy_headers: [Remote-User, Remote-Groups, Remote-Email]
+
+  - id: internal                    # staff devices only, and a password for /admin
+    hosts: [internal.example.com]
+    upstream: http://10.0.0.29:8080
+    mtls: { ca: /etc/conduit/clients-ca.pem }
+    plugins:
+      - rate_limit: { requests: 10, per: 1m, match: { path: { prefix: /admin } } }
+      - basic_auth:
+          htpasswd: /etc/conduit/htpasswd
+          match: { path: { prefix: /admin } }
