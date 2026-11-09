@@ -676,7 +676,7 @@ perubahan `false` terhadap `true`:
 | HTTP rate tetap ±50% puncak (35k req/s) | sama | **−6,4%** | −7,6% |
 | HTTP rate tetap ±70% puncak (50k req/s) | sama | **−47,8%** (6,98 → 3,65 ms) | −5,1% |
 
-Gateway berada di belakang Cloudflare, dan trafik dari Cloudflare ke origin hampir seluruhnya
+Host produksi berada di belakang Cloudflare, dan trafik dari Cloudflare ke origin hampir seluruhnya
 HTTP/1.1 keep-alive, jauh di bawah titik jenuh. Di kondisi itu `false` lebih hemat CPU dan p99-nya
 jauh lebih stabil. p99 di beban jenuh memang lebih buruk, karena thread yang kebetulan dapat lebih
 banyak koneksi tidak dibantu thread lain.
