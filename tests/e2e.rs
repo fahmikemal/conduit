@@ -466,7 +466,8 @@ fn end_to_end() {
     assert!(r.body.contains("host: app.example.test\r\n"), "{}", r.body);
     assert!(!r.body.contains("x-forwarded-scheme"), "{}", r.body);
     assert_eq!(r.header("x-served-by"), None);
-    assert_eq!(r.header("server"), Some("echo-upstream"));
+    // The default `Server` replaces the upstream's.
+    assert_eq!(r.header("server"), Some("conduit"));
     let first_id = r.header("x-request-id").unwrap().to_string();
     assert_eq!(first_id.len(), 24, "{first_id}");
     assert!(
@@ -5082,7 +5083,7 @@ sites:
         )
         .unwrap()
     };
-    write("server_header: conduit");
+    write("");
     let proxy = Proxy {
         child: spawn(&cfg_path, &[], "conduit.log"),
         dir: dir.clone(),
@@ -5102,7 +5103,8 @@ sites:
         )
     };
 
-    // On: every response says `conduit`, the upstream's own included, without a version.
+    // On by default: every response says `conduit`, the upstream's own included, without a
+    // version.
     let r = get("app.test");
     assert_eq!((r.status, r.header("server")), (200, Some("conduit")));
     assert!(r.body.starts_with("get / http/1.1"), "{r:?}");
@@ -5128,7 +5130,7 @@ sites:
 
     // Off after a reload: conduit's responses carry none, not even Pingora's name, and the
     // upstream's passes through.
-    write("");
+    write("server_header: off");
     signal(proxy.child.id(), "-HUP");
     wait_until("the reload", Duration::from_secs(10), || {
         get("app.test").header("server") == Some("echo-upstream")

@@ -29,8 +29,8 @@ rather than imitating nginx.
 - WebSocket and other protocol upgrades (`upgrade: websocket | any | off`). `any` covers
   non-WebSocket upgrades such as headscale/Tailscale.
 - Compression of text responses the upstream left uncompressed.
-- An optional `Server` header without a version. Off by default, and then no `Server` header is
-  sent at all, not even Pingora's own.
+- A `Server: conduit` header without a version, on by default. With `server_header: off` no
+  `Server` header is sent at all, not even Pingora's own.
 
 **Upstreams**
 - Named pools with weighted backends; DNS names resolve to several backends.

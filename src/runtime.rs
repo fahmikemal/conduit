@@ -13,7 +13,8 @@ use http::{HeaderName, HeaderValue};
 
 use crate::cache::SiteCache;
 use crate::config::{
-    AcmeSection, CacheSection, CertConfig, Config, SiteConfig, UpgradeMode, UpstreamRef,
+    AcmeSection, CacheSection, CertConfig, Config, ServerHeader, SiteConfig, UpgradeMode,
+    UpstreamRef,
 };
 use crate::crowdsec;
 use crate::files::Files;
@@ -511,12 +512,10 @@ pub fn build(
     if cfg.listen.http.is_empty() && cfg.listen.https.is_empty() {
         return Err("listen: no http or https addresses".into());
     }
-    let server_header = cfg
-        .defaults
-        .server_header
-        .as_deref()
-        .map(server_header)
-        .transpose()?;
+    let server_header = match &cfg.defaults.server_header {
+        ServerHeader::Off => None,
+        ServerHeader::Value(v) => Some(server_header(v)?),
+    };
 
     Ok(Built {
         runtime: Runtime {
@@ -552,7 +551,7 @@ pub fn build(
 fn server_header(v: &str) -> Result<HeaderValue, String> {
     let err = |why: &str| Err(format!("defaults.server_header {v:?} {why}"));
     if v.trim().is_empty() {
-        return err("is empty; leave it out to send no Server header");
+        return err("is empty; write off to send no Server header");
     }
     if v.trim() != v || v.len() > 64 || !v.bytes().all(|b| (0x20..0x7f).contains(&b)) {
         return err("must be 1 to 64 printable ASCII characters, without surrounding spaces");
@@ -574,8 +573,11 @@ mod tests {
             .unwrap();
             build(&cfg, None, None).map(|b| b.runtime.server_header)
         };
-        assert_eq!(rt("").unwrap(), None);
-        assert_eq!(rt("server_header: conduit").unwrap().unwrap(), "conduit");
+        // On by default; `off` or `false` sends none.
+        assert_eq!(rt("").unwrap().unwrap(), "conduit");
+        assert_eq!(rt("server_header: off").unwrap(), None);
+        assert_eq!(rt("server_header: false").unwrap(), None);
+        assert_eq!(rt("server_header: edge").unwrap().unwrap(), "edge");
         assert_eq!(
             rt("server_header: \"conduit (edge)\"").unwrap().unwrap(),
             "conduit (edge)"

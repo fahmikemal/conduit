@@ -173,10 +173,36 @@ pub struct Defaults {
     pub max_body_size: Size,
     /// gzip text-like responses the upstream left uncompressed.
     pub compression: bool,
-    /// `Server` header of every response, e.g. `conduit`, sent exactly as written (no
-    /// version is added). It replaces the upstream's own. Off (unset): conduit's responses
-    /// carry none and the upstream's passes through.
-    pub server_header: Option<String>,
+    /// `Server` header of every response, sent exactly as written (no version is added). It
+    /// replaces the upstream's own. Default `conduit`; `off`: conduit's responses carry none
+    /// and the upstream's passes through.
+    pub server_header: ServerHeader,
+}
+
+/// `defaults.server_header`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ServerHeader {
+    /// `off` (or `false`): no `Server` from conduit.
+    Off,
+    /// The value as written; `runtime::build` checks it.
+    Value(String),
+}
+
+impl Default for ServerHeader {
+    fn default() -> Self {
+        ServerHeader::Value("conduit".into())
+    }
+}
+
+impl<'de> Deserialize<'de> for ServerHeader {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        // Read as a string, so the YAML reader hands `false` over as the word, like `off`.
+        let v = String::deserialize(d)?;
+        Ok(match v.as_str() {
+            "off" | "false" => ServerHeader::Off,
+            _ => ServerHeader::Value(v),
+        })
+    }
 }
 
 impl Default for Defaults {
@@ -189,7 +215,7 @@ impl Default for Defaults {
             keepalive_timeout: Dur(Duration::from_secs(75)),
             max_body_size: Size(Some(2000 << 20)),
             compression: true,
-            server_header: None,
+            server_header: ServerHeader::default(),
         }
     }
 }

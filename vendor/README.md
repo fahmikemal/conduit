@@ -78,7 +78,7 @@ answers) always carried `Server: Pingora`. `pingora_core::protocols::http::set_s
 sets the value for the whole process, or drops the header with `None`; the default stays
 `Pingora`. Those responses are now built each time (an error path, rare) instead of copied from a
 static built once, so a change on reload applies at once. conduit calls it at start and on every
-reload with `defaults.server_header`. Tests: `server_header_follows_the_setting` in
+reload with `defaults.server_header` (default `conduit`, `off` for none). Tests: `server_header_follows_the_setting` in
 `pingora-core`, and conduit's e2e `server_header`.
 
 ### Backports from upstream

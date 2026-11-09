@@ -41,11 +41,11 @@ defaults:
   max_body_size: 2000m              # 413 above this
   compression: true                 # gzip text responses the upstream left uncompressed
   # server_header: conduit          # Server header on every response, exactly as written
-                                    # (no version), replacing the upstream's. Unset (default):
+                                    # (no version), replacing the upstream's. Default conduit,
+                                    # which lets tools such as Wappalyzer identify it. off:
                                     # conduit sends none, not even Pingora's name, and the
-                                    # upstream's passes through. Setting it makes conduit easy
-                                    # to fingerprint (Wappalyzer, scanners). A site can drop it
-                                    # with headers: { response: { remove: [server] } }.
+                                    # upstream's passes through. A site can drop it with
+                                    # headers: { response: { remove: [server] } }.
 
 # One JSON object per request: ts, request_id, site, host, client, method, scheme, uri,
 # proto, status, bytes_sent, bytes_received, duration_ms, upstream, upstream_status,
