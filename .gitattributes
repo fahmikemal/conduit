@@ -1,0 +1,2 @@
+# Exclude generated Graphify artifacts from language statistics and collapse their diffs.
+graphify-out/** linguist-generated
