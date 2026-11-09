@@ -5,7 +5,7 @@
 set -eu
 cd "$(dirname "$0")"
 secs=${1:-300}
-targets=(config import path access_log request route body_replace block_exploits)
+targets=(config path access_log request route body_replace block_exploits)
 cargo +nightly fuzz build -O
 pids=()
 for t in "${targets[@]}"; do

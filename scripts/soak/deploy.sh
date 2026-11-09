@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Starts the soak test on HOST (a disposable machine: it installs nginx and adds an nftables
 # table) as the transient systemd unit conduit-soak, with dist/conduit and the local oha.
-#   scripts/soak/deploy.sh HOST [HOURS]       start (SOAK_SCALE / SOAK_SECONDS pass through)
+#   scripts/soak/deploy.sh HOST [HOURS]       start (SOAK_SCALE, SOAK_SECONDS and
+#                                             SOAK_UPGRADE_AT pass through)
 #   ssh HOST systemctl status conduit-soak    progress; results in ~/soak/out, report.txt last
-# A running soak on HOST is stopped first, and its results are deleted.
+# A running soak on HOST is stopped first. Its output and runtime files move to a unique
+# directory in ~/soak/archive/; earlier results are never overwritten.
 set -euo pipefail
 host=$1
 hours=${2:-24}
@@ -19,11 +21,16 @@ ssh "$host" 'set -e
     fi
     # Only the soak'"'"'s own nginx runs, from its own config.
     sudo -n systemctl disable --now nginx >/dev/null 2>&1 || true
-    rm -rf ~/soak/out ~/soak/run
-    mkdir -p ~/soak'
+    mkdir -p ~/soak/archive
+    archive=$(mktemp -d "$HOME/soak/archive/run-$(date -u +%Y%m%dT%H%M%SZ)-XXXXXX")
+    for dir in out run; do
+        if [ -d "$HOME/soak/$dir" ]; then mv "$HOME/soak/$dir" "$archive/"; fi
+    done
+    echo "Previous run archived: $archive"'
 scp -q "$root/dist/conduit" "$oha" "$here/soak.sh" "$here/ws.py" "$here/report.py" "$host:soak/"
 ssh "$host" "sudo -n systemd-run --quiet --unit conduit-soak --uid \$(id -u) --gid \$(id -g) \
     -p WorkingDirectory=\$HOME/soak -p LimitNOFILE=65536 \
     --setenv SOAK_HOURS=$hours --setenv SOAK_SCALE=${SOAK_SCALE:-1} \
     ${SOAK_SECONDS:+--setenv SOAK_SECONDS=$SOAK_SECONDS} \
+    ${SOAK_UPGRADE_AT:+--setenv \"SOAK_UPGRADE_AT=$SOAK_UPGRADE_AT\"} \
     /bin/bash \$HOME/soak/soak.sh && systemctl is-active conduit-soak"

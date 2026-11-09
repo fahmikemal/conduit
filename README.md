@@ -5,17 +5,16 @@
   </picture>
 </h1>
 
-A reverse proxy built on [Pingora](https://github.com/cloudflare/pingora), for small hosts that
-run many sites behind one address. It does what an Nginx Proxy Manager setup is usually used
-for (routing by host, TLS with automatic certificates, WebSocket, access rules) from one YAML
-file and one static binary, with hot reload and zero-downtime upgrades.
+A reverse proxy built on [Pingora](https://github.com/cloudflare/pingora) for running many sites
+behind one address: routing by host name, TLS with automatic certificates, WebSocket, and access
+rules, from one YAML file and one static binary, with hot reload and zero-downtime upgrades.
 
 The design follows Pingora's own model (`ProxyHttp` hooks, load balancer, background services)
 rather than imitating nginx.
 
 > **Status:** pre-1.0. Feature work is done and the code is tested hard locally (unit,
-> end-to-end, fuzzing, parity against NPM, a 24-hour soak). It has not run production traffic
-> yet. Expect configuration changes before 1.0.
+> end-to-end, fuzzing, parity against nginx, a 24-hour soak), and its first production sites
+> went live in November 2026. Expect configuration changes before 1.0.
 
 ## Features
 
@@ -67,7 +66,6 @@ rather than imitating nginx.
 - A JSON access log, one line per request, with upstream timings and request IDs, plus a
   CrowdSec parser for it.
 - `conduit check` validates a config. Unknown keys are errors.
-- `conduit import-npm` converts an Nginx Proxy Manager installation into a conduit config.
 
 ## Performance
 
@@ -132,10 +130,10 @@ sites:
 ```sh
 conduit check -c conduit.yaml        # validate
 conduit run -c conduit.yaml          # foreground; -d daemonizes, -u takes over from a running process
-conduit import-npm --npm-root ./npm-copy --paths-root /opt/npm > conduit.yaml   # from a copy of /opt/npm
 ```
 
-Every option is described in [`conduit.example.yaml`](conduit.example.yaml). A systemd unit and
+Every option is described in [`conduit.example.yaml`](conduit.example.yaml), and in depth, with
+examples, in the [configuration reference](docs/configuration.md). A systemd unit and
 a logrotate file are in [`deploy/`](deploy/), and the CrowdSec parser is in
 [`deploy/crowdsec/`](deploy/crowdsec/).
 
@@ -167,6 +165,9 @@ how each one stands against upstream are listed in [`vendor/README.md`](vendor/R
 
 ## Documentation
 
+- [Configuration reference](docs/configuration.md): every option with its default, how a
+  request is handled step by step, match conditions, the rules engine and every plugin in
+  depth, files, cache, TLS, headers, the access log, metrics, and a guide for nginx users.
 - [Technical documentation](docs/technical.md): every feature in detail, test
   results, benchmarks and their method, profiling notes, and the roadmap.
 - [`conduit.example.yaml`](conduit.example.yaml): every configuration option.

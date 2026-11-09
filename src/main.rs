@@ -5,7 +5,6 @@ use conduit::admin;
 use conduit::cache;
 use conduit::config;
 use conduit::crowdsec;
-use conduit::import;
 use conduit::logger;
 use conduit::metrics;
 use conduit::reload;
@@ -83,15 +82,6 @@ enum Cmd {
         #[arg(short, long, default_value = DEFAULT_CONFIG)]
         config: PathBuf,
     },
-    /// Print a conduit config converted from Nginx Proxy Manager's proxy hosts (migration aid)
-    ImportNpm {
-        /// NPM directory on the host, holding data/ and letsencrypt/
-        #[arg(long, default_value = "/opt/npm")]
-        npm_root: PathBuf,
-        /// Where that directory lives on the target host, when importing a copy of it
-        #[arg(long)]
-        paths_root: Option<PathBuf>,
-    },
 }
 
 /// Opt this process in or out of transparent huge pages (`server.transparent_huge_pages`).
@@ -127,14 +117,6 @@ fn main() -> ExitCode {
             upgrade,
         } => run(&config, daemon, upgrade),
         Cmd::Check { config } => check(&config),
-        Cmd::ImportNpm {
-            npm_root,
-            paths_root,
-        } => import::run(
-            &npm_root,
-            paths_root.as_deref().unwrap_or(&npm_root),
-            &mut std::io::stdout().lock(),
-        ),
     };
     match result {
         Ok(()) => ExitCode::SUCCESS,

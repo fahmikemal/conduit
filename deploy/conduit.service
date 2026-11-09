@@ -52,7 +52,9 @@ ProtectClock=yes
 ProtectHostname=yes
 RestrictNamespaces=yes
 RestrictRealtime=yes
-RestrictSUIDSGID=yes
+# No RestrictSUIDSGID=yes: its filter refuses openat2 with ENOSYS (the mode sits behind a
+# pointer), and the file server needs openat2 for RESOLVE_BENEATH. ProtectSystem=strict leaves
+# only conduit's own state, log and runtime directories writable.
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX

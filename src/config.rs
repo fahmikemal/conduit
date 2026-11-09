@@ -493,8 +493,8 @@ pub enum UpgradeMode {
     #[default]
     Websocket,
     /// Every upgrade, its handshake headers as the client sent them: also Tailscale's control
-    /// protocol (headscale), DERP and other non-WebSocket protocols. What NPM's "Websockets
-    /// Support" does.
+    /// protocol (headscale), DERP and other non-WebSocket protocols, like nginx with
+    /// `proxy_set_header Upgrade $http_upgrade`.
     Any,
     /// None: the upstream sees an ordinary request and cannot switch protocols.
     Off,
@@ -836,7 +836,7 @@ pub enum PluginConfig {
     ForwardAuth(ForwardAuthConfig),
     /// Replace strings in upstream response bodies.
     BodyReplace(BodyReplaceConfig),
-    /// Refuse requests that carry common exploit payloads (NPM's "Block Exploits").
+    /// Refuse requests that carry common exploit payloads (like an nginx block-exploits include).
     BlockExploits(BlockExploitsConfig),
 }
 

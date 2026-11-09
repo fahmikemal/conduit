@@ -1,7 +1,8 @@
 # conduit configuration. Every key is optional unless marked required; values shown are the
 # defaults. Durations: 500ms, 30s, 10m, 1h, 30d or a bare number of seconds. Sizes: 512k, 100m,
 # 2g (1024-based) or bytes; 0 means unlimited. Unknown keys are rejected, so typos fail
-# `conduit check` instead of being ignored.
+# `conduit check` instead of being ignored. docs/configuration.md describes every option and
+# plugin in depth.
 
 server:
   threads: 2                        # worker threads shared by all listeners
@@ -209,19 +210,19 @@ upstreams:
 #     left alone. Changed responses lose Content-Length, ETag and Last-Modified.
 #   block_exploits: { mode: block, status: 403, categories: [..], disable: [rule ids],
 #     skip_params: [..], match: {..}, except: [{ match: {..}, categories: [..] }] } refuses
-#     requests carrying common exploit payloads, like NPM's "Block Exploits" but written to
-#     leave ordinary requests alone (an OAuth redirect_uri=http://..., a search for "union
+#     requests carrying common exploit payloads, like an nginx block-exploits include but written
+#     to leave ordinary requests alone (an OAuth redirect_uri=http://..., a search for "union
 #     station", a repository file under etc/passwd). `- block_exploits:` alone is all defaults.
-#     It reads the query (decoded as applications read it, twice when it was encoded twice,
-#     and without SQL comments), the normalized path, the User-Agent, and other headers only
-#     for header payloads (Log4Shell, Shellshock, OGNL). Bodies are not read (AppSec does).
-#     Categories: traversal, dotfiles (/.env, /.git/ ... at the root only), sqli, xss, php,
-#     rce (Log4Shell, Shellshock, Spring4Shell, OGNL, template injection, shell commands,
-#     Next.js x-middleware-subrequest), ssrf (cloud metadata addresses), scanners (sqlmap,
-#     nikto, nuclei ... and NPM's list), spam (NPM's words; off unless listed). `mode: log`
-#     only counts and logs. Each detection is logged as a warning (at most 20 a second) with
-#     its rule id, which `disable` takes; `skip_params` leaves query parameters out (a search
-#     box); `except` skips categories (all when none are given) for matching requests.
+#     It reads the query (decoded as applications read it, twice when it was encoded twice, and
+#     without SQL comments), the normalized path, the User-Agent, and other headers only for
+#     header payloads (Log4Shell, Shellshock, OGNL). Bodies are not read (AppSec does).
+#     Categories: traversal, dotfiles (/.env, /.git/ ... at the root only), sqli, xss, php, rce
+#     (Log4Shell, Shellshock, Spring4Shell, OGNL, template injection, shell commands, Next.js
+#     x-middleware-subrequest), ssrf (cloud metadata addresses), scanners (sqlmap, nikto, nuclei
+#     ... and the nginx block-exploits list), spam (that list's words; off unless listed).
+#     `mode: log` only counts and logs. Each detection is logged as a warning (at most 20 a
+#     second) with its rule id, which `disable` takes; `skip_params` leaves query parameters out
+#     (a search box); `except` skips categories (all when none are given) for matching requests.
 #     Refusals log blocked_by "block_exploits:<category>"; conduit_block_exploits_total counts
 #     them by site, category and action.
 #   Plugins run in the order written, waiting ones included: a rule after basic_auth is only
@@ -253,9 +254,9 @@ sites:
     # write_timeout: 600s
     # upgrade: websocket            # HTTP/1.1 protocol upgrades passed upstream: websocket
     #                               # (WebSocket handshakes only), any (every Upgrade, headers
-    #                               # as sent: headscale/Tailscale, DERP; NPM's "Websockets
-    #                               # Support"), off (none). The switched stream is not a
-    #                               # request body: max_body_size does not apply to it
+    #                               # as sent: headscale/Tailscale, DERP; like nginx with
+    #                               # proxy_set_header Upgrade), off (none). The switched stream
+    #                               # is not a request body: max_body_size does not apply to it
     # upgrade_idle_timeout: 1h      # an upgraded connection closes after this long with no data
     #                               # either way; default: read_timeout
     # real_ip_header: X-Real-IP     # overrides real_ip.header for this site

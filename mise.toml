@@ -24,7 +24,7 @@ run = """
 """
 
 [tasks.bench]
-description = "conduit vs nginx (NPM-style and tuned) on 2 CPUs, with a regression gate (needs docker)"
+description = "conduit vs nginx (tuned, and without upstream keep-alive) on 2 CPUs, with a regression gate (needs docker)"
 run = "cargo build --release && scripts/bench.sh"
 
 [tasks.compare]

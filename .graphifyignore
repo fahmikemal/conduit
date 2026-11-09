@@ -5,3 +5,6 @@ fuzz/target/
 fuzz/corpus/
 fuzz/artifacts/
 fuzz/seeds/
+# Brand artwork (logos and icons): images with nothing to extract.
+assets/**/*.svg
+assets/**/*.png

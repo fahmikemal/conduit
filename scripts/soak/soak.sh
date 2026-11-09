@@ -13,8 +13,12 @@
 #   ws.py  40 long-lived WebSockets (half over TLS) echoing every second, plus a short-lived
 #          one every 0.5 s.
 # Events: reload every 5 min, backend :9002 refused for 30 s every 10 min, access log rotated
-# every 30 min, certificate rotated every hour, graceful upgrade every 4 hours.
-# Samples every 30 s: RSS, fds, threads, CPU, connections, conduit metrics. Results in $OUT;
+# every 30 min, certificate rotated every hour, graceful upgrades at SOAK_UPGRADE_AT hours
+# (default 2 and 6, so the last process runs 18 hours). Flaps fall in the middle of every
+# other oha window and upgrades in the middle of one in between, so report.py can tell which
+# of the two caused a failure.
+# Samples every 30 s: RSS, fds, threads, CPU, connections, conduit metrics. Access log lines
+# with an error or a 4xx/5xx status are kept in access-errors.log. Results in $OUT;
 # report.py summarizes them.
 set -uo pipefail
 cd "$(dirname "$0")"
@@ -22,6 +26,7 @@ HERE=$PWD
 HOURS=${SOAK_HOURS:-24}
 # Divides every event interval and the oha window, for a quick smoke run of the harness.
 SCALE=${SOAK_SCALE:-1}
+UPGRADE_AT=${SOAK_UPGRADE_AT:-2 6}
 OUT=${OUT:-$HERE/out}
 RUN=$HERE/run
 BIN=$HERE/conduit
@@ -115,7 +120,7 @@ python3 -I "$HERE/ws.py" server 9100 2>>"$OUT/ws-server.log" &
 WS_SERVER=$!
 # As deploy/conduit.service runs it: daemonized, returning once the child is ready.
 "$BIN" run -d -c "$CFG" || { event "conduit did not start"; exit 1; }
-event "start pid=$(cat "$RUN/conduit.pid") hours=$HOURS"
+event "start pid=$(cat "$RUN/conduit.pid") hours=$HOURS upgrade_at=${UPGRADE_AT// /,} sha256=$(sha256sum "$BIN" | cut -c1-16)"
 
 stream() { # name, oha arguments...
     local name=$1
@@ -159,11 +164,18 @@ sample() {
 }
 [ -s "$OUT/samples.csv" ] || echo "ts,pid,rss_kb,fds,threads,cpu_ticks,upstream_conns,ws_conns,client_conns,time_wait,log_dropped,reuse_lost" >"$OUT/samples.csv"
 
+# Counts the lines of a finished access log and keeps the ones with an error or a 4xx/5xx
+# status, so failed requests can be traced on conduit's side.
+keep_log() {
+    echo "$(date +%s) $(wc -l <"$1")" >>"$OUT/logcount.txt"
+    grep -E '"error":|"status":[45]' "$1" >>"$OUT/access-errors.log"
+}
+
 rotate_log() {
     mv "$RUN/access.log" "$RUN/access.log.1" || return
     event "access log rotated"
     sleep 12 # the writer notices within 5 s and flushes every 20 ms
-    echo "$(date +%s) $(wc -l <"$RUN/access.log.1")" >>"$OUT/logcount.txt"
+    keep_log "$RUN/access.log.1"
     rm -f "$RUN/access.log.1"
 }
 
@@ -180,21 +192,35 @@ upgrade() {
     old=$(cat "$RUN/conduit.pid")
     # systemctl reload in deploy/conduit.service: the new daemon returns once it waits for
     # the listeners, then the old process hands them over on SIGQUIT.
-    "$BIN" run -d -u -c "$CFG" || { event "upgrade: new process failed"; return; }
+    "$BIN" run -d -u -c "$CFG" || { event "upgrade: new process failed"; return 1; }
+    # The event is written once the old process is gone; quit= is when the upgrade began,
+    # exit_s how long the old process took to stop.
+    local quit=$EPOCHREALTIME
     kill -QUIT "$old"
     for _ in $(seq 300); do [ -d "/proc/$old" ] || break; sleep 0.1; done
-    local served
+    local exit_s served
+    exit_s=$(awk -v a="$quit" -v b="$EPOCHREALTIME" 'BEGIN {printf "%.1f", b - a}')
     served=$(curl -sf --max-time 5 http://127.0.0.1:9180/status |
         python3 -c 'import json,sys; print(json.load(sys.stdin)["pid"])')
-    event "upgrade old=$old new=$(cat "$RUN/conduit.pid") served_by=$served old_gone=$([ -d "/proc/$old" ] && echo no || echo yes)"
+    event "upgrade old=$old new=$(cat "$RUN/conduit.pid") served_by=$served old_gone=$([ -d "/proc/$old" ] && echo no || echo yes) quit=${quit%.*} exit_s=$exit_s"
+    if [ -d "/proc/$old" ] || [ "$served" != "$(cat "$RUN/conduit.pid")" ]; then
+        event "upgrade: handover failed"
+        return 1
+    fi
 }
 
 next_sample=$START
-next_flap=$((START + $(every 600)))
+next_flap=$((START + $(every 600) + $(every 150)))
 next_reload=$((START + $(every 150)))
 next_log=$((START + $(every 900)))
 next_cert=$((START + $(every 1800)))
-next_upgrade=$((START + $(every 7200)))
+# Upgrade times: a third into the second window after a whole hour, the one without a flap,
+# and away from the reloads (which come half a window in).
+upgrades=()
+for h in $UPGRADE_AT; do
+    upgrades+=("$(awk -v s="$START" -v h="$h" -v k="$SCALE" -v w="$WINDOW" \
+        'BEGIN {printf "%d", s + h * 3600 / k + w * 4 / 3}')")
+done
 while [ "$(date +%s)" -lt "$END" ]; do
     now=$(date +%s)
     if [ "$now" -ge "$next_sample" ]; then
@@ -219,9 +245,9 @@ while [ "$(date +%s)" -lt "$END" ]; do
         event "certificate rotated"
         next_cert=$((next_cert + $(every 3600)))
     fi
-    if [ "$now" -ge "$next_upgrade" ]; then
-        upgrade
-        next_upgrade=$((next_upgrade + $(every 14400)))
+    if [ "${#upgrades[@]}" -gt 0 ] && [ "$now" -ge "${upgrades[0]}" ]; then
+        upgrade || { event "abort upgrade failed"; exit 1; }
+        upgrades=("${upgrades[@]:1}")
     fi
     sleep 2
 done
@@ -230,7 +256,7 @@ done
 wait $LOAD
 sleep 15 # a flap or log rotation still running
 sample
-echo "$(date +%s) $(wc -l <"$RUN/access.log")" >>"$OUT/logcount.txt"
+keep_log "$RUN/access.log"
 kill -TERM "$(cat "$RUN/conduit.pid")" "$NGINX_PID" "$WS_SERVER" 2>/dev/null
 sudo -n nft delete table inet soak
 event "end"

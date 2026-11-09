@@ -61,6 +61,7 @@ HTTP with `Accept-Encoding: gzip`): req/s +22.8%, CPU per request −13.5%, p99 
 |---|---|
 | `7ffe1c4` | The whole HTTP/1 request header is bounded by `read_timeout`, not each read |
 | `499f89d` | The `Server` header on Pingora's own responses can be configured (`set_server_header`) |
+| `5c765c6` | Install the daemon readiness signal handler before forking |
 
 `7ffe1c4`: Pingora applied `read_timeout` (60 seconds) to each read while a request header came
 in, so a client sending one byte every few seconds (slowloris) could hold the connection and its
@@ -80,6 +81,13 @@ sets the value for the whole process, or drops the header with `None`; the defau
 static built once, so a change on reload applies at once. conduit calls it at start and on every
 reload with `defaults.server_header` (default `conduit`, `off` for none). Tests: `server_header_follows_the_setting` in
 `pingora-core`, and conduit's e2e `server_header`.
+
+The daemon readiness fix closes a startup race when `daemon_wait_for_ready` is enabled:
+the child could send `SIGUSR1` before the parent registered its listener, terminating the
+parent even though the child had started. The handler is now installed before forking and
+records readiness in an atomic flag, so a notification arriving before the wait loop is
+retained. The child restores the default handler. Regression test:
+`readiness_signal_before_the_wait_is_kept`; the 234 server-related tests pass.
 
 ### Backports from upstream
 

@@ -3,9 +3,7 @@
 //! targets reach crate-private functions.
 
 use std::borrow::Cow;
-use std::collections::BTreeMap;
 use std::net::{IpAddr, SocketAddr};
-use std::path::Path;
 use std::sync::LazyLock;
 use std::time::{Duration, UNIX_EPOCH};
 
@@ -18,7 +16,7 @@ use crate::files::{self, Accepted};
 use crate::plugin::Step;
 use crate::proxy::{self, Conn};
 use crate::runtime::{self, Runtime};
-use crate::{auth, import, pathnorm};
+use crate::{auth, pathnorm};
 
 /// The YAML config parser, then compiling what it accepts.
 pub fn config(data: &[u8]) {
@@ -67,22 +65,6 @@ fn ip_backends_only(cfg: &Config) -> bool {
         Some(UpstreamRef::Named(n)) => cfg.upstreams.contains_key(n) || literal(n),
         _ => true,
     })
-}
-
-/// `import-npm` on one NPM proxy host file: what it writes must load as a config.
-pub fn import(data: &[u8]) {
-    let text = String::from_utf8_lossy(data);
-    let root = Path::new("/opt/npm");
-    let mut certs = BTreeMap::new();
-    let host = import::parse_host(1, &text, root, &mut certs);
-    // `import-npm` skips these.
-    if host.hosts.is_empty() || host.server.is_empty() {
-        return;
-    }
-    let yaml = import::render(root, &[host], &certs, false);
-    if let Err(e) = config::parse(&yaml) {
-        panic!("import-npm wrote a config that does not load: {e}\n{yaml}");
-    }
 }
 
 /// Path normalization: the result is a clean absolute path.

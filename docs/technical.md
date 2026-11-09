@@ -1,24 +1,24 @@
 # conduit: technical documentation
 
 Full documentation: features, test results, benchmarks, commands, and the roadmap. The
-[README](../README.md) has a short overview.
+[README](../README.md) has a short overview. Every configuration option, the rules engine and
+each plugin are described in the [configuration reference](configuration.md).
 
 A reverse proxy built on [Pingora](https://github.com/cloudflare/pingora) (0.9.1, with a few
-performance patches in [`vendor/`](../vendor/README.md)). It aims at production use on a small
-machine (2 vCPU / 2 GB) that currently runs Nginx Proxy Manager. The design follows Pingora's
-own model (`ProxyHttp` hooks, load balancer, background services), not an imitation of
-nginx/NPM.
+performance patches in [`vendor/`](../vendor/README.md)), meant for production use in front of
+many sites. The design follows Pingora's own model (`ProxyHttp` hooks, load balancer, background
+services), not an imitation of nginx.
 
 **Status: phases 1 and 2 are done. Phase 2: ACME, CrowdSec, rate limiting, mTLS, auth, plus a
 static file server, a response cache, and WebSocket/upgrade. Phase 1 closed on 2026-11-08 with
 the throughput target changed from "on par with nginx" to ≥0.75× tuned nginx or CPU per request
 ≤1.4×: HTTP/1.1 and HTTPS are now at 0.76–0.81× after the Pingora patches, up from about 0.6×
 (see [HTTP/1.1 and HTTPS throughput](#http11-and-https-throughput)). Phase 3 (core stability, no
-new features) is in progress: items 1, 3, 4, 5 and 6 are done and the 24-hour soak is running.
+new features): all six items are done, including a 24-hour soak test (2026-11-09).
 On request, rules gained a `proxy` action (per-path upstream, `strip_prefix`, `add_prefix`,
 `rewrite`) and there is a new `body_replace` plugin, the equivalents of nginx's
-`proxy_pass`/`rewrite`/`sub_filter`, plus the `block_exploits` plugin (a replacement for NPM's
-"Block Exploits"). All of it is tested locally. None of it runs in production yet.**
+`proxy_pass`/`rewrite`/`sub_filter`, plus the `block_exploits` plugin (built-in blocking of common
+exploit payloads). All of it is tested locally; the production rollout began in November 2026.**
 
 ## Features
 
@@ -56,7 +56,7 @@ On request, rules gained a `proxy` action (per-path upstream, `strip_prefix`, `a
 - `upgrade: any`: every HTTP/1.1 `Upgrade` is passed on with its handshake headers as they are
   (minus `Keep-Alive`, `TE`, `Proxy-Connection`, as nginx does). This is what headscale needs:
   Tailscale clients use `Upgrade: tailscale-control-protocol`, DERP uses `Upgrade: DERP`. It
-  matches "Websockets Support" in NPM.
+  matches the usual nginx setup (`proxy_set_header Upgrade $http_upgrade` and `Connection`).
 - `upgrade: off`: no upgrades; the upstream sees an ordinary request.
 - The stream after a 101 is not a request body, so `max_body_size` does not apply to it. Only
   a handshake that actually completed counts: an `Upgrade` header the upstream refused does not
@@ -163,10 +163,11 @@ bouncer
   (`["{path}", "/index.html"]`), `browse` for directory listings (HTML, escaped, at most 10,000
   entries), `hide` for names that must never be served.
 - Nothing outside `root` can be served: files are opened with `openat2(RESOLVE_BENEATH)`, so the
-  kernel refuses symlinks that lead outside the root; the fallback for old kernels canonicalizes
-  and checks the prefix. Dotfiles are hidden except `.well-known`. `..` above the root is refused
-  during normalization (400). Only regular files are served, not FIFOs or devices (opened with
-  `O_NONBLOCK`, so they cannot hang a thread).
+  kernel refuses symlinks that lead outside the root; the fallback for old kernels canonicalizes and
+  checks the prefix (it logs `files: openat2 unavailable`). systemd's `RestrictSUIDSGID=yes` makes
+  openat2 fail with ENOSYS, so the unit in `deploy/` leaves it out. Dotfiles are hidden except
+  `.well-known`. `..` above the root is refused during normalization (400). Only regular files are
+  served, not FIFOs or devices (opened with `O_NONBLOCK`, so they cannot hang a thread).
 - `ETag` and `Last-Modified`, conditional requests in RFC 9110 order (`If-Match` →
   `If-Unmodified-Since` → `If-None-Match` → `If-Modified-Since`: 304/412), a single byte range
   (206, 416 with `Content-Range: bytes */len`, `If-Range`), HEAD without a body.
@@ -235,8 +236,8 @@ bouncer
   that still arrive compressed, 206 responses, and local answers are left alone. Compression to
   the client happens afterwards. Changed responses lose `Content-Length`, `ETag`, and
   `Last-Modified`, as in nginx.
-- `block_exploits`: refuse requests that carry common attack payloads (the equivalent of NPM's
-  "Block Exploits"), with patterns built so ordinary requests pass: OAuth
+- `block_exploits`: refuse requests that carry common attack payloads (what a `block-exploits`
+  include does in nginx), with patterns built so ordinary requests pass: OAuth
   `redirect_uri=http://...`, a search for "union station", repository files under `etc/passwd`,
   `.env.example` in forgejo, `/.well-known/`. What is checked: the query (decoded the way an
   application reads it, `+` as a space; decoded once more if escapes remain; also a version with
@@ -248,8 +249,8 @@ bouncer
   URLs followed by code), `php` (stream wrappers, PHP-CGI, superglobals, object injection,
   phpunit), `rce` (Log4Shell, Shellshock, Spring4Shell, OGNL, template injection, shell commands,
   the Next.js `x-middleware-subrequest` header), `ssrf` (cloud metadata addresses), `scanners`
-  (sqlmap, nikto, nuclei, etc., plus NPM's list without download managers and TurnitinBot), and
-  `spam` (NPM's words, off unless named).
+  (sqlmap, nikto, nuclei, etc., plus the user agents of the common nginx `block-exploits.conf`
+  without download managers and TurnitinBot), and `spam` (that file's words, off unless named).
   Every rule has literal keywords; one Aho-Corasick pass per input selects the rules to run, then
   the regexes run (the `regex` crate, linear time, safe from ReDoS). Cost: about 0.2 µs for a
   request without a query, 0.5–0.7 µs with an ordinary query. `mode: log` only counts and logs.
@@ -257,8 +258,7 @@ bouncer
   turns off given rules, `skip_params` exempts query parameters (search boxes), and `except`
   exempts categories for matching requests. The access log records
   `"blocked_by": "block_exploits:<category>"`, the metric is
-  `conduit_block_exploits_total{site, category, action}`. `import-npm` adds it to hosts that used
-  Block Exploits.
+  `conduit_block_exploits_total{site, category, action}`.
 - `headers`: set/remove request headers to the upstream and response headers.
 - `ip_filter`: allow/deny CIDRs by real client IP.
 - `crowdsec`: refuse clients with a CrowdSec decision, and optionally check requests with
@@ -324,9 +324,6 @@ bouncer
   keeps being served. File stamps are taken before reading, so a key that arrives later triggers
   the next reload.
 - `conduit check` validates a config. Unknown keys are refused, so typos fail in `check`.
-- `conduit import-npm` turns NPM's `data/nginx/proxy_host/*.conf` into a conduit config. Hosts
-  with "Websockets Support" become `upgrade: any`, the others `upgrade: off`, matching NPM's
-  behavior.
 
 ## Phase 1 targets
 
@@ -463,7 +460,7 @@ The original target was "on par with tuned nginx". Decision of 2026-11-08: the t
 ≥0.75× tuned nginx or CPU per request ≤1.4× (either is enough), without breaking the p99 and idle
 RSS targets above, and phase 1 was closed. The reasons:
 - The other targets are met.
-- On the production host this gap limits nothing: traffic is under 1,000 req/s, while conduit on
+- At ordinary traffic this gap limits nothing: sites well under 1,000 req/s, while conduit on
   2 CPUs handles about 78,000 req/s HTTP and about 58,000 req/s HTTPS.
 - The next step is no longer a small patch: an HTTP/1 fast path in the Pingora fork (estimated
   0.9–0.95×, a large fork diff that is hard to rebase), and for 1.0× likely an HTTP/1 stack of
@@ -475,9 +472,9 @@ That fast path stays open as optional work in case parity with nginx is ever nee
 
 | | |
 |---|---|
-| Unit tests | 114 pass (plus 2 measurements, `--ignored`) |
+| Unit tests | 109 pass (plus 2 measurements, `--ignored`); importer tests were removed with that feature |
 | `Server` header (`server_header` e2e) | Default (option not set): proxied responses (replacing `Server: echo-upstream`), 404 for an unknown host, 403 from `ip_filter`, 502 for a dead upstream, 400 for a broken header, and 405 for `CONNECT` all carry exactly one `Server: conduit`; a site with a `headers` remove has no `Server`. After a reload with `server_header: off`: the upstream's `Server` passes through, and the five local responses above have no `Server` (not `Pingora`). A value with CRLF is refused on reload and the old config keeps running. Unit tests: unset → `conduit`, `off` and `false` → none, another name as written; empty, surrounding spaces, non-ASCII, longer than 64 characters → refused |
-| `block_exploits` on real traffic (2026-11-09) | 1,139,833 requests from a production NPM access log (17 Apr–9 Nov 2026, 51 proxy hosts; read read-only, client IPs hashed before storing, the copy deleted afterwards) replayed into the engine with default settings. 25,117 (2.2%) would be blocked, and every one was checked: secret file probes (`/.env*`, `/.git/config`, `/.aws/`, `.npmrc`, etc.; 22,554, from 2,313 clients), traversal (`../../`, `..;/`, `/proc/self/environ`), phpunit `eval-stdin.php`, Struts OGNL, Shellshock, pearcmd, cloud metadata through proxy parameters, `?=phpinfo()`, the zgrab UA, and Dolibarr `file=../conf/conf.php`. One false positive was found and fixed: TurnitinBot (a legitimate crawler, from NPM's UA list; the download managers on that list were dropped too). One missed attack was added: one level up to a config file (Dolibarr, 145 requests to 7 hosts). After the fixes, the only differences from the previous run are those two. Blocked by NPM but let through by conduit: `=http://` (on purpose, see parity) and `/./`; the rest come from Next.js header rules in advanced configs, which conduit handles with `rules` |
+| `block_exploits` on real traffic (2026-11-09) | 1,139,833 requests from a production nginx access log (17 Apr–9 Nov 2026, 51 proxy hosts; read read-only, client IPs hashed before storing, the copy deleted afterwards) replayed into the engine with default settings. 25,117 (2.2%) would be blocked, and every one was checked: secret file probes (`/.env*`, `/.git/config`, `/.aws/`, `.npmrc`, etc.; 22,554, from 2,313 clients), traversal (`../../`, `..;/`, `/proc/self/environ`), phpunit `eval-stdin.php`, Struts OGNL, Shellshock, pearcmd, cloud metadata through proxy parameters, `?=phpinfo()`, the zgrab UA, and Dolibarr `file=../conf/conf.php`. One false positive was found and fixed: TurnitinBot (a legitimate crawler, from NPM's UA list; the download managers on that list were dropped too). One missed attack was added: one level up to a config file (Dolibarr, 145 requests to 7 hosts). After the fixes, the only differences from the previous run are those two. Blocked by NPM but let through by conduit: `=http://` (on purpose, see parity) and `/./`; the rest come from Next.js header rules in advanced configs, which conduit handles with `rules` |
 | `block_exploits` (unit + `block_exploits` e2e) | 163 attack payloads (sqlmap, nuclei, PayloadsAllTheThings, Log4Shell and its obfuscations, Spring4Shell, Confluence/Struts OGNL, PHP-CGI CVE-2024-4577, phpunit, ThinkPHP, pearcmd, reverse shells, cloud metadata, scanner UAs, Dolibarr `../conf/conf.php`) must hit the right rule; 74 ordinary requests that look like attacks must pass (OAuth `redirect_uri=http://`, S3 presigned URLs, registry digests, repository files `etc/passwd` and `.env.example`, code search for `select * from`, `time.sleep(5)`, `<button onclick=`, "JavaScript: The Good Parts", "O'Reilly and Sons", `order=desc`, Grafana variables `${env:raw}`, WebDAV `.git/`, `/.well-known/`, Uptime Kuma/curl/python-requests/TurnitinBot/GetRight UAs, `../` to an ordinary file). Results with and without the Aho-Corasick keywords are the same for all of these inputs. E2E: attacks → 403 and never reach the upstream, ordinary requests arrive whole, `except` and `skip_params`, `log` mode lets through and counts, metrics per category, `blocked_by` in the access log, warning lines with the rule id. Cost (`cost`, release): about 0.22 µs without a query, 0.5 µs with an ordinary query, 0.6 µs for an OAuth URL, 19 µs for a 5 KB query |
 | Routes and `body_replace` (`routes_and_body_replace`) | `strip_prefix` to a named pool, including encoded paths (`/%61pi/./v1/../v2` → `/v2`) and re-encoded spaces, regex `rewrite` keeping the query, `add_prefix` to an inline URL chosen by a header, requests without a route forwarded as they are; a `deny` rule before a route still wins, and plugins after the route still run. `body_replace`: a pattern split over 3 upstream chunks is still replaced, the upstream receives no `Accept-Encoding`/`Range`, `ETag`/`Last-Modified`/`Content-Length` are removed, a response with `Content-Length` becomes chunked, an HTTP/1.0 client receives the body until the connection closes, JSON and gzip bodies are left alone. Unit tests: every way of cutting the body (two pieces anywhere, and byte by byte) gives the same result as the whole body |
 | End-to-end (real binary) | proxying and headers, request IDs, SNI, HTTP/2, plugins, 502, LB spread over 2 backends, health checks marking a backend down, retries + passive ejection, metrics, admin endpoints, reload keeping pool state, failed reload shown in `/status`, JSON access log, rate limiting (429 + `Retry-After` only on the matching path and per client, counts surviving a reload) and concurrency (a third request refused at once while two are running, other clients unaffected), request and response bodies (0 B to 3 MB up and 20 MB down, `Content-Length` and chunked with uneven pieces, an upstream that reads slowly, one keep-alive connection for all of it, 8 parallel clients; content checked with SHA-256) |
@@ -488,9 +485,10 @@ That fast path stays open as optional work in case parity with nginx is ever nee
 | Graceful upgrade with open WebSockets (`upgrade_with_open_websockets`) | 5 WebSockets opened to the old process, then `run -u` + SIGQUIT: the old WebSockets keep exchanging data during the handover and the grace period; about 5.5 seconds after SIGQUIT new connections and `/status` are served by the new process; the old process exits 7–12 seconds after SIGQUIT (Pingora's 5 seconds + `shutdown_grace` + `shutdown_timeout`) and drops the WebSockets it still holds; each of them still has an access log line (101, `"error":"Cancelled"`); WebSockets on the new process keep going |
 | Idle, slow, and broken clients (`idle_and_malformed_clients`, `slow_request_head_is_cut_off`) | idle keep-alive connections closed per `keepalive_timeout` even when the client asks for `Keep-Alive: timeout=600`; a 64 KiB header → 200; a 2 MiB header, 300 header lines, and garbage → 4xx without hanging; a header sent one byte every few seconds is cut off after 62 seconds (`--ignored`, takes about 1 minute) |
 | Running out of fds (`file_descriptors_run_out`) | conduit with `ulimit -n 128` flooded with 250 connections: no panic, no spinning (CPU < 500 ms over 3 seconds while accept fails with `EMFILE`), and serving again once connections close |
-| Fuzzing (`fuzz/`, cargo-fuzz + libFuzzer) | 8 targets (`config`, `import`, `path`, `access_log`, `request`, `route`, `body_replace`, `block_exploits`; see [Commands](#commands)). After `block_exploits` was added (also hooked into the `request` harness), 10 minutes per affected target: 1.26 million `block_exploits` inputs (232 seeds from an attack corpus), 4.0 million requests, 0.72 million configs, 0.80 million NPM files, 0 crashes and 0 differences between the fast path and the path without keywords. 20 minutes per target after the fixes: 1.4 million configs, 1.5 million NPM files, 101 million paths, 17 million access log lines, 8.9 million requests, 0 crashes. After the `proxy` action and `body_replace` were added, another 10 minutes per target (config, import, path, access_log: 0.59 / 0.59 / 41 / 6.5 million), then 10 minutes with route and `body_replace` in the `request` harness: 5.2 million requests, 4.5 million route targets, 2.8 million bodies (two rounds), 0 crashes. One finding in `route` turned out to be a wrong harness assumption: a query containing `<` is already refused by Pingora (400) before it reaches routing; that input is now a seed. Three earlier findings are fixed and have unit tests: `import-npm` with control characters (`control_characters_stay_inert`), without certificates (`no_certificates_still_loads`), and a target without a path (`target_without_path_is_400`) |
+| Fuzzing (`fuzz/`, cargo-fuzz + libFuzzer) | 7 targets (`config`, `path`, `access_log`, `request`, `route`, `body_replace`, `block_exploits`; see [Commands](#commands)). After `block_exploits` was added (also hooked into the `request` harness), 10 minutes per affected target: 1.26 million `block_exploits` inputs (232 seeds from an attack corpus), 4.0 million requests, 0.72 million configs, 0 crashes and 0 differences between the fast path and the path without keywords. 20 minutes per target after the fixes: 1.4 million configs, 101 million paths, 17 million access log lines, 8.9 million requests, 0 crashes. After the `proxy` action and `body_replace` were added, another 10 minutes per target (config, path, access_log: 0.59 / 41 / 6.5 million), then 10 minutes with route and `body_replace` in the `request` harness: 5.2 million requests, 4.5 million route targets, 2.8 million bodies (two rounds), 0 crashes. One finding in `route` turned out to be a wrong harness assumption: a query containing `<` is already refused by Pingora (400) before it reaches routing; that input is now a seed. An earlier finding is fixed and has a unit test: a target without a path (`target_without_path_is_400`) |
+| Soak test, 24 hours (`scripts/soak/`, 2026-11-08/09) | On a 2 vCPU / 2 GB test VM, with a build from 2026-11-08 (before the 504, `keepalive_timeout` and request header deadline fixes): 56.2 million requests (HTTP/1.1 small and 256 KiB gzip, POST, HTTPS, HTTP/2, a new TLS handshake per request; about 650 req/s), 3.45 million echoes on 40 long-lived WebSockets and 172,450 short WebSockets, during 288 reloads, 286 backend outages of 30 seconds (TCP resets, including on open connections), 48 access log rotations, 24 certificate rotations and 6 graceful upgrades (each served by the new process, the old one gone). Hourly medians over the whole run: RSS 45–48 MB, 167 fds, 12 threads, 7 upstream connections; peak 55 MB and 177 fds. Per process (at most 4 hours between upgrades), RSS at the end was at most 0.3 MB above its value 15 minutes in (peaks up to 52 MB came back down), except the last one, which stepped from 47 to 53 MB within 30 seconds at 1 h 40 min and ended at 55 MB; the run ended before it showed whether that comes back down too. 0 panics, 0 dead processes, 0 access log lines dropped, 56.3 million access log lines. 120 requests failed (0.0002%), all explained: 37 POSTs and 1 GET answered 502 when the backend was reset in the middle of a request (a POST whose body was sent is not retried; nginx does the same); 80 HTTP/2 requests, 16 at 5 of the 6 upgrades (2 connections × 8 streams): 78 are hyper's "operation was canceled", requests oha never sent after the old process's GOAWAY and does not retry, 2 are "http2 error" (the old process keeps serving the streams in flight; browsers open a new connection); 2 requests lost in the keep-alive race when the old process closes idle connections. The 40 long-lived WebSockets were dropped by each old process as it exited (240, all reconnected; none outside the 30 seconds after an upgrade). p99 per stream 0.9–4.6 ms (median over the 5-minute windows), worst 6.1 ms |
 | Upstream flapping under load (`upstream_flapping`) | about 100,000 GET and POST requests from 6 clients (keep-alive and new connections) to a pool of 3 backends, while: one backend is down for 2.5 seconds, one backend hangs for 2.5 seconds, all three are down for 1.5 seconds, then one backend goes down and up 20 times every 100 ms. Every failed request must be explained: 502 only for requests in flight when a backend died, or while all backends were down (failing at once, under 100 ms, not piling up); 504 only for the hanging backend (4–6 requests before the health check takes it out). A GET on an upstream connection that turned out to be dead is retried automatically, a POST is not (not safe to repeat). No mixed-up answers, no client connection dropped without an answer, and no panics. Afterwards every backend takes traffic again, `in_flight` returns to 0, the fd count returns to where it started, and every request is logged once in the access log. Passed 4 out of 4 times |
-| Parity with NPM (`scripts/parity/run.sh`, local) | nginx from the NPM 2.14.0 image (the same version as production) loads a copy of the configs of 51 proxy hosts, conduit loads the `import-npm` output of the same copy plus translations of 9 advanced configs; both point at a fake upstream that answers with the request it received. 189 requests per proxy: `/` over HTTP and HTTPS with browser and non-browser UAs on every host, plus every advanced rule (a browser-only forgejo redirect, CORS + `OPTIONS` 204, a Next.js header block, `debug.log` 404, `mobile-config.json`, an S3 console, a PocketBase admin block including `%5F` and upper case), paths with `..`/spaces/encodings, POST, WebSocket and headscale upgrades, unknown hosts. Status, `Location`, `Content-Type`, CORS/cache/HSTS headers, and the target/method/headers that reach the upstream are the same. Deliberate differences: conduit adds `X-Forwarded-Host` and `X-Request-Id`, keeps upstream connections alive (NPM sends `Connection: close`), does not send `X-Forwarded-Scheme`, does not trust `X-Forwarded-Proto` from arbitrary clients (NPM passes it on), and compresses JSON for clients that ask for gzip. Since `block_exploits` is imported (38 hosts): 197 requests per proxy, and the only status differences are the deliberate ones. Blocked by NPM but passed by conduit: `redirect_uri=http://...`, `<div>description</div>` (NPM's `<.*script.*>` pattern), `concat(`. Passed by NPM but blocked by conduit: `' union select 1` (NPM's pattern needs `(`), `/.env`, `/..;/`, Log4Shell in a header, the sqlmap UA, `' or '1'='1`. Attacks NPM blocks (`union select (1)`, `<script>`, `../../etc/passwd`) are blocked by both |
+| Parity with nginx (local, Docker) | nginx (the Nginx Proxy Manager 2.14.0 image, the same version as production) loads a copy of the generated configs of 51 proxy hosts, conduit an equivalent config of the same hosts including translations of 9 advanced configs; both point at a fake upstream (`scripts/parity/stub.py`) that answers with the request it received, and `scripts/parity.py` compares the two. 189 requests per proxy: `/` over HTTP and HTTPS with browser and non-browser UAs on every host, plus every advanced rule (a browser-only forgejo redirect, CORS + `OPTIONS` 204, a Next.js header block, `debug.log` 404, `mobile-config.json`, an S3 console, a PocketBase admin block including `%5F` and upper case), paths with `..`/spaces/encodings, POST, WebSocket and headscale upgrades, unknown hosts. Status, `Location`, `Content-Type`, CORS/cache/HSTS headers, and the target/method/headers that reach the upstream are the same. Deliberate differences: conduit adds `X-Forwarded-Host` and `X-Request-Id`, keeps upstream connections alive (nginx sends `Connection: close`), does not send `X-Forwarded-Scheme`, does not trust `X-Forwarded-Proto` from arbitrary clients (nginx passes it on), and compresses JSON for clients that ask for gzip. With `block_exploits` on the 38 hosts that used nginx's exploit rules: 197 requests per proxy, and the only status differences are the deliberate ones. Blocked by nginx but passed by conduit: `redirect_uri=http://...`, `<div>description</div>` (nginx's `<.*script.*>` pattern), `concat(`. Passed by nginx but blocked by conduit: `' union select 1` (nginx's pattern needs `(`), `/.env`, `/..;/`, Log4Shell in a header, the sqlmap UA, `' or '1'='1`. Attacks nginx blocks (`union select (1)`, `<script>`, `../../etc/passwd`) are blocked by both |
 | ACME with Pebble (Let's Encrypt's test CA, `mise run test-acme`) | issued about 1 second after start; a restart uses the stored certificate without a new order; a certificate close to expiry is renewed in the middle of about 285 HTTPS requests with 0 failed; a name the CA refuses shows in `/status` and is retried later without disturbing other sites. Passed 5 out of 5 times (including after the last phase 2 changes) |
 | Real CrowdSec v1.8.2 in Docker (`mise run test-crowdsec`) | a `cscli` decision applies in conduit about 1 second later (address, range, captcha → refused), deleted → allowed again; AppSec refuses `/.env` and a body with a forbidden pattern, a clean body reaches the upstream whole, sites without AppSec are unaffected; CrowdSec paused: AppSec lets through after the timeout, existing decisions stay in force, pulls recover by themselves; **full loop**: 20 probing 404 requests in the access log → the `deploy/crowdsec` parser → the `http-probing` scenario → the IP blocked by conduit about 2 seconds after the last probe. Passed 5 out of 5 times (including after the last phase 2 changes) |
 | File server | index, `ETag`/`Last-Modified` → 304, `If-Match` → 412, range 206 without compression, 416 with `Content-Range`, stale `If-Range` → 200, a 300 KB file streamed whole, gzip for whole text files, the 300 KB file compressed with `br`, `zstd`, and `gzip` decoded whole by strict decoders (without `be20dfc`: `br: Unexpected EOF`), HEAD, precompressed `.br` + `Vary`, canonical 308 redirects with the query (`//sub` → `/sub/`, never to another host), dotfile/`%2e`/symlink out of the root → 404, `..` above the root → 400, POST to a site without an upstream → 405, SPA `try_files`, files mixed with an upstream with `strip_prefix` and `pass_thru`, `/status` |
@@ -499,11 +497,22 @@ That fast path stays open as optional work in case parity with nginx is ever nee
 | Pingora fork (`vendor/pingora`) | unit tests of `pingora-http` (58 + 3 doctests), `pingora-proxy` (65), and `pingora-core` (628, with OpenSSL), including new tests for the idle pool, the deadline for the whole request header (slowloris), the reuse check, the MIME check, hop-by-hop, `CasedHeaderName`, Pingora's own `Server` header, the response header handover (9 response shapes, bytes and keep-alive compared with the old path), and the HTTP/1 task channel (order, waiting for a slot, end of stream, receiver gone, 10,000 values across threads). All conduit tests above (86 unit, 9 e2e, ACME, CrowdSec) were repeated once with the fork and passed |
 | clippy `-D warnings` | clean |
 
+Follow-up daemon readiness smoke test (2026-11-10): the rebuilt PGO binary completed
+255,136 requests with two daemonized graceful upgrades, 60 reloads, 27 backend outages,
+nine access log rotations and five certificate rotations. Both upgrades were served by the
+new PID and the old process exited. No panics, dead-process samples, dropped access log
+lines or lost upstream reuses; peak RSS 49.1 MB. Eight POST requests returned 502 when the
+backend was reset; 32 HTTP/2 operations were canceled across the two upgrades. All 80
+long-lived WebSocket disconnects were during upgrades and reconnected; 836 short WebSockets
+completed without failure. This smoke run validates the harness and daemon handover; it
+does not replace the 24-hour run.
+
 ## Benchmark
 
-`scripts/bench.sh`: the proxy is limited to 2 CPUs like the production host, the upstream and the
-load generator run on other CPUs, 2 KB bodies, 64 connections, 50,000 requests per scenario,
-access log on in both proxies.
+`scripts/bench.sh`: the proxy is limited to 2 CPUs, the upstream and the load generator run on other
+CPUs, 2 KB bodies, 64 connections, 50,000 requests per scenario, access log on in both proxies.
+nginx runs twice: tuned (upstream keep-alive), and nginx without upstream keep-alive, proxying
+through variables with one upstream connection per request, as generated nginx configs often do.
 
 One run (evening of 2026-11-08, PGO release after the third round of Pingora patches, idle
 machine; the middle run of 3). Ranges are in
@@ -512,7 +521,7 @@ the first-round release.
 
 | Scenario | Proxy | req/s | p99 | CPU per 10k req | Peak RSS |
 |---|---|---:|---:|---:|---:|
-| HTTP keep-alive | NPM-style nginx | 35,772 | 1.96 ms | 0.34 s | 19 MB |
+| HTTP keep-alive | nginx without upstream keep-alive | 35,772 | 1.96 ms | 0.34 s | 19 MB |
 | | tuned nginx | 98,917 | 0.77 ms | 0.15 s | 19 MB |
 | | **conduit** | **77,006** | 1.16 ms | 0.20 s | 30 MB |
 | HTTPS (HTTP/1.1) | tuned nginx | 74,518 | 0.95 ms | 0.21 s | 29 MB |
@@ -536,14 +545,13 @@ With CrowdSec (20 sites, a fake LAPI holding 70,200 decisions, 15.9 MB of JSON):
 reached 44 MB (the JSON response in memory), then went down by itself.
 
 How to read these numbers:
-- conduit is **about 2.2× NPM** (req/s 2.15–2.18×, lower p99 and CPU), **faster than tuned nginx
-  on HTTP/2** (1.29–1.32× req/s, CPU 0.80–0.82×), and **faster on TLS handshakes** (1.10× req/s,
-  CPU 0.86–0.89×).
+- conduit is **about 2.2× nginx without upstream keep-alive** (req/s 2.15–2.18×, lower p99 and CPU),
+  **faster than tuned nginx on HTTP/2** (1.29–1.32× req/s, CPU 0.80–0.82×), and **faster on TLS
+  handshakes** (1.10× req/s, CPU 0.86–0.89×).
 - On small HTTP/1.1 and HTTPS keep-alive requests, conduit reaches 0.76–0.81× of tuned nginx's
   throughput. The samply profile (see below) shows this gap is almost entirely inside Pingora.
-- On the production host this overhead does not matter: traffic is far below 1,000 req/s, and
-  both proxies add under 1 ms per request. What matters there is memory: the NPM container uses
-  about 364 MB.
+- At ordinary traffic (far below 1,000 req/s) this overhead does not matter: both proxies add
+  under 1 ms per request.
 
 ### Comparison with other reverse proxies
 
@@ -561,8 +569,8 @@ The tables below were taken before the second round of HTTP/1.1 patches (see
 Every proxy is configured as it would be for production:
 - 2 workers or threads.
 - Keep-alive to the upstream. Checked by the number of new connections the upstream accepted: at
-  most 74 per run (tuned nginx) for 50,000 requests. NPM-style nginx opens one connection per
-  request.
+  most 74 per run (tuned nginx) for 50,000 requests. Nginx without upstream keep-alive opens one
+  connection per request.
 - TLS with the same ECDSA P-256 certificate, and HTTP/2 over TLS.
 - `X-Forwarded-For` and `X-Forwarded-Proto` to the upstream.
 - An access log line for every request, written to a file. Checked by counting lines: complete
@@ -581,7 +589,7 @@ req/s, with the ratio against tuned nginx in parentheses:
 | tuned nginx | 101,079 | 74,070 | 37,906 | 3,313 |
 | HAProxy | 75,048 (0.74×) | 56,834 (0.77×) | **54,092 (1.43×)** | 2,932 (0.88×) |
 | **conduit** | **69,776 (0.69×)** | **51,323 (0.69×)** | **43,983 (1.16×)** | **3,510 (1.06×)** |
-| NPM-style nginx | 35,199 (0.35×) | | | |
+| nginx without upstream keep-alive | 35,199 (0.35×) | | | |
 | Apache httpd | 33,689 (0.33×) | 25,426 (0.34×) | 13,686 (0.36×) | 2,183 (0.66×) |
 | Envoy | 33,389 (0.33×) | 30,344 (0.41×) | 26,912 (0.71×) | **5,178 (1.56×)** |
 | Caddy | 18,457 (0.18×) | 16,457 (0.22×) | 12,298 (0.32×) | 3,271 (0.99×) |
@@ -594,7 +602,7 @@ CPU per 10,000 requests, and memory:
 | tuned nginx | 0.15 s | 0.20 s | 0.41 s | 5.68 s | +0.09 ms | 9.1 MB | 10–13 MB |
 | HAProxy | 0.21 s | 0.28 s | 0.30 s | 6.40 s | +0.08 ms | 19.6 MB | 22–26 MB |
 | **conduit** | 0.23 s | 0.30 s | 0.35 s | 5.19 s | +0.12 ms | 9.1 MB | 23–26 MB |
-| NPM-style nginx | 0.35 s | | | | +0.44 ms | 8.7 MB | 9 MB |
+| nginx without upstream keep-alive | 0.35 s | | | | +0.44 ms | 8.7 MB | 9 MB |
 | Apache httpd | 0.53 s | 0.70 s | 1.34 s | 8.66 s | +0.39 ms | 6.0 MB | 38–47 MB |
 | Envoy | 0.54 s | 0.58 s | 0.66 s | 3.53 s | +0.44 ms | 14.3 MB | 21 MB |
 | Caddy | 1.00 s | 1.11 s | 1.47 s | 5.75 s | +2.85 ms | 9.7 MB | 28–29 MB |
@@ -616,13 +624,13 @@ How to read this:
   investigated further. conduit 1.06×; nginx, Caddy, and Traefik about equal; HAProxy 0.88×;
   Apache 0.66×.
 - Latency under moderate load: nginx, HAProxy, and conduit add ≤0.12 ms of p99. Apache, Envoy,
-  and NPM-style nginx about 0.4 ms. Caddy and Traefik (Go) add about 3 ms.
+  and nginx without upstream keep-alive about 0.4 ms. Caddy and Traefik (Go) add about 3 ms.
 - Idle memory is small for every proxy (6–20 MB). Under load, Apache and Traefik grow the most.
 - Limits: this is a synthetic load (2 KB bodies, localhost, 2 CPUs). The configurations are
   reasonable for production but not tuned to the limit for each proxy. For example, Caddy and
   Traefik use their default JSON log format that records every header, and Caddy's log rotation
-  is turned off like the other proxies'. On the production host, with traffic far below
-  1,000 req/s, all of these proxies are fast enough.
+  is turned off like the other proxies'. At ordinary traffic, far below 1,000 req/s, all of
+  these proxies are fast enough.
 
 ### Latency under load
 
@@ -655,8 +663,8 @@ Before the patches, at lower rates (about 28,400 and 39,800 req/s), conduit adde
   is steadier. Tuned nginx at 50/60/70% of its peak adds +2.99 / +1.05 / +12 ms of p99 (p99.9
   about 33 ms at 70%). conduit at 49/60/69% adds +0.69 / +1.05 / +1.3–1.4 ms. The access log
   accounts for only about 0.1 ms of that.
-- The production host's traffic (< 1,000 req/s) is roughly 2% of peak. At 9% of peak conduit
-  adds +0.11 ms.
+- Ordinary traffic (< 1,000 req/s) is roughly 2% of peak. At 9% of peak conduit adds
+  +0.11 ms.
 
 The regression gate in `scripts/bench.sh` fails when:
 - any request fails;
@@ -830,7 +838,7 @@ mise run test-crowdsec        # CrowdSec end-to-end with a real CrowdSec (needs 
 mise run lint                 # fmt + clippy
 mise run release              # dist/conduit (PGO) for Ubuntu 22.04 (glibc ≤ 2.35), via Docker
 mise run pgo                  # local PGO build into target/pgo/conduit (needs rustup llvm-tools)
-mise run bench                # conduit vs nginx (NPM-style and tuned), needs Docker
+mise run bench                # conduit vs nginx (tuned and without upstream keep-alive), Docker
 mise run compare              # dist/conduit vs nginx, Caddy, Apache, HAProxy, Traefik, Envoy (Docker)
 mise run ab base=BIN new=BIN  # A/B of binaries or settings (e.g. new=BIN,work_stealing=true), needs Docker
 scripts/soak/deploy.sh HOST [HOURS]  # soak test of dist/conduit on a disposable test machine (see below)
@@ -838,9 +846,7 @@ fuzz/run.sh [SECONDS]         # all fuzz targets in parallel, default 300 second
 
 conduit check -c conduit.yaml
 conduit run -c conduit.yaml [-d] [-u]
-conduit import-npm --npm-root ./npm-copy --paths-root /opt/npm > conduit.yaml
 scripts/parity.py CONFIG NPM_IP CONDUIT_IP --http-port 80,18080 --https-port 443,18443
-scripts/parity/run.sh NPM_COPY TEST_CERTS [OVERLAY] [CASES]  # local parity, needs Docker
 ```
 
 Fuzzing (`fuzz/`) uses cargo-fuzz. The targets live in `src/fuzzing.rs`, which is why conduit is
@@ -852,7 +858,6 @@ panics:
 | Target | Property checked |
 |---|---|
 | `config` | YAML parser; accepted configs are then compiled (IP backends only, no DNS) |
-| `import` | the `import-npm` output must load as a config |
 | `path` | the normalized result is always an absolute path without empty, `.`, or `..` segments |
 | `access_log` | the hand-written JSON is identical to serde's and stays on one line |
 | `request` | lower-case host, real IP only from trusted peers, answer status 100–599, a target without a path → 400, ranges within the file |
@@ -876,12 +881,24 @@ services listen only on 127.0.0.1. It consists of:
   | One backend refused for 30 seconds | 10 minutes |
   | Access log rotated | 30 minutes |
   | Certificate rotated | 1 hour |
-  | Graceful upgrade (`run -d -u` then SIGQUIT, like `systemctl reload`) | 4 hours |
+  | Graceful upgrade (`run -d -u` then SIGQUIT, like `systemctl reload`) | at 2 and 6 hours (`SOAK_UPGRADE_AT`), so the last process runs 18 hours |
+
+  Flaps fall in the middle of every other oha window and upgrades in a window without a flap
+  or a reload close by, so each failure can be put down to one cause.
 
 - **Samples every 30 seconds:** RSS, fds, threads, CPU, connections, and metrics.
+- **Access log:** lines with an error or a 4xx/5xx status are kept from every rotation, to
+  trace failed requests on conduit's side.
 
-The results are in `~/soak/out/` on that machine, with a summary in `report.txt`. For a smoke test
-of the harness, `SOAK_SCALE=40 SOAK_SECONDS=420` speeds up every interval.
+The results are in `~/soak/out/` on that machine. Before another run starts, its output and
+runtime files are preserved in a unique directory under `~/soak/archive/`. Results include
+a summary in `report.txt`: hourly medians, RSS per process (15 minutes in, at the end, peak, and
+trend in MB per hour, since upgrades start a new process), failed requests grouped by the
+disruption in their window, and the kept access log lines. For a smoke test of the harness,
+`SOAK_SCALE=40 SOAK_SECONDS=420 SOAK_UPGRADE_AT="1 3"` speeds up every interval and includes
+two upgrades within seven minutes.
+The harness aborts if a graceful upgrade fails to replace the old process or the admin
+endpoint is not served by the new PID.
 
 A full example config with every option: [`conduit.example.yaml`](../conduit.example.yaml).
 
@@ -914,16 +931,14 @@ acquisition: [`deploy/crowdsec/`](../deploy/crowdsec/).
   1. ✓ Upstream flapping under load (done 2026-11-08, `upstream_flapping` in
      [Test results](#test-results-local)). Finding: upstream timeouts were answered with 502, now
      504.
-  2. A mixed-load soak test (HTTP/1.1, HTTPS, HTTP/2, WebSocket, periodic reloads), target
-     24 hours. RSS, fds, upstream connections, and the number of tasks must not keep rising.
-     Harness: `scripts/soak/` (see [Commands](#commands)). A 24-hour run has been going on the test
-     machine since 2026-11-08 16:32 UTC.
-  3. ✓ Fuzzing (`fuzz/`, done 2026-11-09): the config parser, `import-npm`, path normalization,
-     the access log, and requests (host, real IP, routing, plugins, rules, LB hashing, header
-     parser). Findings: `import-npm` wrote a config that would not load when NPM had no
-     certificates at all, or when an NPM file held control characters (a CR in an advanced config
-     could even turn a comment into live YAML); a target without a path (`GET ?x`) reached the
-     plugins as `/`, now 400.
+  2. ✓ A mixed-load soak test (HTTP/1.1, HTTPS, HTTP/2, WebSocket, periodic reloads), 24 hours
+     (done 2026-11-09, see [Test results](#test-results-local); harness `scripts/soak/`, see
+     [Commands](#commands)). RSS, fds, threads and upstream connections stayed flat, 0 panics,
+     every failed request explained. It ran a build from before the 504, `keepalive_timeout` and
+     request header deadline fixes, which are covered by their own tests.
+  3. ✓ Fuzzing (`fuzz/`, done 2026-11-09): the config parser, path normalization, the access log,
+     and requests (host, real IP, routing, plugins, rules, LB hashing, header parser). Finding: a
+     target without a path (`GET ?x`) reached the plugins as `/`, now 400.
   4. ✓ Audit of panics and misbehaving clients (done 2026-11-09). 33 `unwrap`/`expect` in non-test
      code, none depending on input (mutex poisoning, invariants, startup). Findings: idle
      keep-alive connections were never closed (now `keepalive_timeout`), and slowloris could hold
@@ -932,10 +947,10 @@ acquisition: [`deploy/crowdsec/`](../deploy/crowdsec/).
   5. ✓ Graceful upgrade with open WebSockets (done 2026-11-09). Finding: connections dropped when
      the old process stopped were missing from the access log; they are logged now.
   6. ✓ Local parity test (done 2026-11-09, see [Test results](#test-results-local)). The copy of the
-     NPM configs on the laptop is identical to the production host's (checksums). The only
-     remaining behavior differences are in "Block Exploits" (on for 38 of 51 hosts), which is now
-     imported as the `block_exploits` plugin: conduit no longer has NPM's false positives, and it
-     catches attacks NPM lets through.
+     nginx configs on the laptop is identical to the production host's (checksums). The only
+     remaining behavior differences are in the nginx exploit-blocking rules (on for 38 of 51
+     hosts), now covered by the `block_exploits` plugin: conduit no longer has their false
+     positives, and it catches attacks they let through.
 - **Deferred until the core is stable:** session ticket keys shared between processes, OCSP, an
   admin API, OpenTelemetry, CrowdSec captcha, DNS-01. CrowdSec and AppSec are not developed
   further; what exists stays, and is optional during migration. `.deb`/container packages and
