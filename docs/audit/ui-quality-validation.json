@@ -1,0 +1,160 @@
+{
+  "status": "passed",
+  "checked_utc": "2026-11-10T14:45:30.739649+00:00",
+  "scope": "Roadmap documentation and graph update; management/UI/OIDC are planned, not implemented or runtime-tested.",
+  "base_commit": "3a11d628bde66e4f3261e144ef53b84cffc57cb6",
+  "checks": {
+    "markdown_files_checked": 14,
+    "local_links_and_heading_targets_checked": 644,
+    "yaml_syntax_blocks_checked": 39,
+    "shell_syntax_blocks_checked": 16,
+    "unchanged_tested_implementation_hashes": true,
+    "unique_graph_ids": true,
+    "valid_graph_endpoints": true,
+    "graph_self_loops": 0,
+    "roadmap_nodes_marked_planned": true,
+    "roadmap_nodes_present_in_html": true,
+    "graph_query_passed": true
+  },
+  "application_suite_reexecuted": false,
+  "graphify": {
+    "before": {
+      "nodes": 2638,
+      "edges": 5985
+    },
+    "after": {
+      "nodes": 2643,
+      "edges": 5992,
+      "communities": 170
+    },
+    "health": {
+      "node_count": 2643,
+      "unverified_node_count": 0,
+      "raw_edge_count": 5992,
+      "non_object_edges": 0,
+      "missing_endpoint_edges": 0,
+      "dangling_endpoint_edges": 0,
+      "external_reference_edges": 0,
+      "self_loop_edges": 0,
+      "valid_candidate_edges": 5992,
+      "exact_duplicate_edges": 0,
+      "directed_unique_endpoint_pairs": 5992,
+      "directed_same_endpoint_collapsed_edges": 0,
+      "undirected_unique_endpoint_pairs": 5992,
+      "undirected_same_endpoint_collapsed_edges": 0,
+      "same_endpoint_group_count": 0,
+      "relation_variant_groups": 0,
+      "source_file_variant_groups": 0,
+      "source_location_variant_groups": 0,
+      "context_variant_groups": 0,
+      "post_build_graph_type": "Graph",
+      "post_build_node_count": 2643,
+      "post_build_edge_count": 5992,
+      "post_build_error": "",
+      "producer_suppression": {
+        "path": "/home/tesseract/.local/share/uv/tools/graphifyy/lib/python3.12/site-packages/graphify/extract.py",
+        "total_sites": 12,
+        "sites": [
+          {
+            "line": 1887,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+          },
+          {
+            "line": 2582,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+          },
+          {
+            "line": 2584,
+            "name": "seen_doc_refs",
+            "tuple_arity": 0,
+            "sample": "seen_doc_refs: set[str] = set()"
+          },
+          {
+            "line": 3251,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids: set[str] = {n[\"id\"] for n in nodes}"
+          },
+          {
+            "line": 3398,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids = {n.get(\"id\") for n in nodes}"
+          },
+          {
+            "line": 4812,
+            "name": "seen_keys",
+            "tuple_arity": 0,
+            "sample": "seen_keys: set[tuple] = set()"
+          },
+          {
+            "line": 4998,
+            "name": "seen_keys",
+            "tuple_arity": 0,
+            "sample": "seen_keys: set[tuple] = set()"
+          },
+          {
+            "line": 9409,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids: set[str] = set()"
+          },
+          {
+            "line": 9517,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids: set[str] = set()"
+          },
+          {
+            "line": 9596,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids: set[str] = set()"
+          },
+          {
+            "line": 10121,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids: set[str] = set()"
+          },
+          {
+            "line": 10122,
+            "name": "seen_edges",
+            "tuple_arity": 4,
+            "sample": "seen_edges: set[tuple[str, str, str, str | None]] = set()"
+          }
+        ],
+        "error": ""
+      },
+      "examples": []
+    },
+    "pending_files": 0,
+    "refreshed_sources": [
+      "docs/roadmap.md"
+    ],
+    "planned_nodes": [
+      "docs_roadmap_ui_quality_gates",
+      "docs_roadmap_wcag_accessibility_target",
+      "docs_roadmap_asvs_security_target",
+      "docs_roadmap_release_defect_policy"
+    ],
+    "semantic_cache_files_written": 1,
+    "base_commit": "3a11d628bde66e4f3261e144ef53b84cffc57cb6"
+  },
+  "source_sha256": {
+    "README.md": "8bbcc04acef546a37ae154d42c66b736ab14d87f50c11a9f4a09da4c07540139",
+    "docs/roadmap.md": "b6e1269d273922fd40fac12d990affbd1b3cd220ab9bec583050a397da7bb0af",
+    "docs/technical.md": "4f4069c72e775618fa54c91a743fbd5c0a4fce34467173899f59becd29fdd070",
+    "docs/configuration.md": "b1481ca2234b86bcff451f09a1d76b830ccd658d073b04fa95e649547584e2d6"
+  },
+  "graph_artifact_sha256": {
+    "graph.json": "50ea3a492a835ece3f67f8fa765e659a8ec0c5deb44d072bc42c2078aeb11025",
+    "graph.html": "cfdfa494b8aa312592f999a625d7ef52fcbf77c92a08f823c44649357cd51bea",
+    "GRAPH_REPORT.md": "8272f51d32b9338bef0e6cecb5ba672b6af5b708e65897928cd996ddbc31a490"
+  },
+  "graph_query_sha256": "fe89f2da182248b410dea6801169998ab4d61d06187ada848a4b68055e298987"
+}

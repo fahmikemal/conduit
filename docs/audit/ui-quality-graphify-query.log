@@ -1,0 +1,11 @@
+Graph: graphify-out/graph.json (2643 nodes) | Traversal: BFS depth=1 | Start (given): ['Planned lightweight and powerful UI quality gates'] | 4 nodes found
+
+NODE Planned lightweight and powerful UI quality gates [src=docs/roadmap.md loc=L182 community=Planned Management and UI]
+NODE roadmap.md [src=docs/roadmap.md loc=L1 community=Planned Management and UI]
+NODE Production release acceptance evidence [src=docs/roadmap.md loc=L214 community=Planned Management and UI]
+NODE Lightweight UI resource budget targets [src=docs/roadmap.md loc=L166 community=Planned Management and UI]
+EDGE roadmap.md --references [EXTRACTED]--> Planned lightweight and powerful UI quality gates at=docs/roadmap.md:L182
+EDGE Planned lightweight and powerful UI quality gates --references [EXTRACTED]--> Lightweight UI resource budget targets at=docs/roadmap.md:L186
+EDGE Planned lightweight and powerful UI quality gates --references [EXTRACTED]--> Production release acceptance evidence at=docs/roadmap.md:L214
+EDGE roadmap.md --references [EXTRACTED]--> Lightweight UI resource budget targets at=docs/roadmap.md:L166
+EDGE roadmap.md --references [EXTRACTED]--> Production release acceptance evidence at=docs/roadmap.md:L214

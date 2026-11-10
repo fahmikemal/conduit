@@ -8,6 +8,9 @@ the [configuration reference](configuration.md) for options that exist today.
 
 ## Product decisions
 
+- Treat **lightweight, powerful, reliable UI/UX and enterprise operation** as simultaneous
+  release requirements. Features and visual polish must stay within the resource budget;
+  a small bundle alone does not establish usable or reliable management.
 - Keep headless operation as the default. Enable the Web UI explicitly on the management
   listener. A native build without UI assets must remain possible.
 - Bundle compiled browser assets with the UI-enabled distribution. Running it must not
@@ -176,6 +179,38 @@ Measure startup, binary size, RSS, CPU, FD count, request latency and throughput
 disabled, enabled but idle, and actively used under management load. Set and publish release
 budgets from that baseline. UI/session/database failures must not crash the proxy data path.
 
+## UI product quality release gates
+
+| Requirement | Acceptance evidence |
+|---|---|
+| Lightweight | Enforce the 200 KiB gzip primary JS/CSS budget in the build; lazy-load optional screens and bound tables, charts, polling and history. Record startup, interaction, browser memory and proxy resource/performance results under a reproducible workload. |
+| Powerful | Maintain a capability matrix mapping backend settings and operations to UI inspect/edit support, role permissions and restart requirements. Support everyday site/upstream/TLS/plugin workflows and advanced configuration without silently discarding fields. Scope limits must be visible. |
+| Reliable UI/UX | Complete core workflows through real API-backed E2E tests: login, navigation, edit, validate, diff, apply, conflict resolution, rollback and logout. Preserve drafts on validation/network failures and expired sessions; require safe reauthentication before retrying writes. Show success only after backend acknowledgement of the actual state. |
+| Consistent and accessible | Use Hallmark with the Conduit design system, consistent controls/messages, responsive light/dark themes and a documented supported-browser matrix. Verify keyboard, focus, labels, zoom/reflow, contrast, error recovery and reduced-motion behavior. |
+| Enterprise operation | Verify backend authorization, OIDC/session policy, secret redaction, audit, backup/restore, concurrent writers, recovery and bounded resource use. Publish the scope and evidence for every readiness claim. |
+
+Target [WCAG 2.2 Level AA](https://www.w3.org/TR/WCAG22/) for the management UI, with both
+automated checks and manual assistive-technology/keyboard review. Map applicable security
+requirements to [OWASP ASVS 5.0.0](https://asvs.owasp.org/), recording versioned requirement
+IDs, verification results and reasons for non-applicability. These are acceptance targets,
+not present certifications or claims of conformance.
+
+Define severity and the core workflow/browser matrix before implementation. Release with
+no known unresolved critical/high security, configuration-integrity or UI/UX defects. Any
+failure that blocks a core workflow, misreports active state, loses a draft/change or silently
+overwrites configuration blocks release. Other known issues require an explicit impact,
+owner and disposition. Test evidence reduces risk; it is not a promise of zero bugs.
+
+Run functional E2E, targeted visual regression, accessibility and long-session/repeated-action
+checks, including slow/disconnected networks, request timeouts, retries, expired sessions and
+out-of-order responses. Add a regression for every fixed issue, and repeat the relevant
+stability/performance and final closure checks before completing a milestone. Hallmark review
+is a design gate alongside these behavioral tests.
+
+Draft recovery must respect permissions and secret lifetimes. Preserve non-secret input when
+reauthentication is needed; never retain passwords, tokens or secret edits in unprotected
+browser storage. Require sensitive input again when safe recovery is not possible.
+
 ## Release acceptance evidence
 
 | Area | Required scenarios |
@@ -185,7 +220,7 @@ budgets from that baseline. UI/session/database failures must not crash the prox
 | Retry and recovery | Lost response, repeated idempotency key, crash at each apply transition, disk full, database busy/unavailable, invalid config, restart and backup restore. |
 | Authentication | Local login, expiry/revocation, first-admin setup, admin/viewer boundaries, CSRF, unauthorized API calls and login throttling. |
 | OIDC | Authentik and ZITADEL, state/nonce/issuer/audience/signature failures, key rotation, role mapping, MFA policy where configured, logout/expiry and provider outage. |
-| UI | Hallmark app review, keyboard/focus/contrast/reduced motion, responsive themes, loading/error/conflict/stale states and asset budget. |
+| UI | All UI product quality gates above: Hallmark review, core workflow/browser matrix, accessibility, visual regression, draft preservation and failure/stale states. |
 | Proxy compatibility | Existing full application suite and explicit ignored cases, HTTP/2/gRPC, reloads, graceful upgrades, certificate rotation and cache behavior. |
 | Stability/performance | Mixed proxy and management load, competing users, soak, bounded history, audit-write failures, resource drain and measured UI-on/off comparison. |
 
