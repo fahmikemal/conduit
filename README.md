@@ -12,9 +12,11 @@ rules, from one YAML file and one static binary, with hot reload and zero-downti
 The design follows Pingora's own model (`ProxyHttp` hooks, load balancer, background services)
 rather than imitating nginx.
 
-> **Status:** pre-1.0. Feature work is done and the code is tested hard locally (unit,
-> end-to-end, fuzzing, parity against nginx, a 24-hour soak), and its first production sites
-> went live in November 2026. Expect configuration changes before 1.0.
+> **Status:** pre-1.0. The 10 November 2026 validation passed 111 unit tests and all 34
+> end-to-end tests, including HTTP/2 upstream and the audit regressions. See the
+> [validation evidence](docs/audit/HTTP2_UPSTREAM_VALIDATION.md). Earlier fuzzing, parity and
+> 24-hour soak results apply to their documented builds; the current Krynox run is separate.
+> Expect configuration changes before 1.0.
 
 ## Features
 
@@ -72,7 +74,9 @@ rather than imitating nginx.
 
 ## Performance
 
-Measured on 2 CPUs against nginx with a tuned config (PGO release build, idle machine):
+Historical measurement, 8 November 2026: 2 CPUs against nginx with a tuned config (PGO
+release build, idle machine). HTTP/2 here describes the client connection; upstreams were
+HTTP/1.1. The final HTTP/2-upstream change has its own [A/B and soak results](docs/audit/HTTP2_UPSTREAM_VALIDATION.md#performa).
 
 | Scenario | Requests/s vs nginx | CPU per request vs nginx |
 |---|---:|---:|
@@ -87,8 +91,9 @@ are in the [technical documentation](docs/technical.md#benchmark).
 
 ## Getting started
 
-Requirements: Linux, Rust 1.88 or newer (developed on current stable), a C toolchain, `cmake`, `perl`, `patch` and `make`. OpenSSL
-and zlib-ng are built from source and linked statically.
+Requirements: Linux, Rust 1.88 or newer as declared by the manifest, a C toolchain, `cmake`,
+`perl`, `patch` and `make`. The final validation used Rust 1.99.1; MSRV was not revalidated.
+OpenSSL and zlib-ng are built from source and linked statically.
 
 ```sh
 git clone --recurse-submodules https://github.com/fahmikemal/conduit.git
@@ -141,6 +146,26 @@ examples, in the [configuration reference](docs/configuration.md). A systemd uni
 a logrotate file are in [`deploy/`](deploy/), and the CrowdSec parser is in
 [`deploy/crowdsec/`](deploy/crowdsec/).
 
+### HTTP/2 upstream
+
+HTTP/1.1 remains the upstream default. To connect to a cleartext HTTP/2 service:
+
+```yaml
+listen:
+  http: ["127.0.0.1:8080"]
+sites:
+  - id: internal
+    hosts: [internal.example.test]
+    upstream: h2c://127.0.0.1:50051
+```
+
+For TLS backends, set `http_version: "2"` on the named or inline pool to require HTTP/2,
+or `http_version: auto` to allow TLS ALPN to choose HTTP/2 or HTTP/1.1. Each H2 connection
+allows up to `http2_max_streams: 128`, bounded further by the backend's SETTINGS.
+Native gRPC clients also need HTTP/2 over TLS to conduit; the client listener does not offer
+h2c. See [upstream pools](docs/configuration.md#4-upstream-pools) for the protocol matrix,
+health checks, reloads and WebSocket behavior.
+
 ## Development
 
 ```sh
@@ -154,8 +179,25 @@ fuzz/run.sh [SECONDS]   # all cargo-fuzz targets (nightly)
 ```
 
 The end-to-end tests run the real binary. They cover reloads under load, certificate rotation,
-graceful upgrades with open WebSockets, upstream flapping, slow and malformed clients, and
-running out of file descriptors.
+graceful upgrades with open WebSockets, upstream flapping, slow and malformed clients, file
+containment, cache variants, concurrent admission, HTTP/2 multiplexing and gRPC streams.
+
+`mise run test` runs the default suite. ACME, CrowdSec, slowloris and the 120-second H2 soak
+are ignored by default and must be selected explicitly. For a native Cargo checkout, prepare
+the vendor patch first, including after resetting the submodule:
+
+```sh
+bash scripts/prepare-vendor.sh
+cargo test --locked --all-targets
+cargo test --locked --lib -- --ignored --nocapture
+cargo test --locked --test e2e upstream_http2_ -- --nocapture
+cargo test --locked --test e2e slow_request_head_is_cut_off -- --ignored --nocapture
+OHA_BIN=/path/to/oha cargo test --locked --test e2e upstream_http2_load_stability -- --ignored --nocapture
+```
+
+The two explicit unit measurements are included in the 111 total; ACME, CrowdSec,
+slowloris and H2 soak bring the 30 default E2E passes to 34. Full commands and logs are in
+[the HTTP/2 validation report](docs/audit/HTTP2_UPSTREAM_VALIDATION.md).
 
 ## Pingora fork
 
@@ -164,7 +206,10 @@ in [`vendor/pingora`](vendor/README.md) (branch `conduit`, one commit per patch)
 through `[patch.crates-io]`. Together with conduit-side work, the patches cut CPU per HTTP/1.1
 request by about a quarter. One bounds the time for a whole request header (slowloris), one
 makes the `Server` header of Pingora's own error responses configurable, and one backports an
-unreleased upstream fix that ends brotli streams properly. Each patch, its measured effect, and
+unreleased upstream fix that ends brotli streams properly. HTTP/2 additionally requires the
+checked-in [`vendor/pingora-h2-reuse.patch`](vendor/pingora-h2-reuse.patch), applied by
+`scripts/prepare-vendor.sh` over the pinned submodule. It prevents duplicate H2 pool entries
+that retain idle sockets. A modified submodule after preparation is expected. Each patch, its measured effect, and
 how each one stands against upstream are listed in [`vendor/README.md`](vendor/README.md).
 
 ## Documentation
@@ -175,7 +220,13 @@ how each one stands against upstream are listed in [`vendor/README.md`](vendor/R
 - [Technical documentation](docs/technical.md): every feature in detail, test
   results, benchmarks and their method, profiling notes, and the roadmap.
 - [`conduit.example.yaml`](conduit.example.yaml): every configuration option.
-- [`vendor/README.md`](vendor/README.md): the Pingora patches and how they stand against upstream.
+- [`vendor/README.md`](vendor/README.md): the pinned Pingora fork, required local H2 pool
+  backport, build preparation and historical upstream survey.
+- [Audit index](docs/audit/README.md): current closure status and the historical investigation.
+- [HTTP/2 validation](docs/audit/HTTP2_UPSTREAM_VALIDATION.md): the final 111 unit / 34 E2E
+  results, release benchmark, local H2 soak and source/binary hashes.
+- [Graphify report](graphify-out/GRAPH_REPORT.md): the shared code/documentation map;
+  [interactive graph](graphify-out/graph.html).
 
 ## License
 

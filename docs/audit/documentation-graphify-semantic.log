@@ -1,0 +1,23 @@
+[graphify] Replaced 336 node(s) from re-extracted source file(s).
+{
+  "nodes": 2541,
+  "edges": 5851,
+  "communities": 166,
+  "pending_files": 0,
+  "pending_deletions": 0,
+  "semantic_cache_files_written": 8,
+  "refreshed_semantic_sources": [
+    "README.md",
+    "assets/brand/README.md",
+    "docs/audit/FIX_VALIDATION.md",
+    "docs/audit/HTTP2_UPSTREAM_VALIDATION.md",
+    "docs/audit/README.md",
+    "docs/configuration.md",
+    "docs/technical.md",
+    "vendor/README.md"
+  ],
+  "source_base_commit": "03cae2bcf48a695bc4c8e8f84adc7e1866e632a8",
+  "uncommitted_documentation_included": true,
+  "resolved_ast_relative_readme_references": 1
+}
+Graph integrity and manifest passed.

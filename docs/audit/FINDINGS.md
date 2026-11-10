@@ -1,8 +1,18 @@
 # Temuan terperinci
 
-**Status perbaikan terbaru:** lihat [FIX_VALIDATION.md](FIX_VALIDATION.md). Uraian di bawah menyimpan kondisi dan nomor baris sebelum patch, bukan daftar bug yang masih terbuka.
+**Status pada implementasi `03cae2b` (10 November 2026):** F01/F02/F03/F05/F06/F07/F09
+sudah diperbaiki, F08 sudah diperbaiki sekaligus dipertegas kontrak wildcard-nya, dan F10
+sudah dikoreksi di README. F04 tetap ditarik sebagai bug. Delapan regresi keamanan serta
+PoC release final lulus kembali sesudah fitur H2; lihat [matriks penutupan](README.md#matriks-penutupan)
+dan [laporan final](HTTP2_UPSTREAM_VALIDATION.md#uji-fungsional-dan-regresi).
 
-**Diperbarui setelah verifikasi runtime:** lihat [RECHECK.md](RECHECK.md) untuk keputusan dan bukti terbaru. F01/F02/F03/F05/F06/F07/F09 terkonfirmasi; F04 ditarik sebagai bug; F08 sebagian valid/kontrak ambigu; F10 dokumentasi saja. Nomor baris merujuk checkout saat audit; [inventory.json](inventory.json) memuat hash. P1/P2/P3 adalah urutan penanganan bersyarat, bukan skor CVSS.
+**Riwayat investigasi:** seluruh uraian akar masalah, usulan perbaikan, dampak dan nomor
+baris di bawah merujuk source sebelum patch. Kata “perbaikan” dan “regresi” di tiap temuan
+adalah rancangan historis yang realisasinya dicatat di [FIX_VALIDATION.md](FIX_VALIDATION.md).
+Observasi lanjutan tetap berstatus pertanyaan desain/tes, bukan otomatis bug atau pekerjaan
+yang sudah ditutup.
+
+**Diperbarui setelah verifikasi runtime:** lihat [RECHECK.md](RECHECK.md) untuk keputusan dan bukti recheck sebelum patch. F01/F02/F03/F05/F06/F07/F09 terkonfirmasi; F04 ditarik sebagai bug; F08 sebagian valid/kontrak ambigu; F10 dokumentasi saja. Nomor baris merujuk checkout saat audit; [inventory.json](inventory.json) memuat hash. P1/P2/P3 adalah urutan penanganan bersyarat, bukan skor CVSS.
 
 ## F01 — P1: pemeriksaan plugin dan file lookup memakai decoding berbeda
 

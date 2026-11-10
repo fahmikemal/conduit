@@ -1,6 +1,31 @@
 # Inventaris file dan simbol
 
-Indeks otomatis, bukan klaim review semantik perbaris. Semua file tracked yang tersedia dicatat; vendor gitlink kosong tidak menjadi file reguler. Hash lengkap di inventory.json.
+## Scope baseline dan penambahan saat ini
+
+Indeks otomatis di bawah adalah snapshot **363 file** pada commit `a6b2bb9` sebelum
+perbaikan. Jumlah baris, byte, simbol dan node graph dalam tabel bukan angka checkout
+terbaru. Pada snapshot itu vendor gitlink belum berisi checkout lokal; kondisi tersebut
+tidak menyatakan vendor masih kosong sekarang. Hash baseline ada di [inventory.json](inventory.json),
+dan source bernomor baris ada di [SOURCE.html](SOURCE.html).
+
+Implementasi saat ini adalah `03cae2b`: 29 modul `src/*.rs` tetap ada, delapan regresi
+keamanan ditambahkan ke `tests/e2e.rs`, serta modul dan artefak berikut ditambahkan:
+
+| File/kelompok | Penambahan penting |
+|---|---|
+| [tests/support/h2_upstream.rs](../../tests/support/h2_upstream.rs) | Lima tes H2 fungsional serta soak, origin H1/H2/TLS nyata dan klien gRPC. |
+| [scripts/prepare-vendor.sh](../../scripts/prepare-vendor.sh) | Persiapan backport lokal yang idempotent. |
+| [vendor/pingora-h2-reuse.patch](../../vendor/pingora-h2-reuse.patch) | Perbaikan race pool H2 dan tes native, di atas gitlink `5c765c6`. |
+| [FIX_VALIDATION.md](FIX_VALIDATION.md) | Patch audit, 111 unit / 28 E2E pada putaran pertama dan soak campuran 600 detik. |
+| [HTTP2_UPSTREAM_VALIDATION.md](HTTP2_UPSTREAM_VALIDATION.md) | Validasi final 111 unit / 34 E2E, 6 juta request A/B, soak H2 dan backport. |
+| [http2-validation.json](http2-validation.json) | Hash source/binary/patch final dan hasil pengujian implementasi. |
+| [documentation-sync.json](documentation-sync.json) | Daftar Markdown yang ditinjau, pemeriksaan link/contoh dan hash graph pada putaran dokumentasi. |
+
+[Indeks audit](README.md) menyediakan status sekarang. Source vendored Pingora sengaja
+berada di luar ekstraksi AST Graphify; rationale patch dipetakan melalui vendor README.
+Tabel baseline dipertahankan agar reproduksi temuan lama tidak kehilangan konteks.
+
+## Tabel file baseline
 
 | File | Baris | Byte | Node graph | Jenis |
 |---|---:|---:|---:|---|

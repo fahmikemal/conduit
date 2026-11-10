@@ -1,0 +1,8 @@
+Graph: graphify-out/graph.json (2541 nodes) | Traversal: BFS depth=1 | Start (given): ['Upstream protocol and transport matrix'] | 3 nodes found
+
+NODE Upstream protocol and transport matrix [src=docs/configuration.md loc=L421 community=Typed Plugin Configuration]
+NODE UpstreamHttpVersion [src=src/config.rs loc=L715 community=Typed Plugin Configuration]
+NODE Upstream HTTP version policy [src=docs/configuration.md loc=L381 community=Typed Plugin Configuration]
+EDGE Upstream protocol and transport matrix --references [EXTRACTED]--> Upstream HTTP version policy at=docs/configuration.md:L423
+EDGE Upstream protocol and transport matrix --conceptually_related_to [INFERRED]--> UpstreamHttpVersion at=docs/configuration.md:L427
+EDGE Upstream HTTP version policy --conceptually_related_to [INFERRED]--> UpstreamHttpVersion at=docs/configuration.md:L381

@@ -12,7 +12,6 @@ assets/**/*.png
 # Keep FIX_VALIDATION.md and the executable Python audit harnesses in the current graph.
 docs/audit/SOURCE.html
 docs/audit/INVENTORY.md
-docs/audit/README.md
 docs/audit/FINDINGS.md
 docs/audit/RECHECK.md
 docs/audit/WALKTHROUGH.md

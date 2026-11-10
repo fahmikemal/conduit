@@ -56,3 +56,16 @@ Geist is licensed under the SIL Open Font License; see https://github.com/vercel
 - Keep 20u of clear space on every side of the mark.
 - Minimum size: mark 24 px, horizontal logo 96 px wide. Below 24 px, use `conduit-mark-small`.
 - Do not recolour individual outer lanes, rotate or flip the mark, change the stroke weight, or set the wordmark in capitals.
+
+## Use in project documentation
+
+The [project README](../../README.md) uses the horizontal Ember fallback and the reverse
+logo for dark mode. Resolve these paths from the document that embeds them: paths in this
+brand directory are relative to `assets/brand/`, while the root README uses `assets/brand/`.
+Use the small mark variants at favicon sizes and the PNG Apple touch icon for devices that
+need a raster asset. Keep the existing master SVG paths when updating documentation so the
+outlined wordmark continues to render without an installed font.
+
+Project behavior and build instructions live in the [configuration reference](../../docs/configuration.md)
+and [technical guide](../../docs/technical.md); the asset palette and construction rules here
+remain the brand reference. Project attribution is in [NOTICE](../../NOTICE).

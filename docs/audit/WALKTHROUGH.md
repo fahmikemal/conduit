@@ -1,6 +1,38 @@
 # Bedah folder dan modul
 
-**Status terbaru:** [RECHECK.md](RECHECK.md) mengoreksi klasifikasi awal. F04 adalah retensi cache yang didokumentasikan, F08 sebagian valid/kontrak ambigu, dan F10 hanya README. Toolchain/fork sudah disiapkan pada salinan sementara untuk verifikasi terarah; keterangan “belum dijalankan” di uraian historis berikut merujuk putaran audit awal, bukan status recheck.
+**Status pada implementasi `03cae2b`, 10 November 2026:** perbaikan temuan dan HTTP/2
+upstream sudah diterapkan. Suite final: 111 unit dan 34 E2E lulus, ditambah satu regresi
+native pool Pingora. [Indeks audit](README.md) dan [laporan H2](HTTP2_UPSTREAM_VALIDATION.md)
+menjadi rujukan status sekarang.
+
+## Perubahan sejak snapshot audit
+
+| File/modul | Perilaku saat ini |
+|---|---|
+| `src/config.rs` | `UpstreamHttpVersion`, `http_version` dan `http2_max_streams`; default H1.1, required H2 atau TLS auto. |
+| `src/upstream.rs` | Resolusi h2c, `Target::peer`, signature protokol/stream limit, health probe H2 dan canonical Host IPv6. Probe memakai satu stream dan idle timeout nol. |
+| `src/proxy.rs` | Enforcement required H2 sebelum request aplikasi, pool terpisah per protokol, HTTP/1 upgrade pada auto, authority berport dalam cache key. Group H1 per worker mempertahankan identitas lama. |
+| `src/pathnorm.rs`, `src/files.rs` | Candidate path tidak di-percent-decode dua kali; fallback berjalan melalui pinned FD dengan `O_NOFOLLOW`; listing memakai FD dan mengabaikan symlink. |
+| `src/cache.rs` | Explicit Vary memakai nilai/header field asli, termasuk coding tak dikenal dan absent/empty. Fresh cache tetap bertahan setelah reload upstream sampai TTL/purge. |
+| `src/limits.rs`, `src/units.rs`, `src/runtime.rs` | Admission same-key diserialisasi pada 64 shard; perkalian durasi diperiksa; watch interval nol/tidak representable ditolak sebelum publikasi runtime. |
+| `src/tls.rs` | Exact override lalu wildcard override satu label, diikuti exact SAN/wildcard SAN/default; coverage wildcard diperbaiki. |
+| `src/admin.rs` | Backend status menyertakan configured `http_version`; `auto` merupakan policy, bukan hasil negosiasi terakhir. |
+| `tests/e2e.rs` | Delapan regresi `security_` dan modul support H2. |
+| `tests/support/h2_upstream.rs` | Origin H1/H2/TLS nyata, lima tes fungsional dan satu soak 120 detik yang ignored secara default. gRPC dua arah, frame 2 MiB, trailers, cancellation dan reload ikut diuji. |
+| `vendor/pingora-h2-reuse.patch` | Backport PR1025: lock/release sebelum reinsertion agar entry InUsePool tidak terduplikasi; termasuk tes race deterministik. |
+| `scripts/prepare-vendor.sh`, Dockerfile, mise, PGO | Patch lokal dipersiapkan idempotently; native Cargo langsung memerlukan persiapan terlebih dulu. Gitlink fork tetap terkunci. |
+
+Client-facing h2c dan RFC8441 belum diimplementasikan. Native gRPC memakai HTTP/2 melalui
+listener TLS conduit. Required H2 tanpa ALPN menghasilkan 502 sebelum request dikirim;
+forwarded HTTP/1 upgrade pada required H2 ditolak 400. Lihat [referensi pool](../configuration.md#4-upstream-pools).
+
+## Panduan membaca bedah historis
+
+Uraian berikut menjelaskan source baseline `a6b2bb9` sebelum perbaikan. Nomor baris, jumlah
+tes, dugaan risiko dan pernyataan “belum dijalankan” dipertahankan untuk menelusuri asal
+analisis; gunakan tabel di atas dan source checkout saat ini untuk perilaku sesudah patch.
+F04 ditarik sebagai bug, F08 telah dipertegas, dan F10 hanya koreksi dokumentasi. Snapshot
+lengkap baseline ada di [SOURCE.html](SOURCE.html) dan [inventory.json](inventory.json).
 
 Laporan ini dibaca bersama [temuan](FINDINGS.md). Referensi `file:baris` merujuk sumber saat snapshot; penjelajah [SOURCE.html](SOURCE.html) menyediakan baris lengkap. Penjelasan dibagi berdasarkan blok logika agar keputusan desain, aliran data dan dampak saling terhubung. Inventaris simbol otomatis terdapat di [INVENTORY.md](INVENTORY.md); daftar simbol bukan analisis semantik tambahan.
 

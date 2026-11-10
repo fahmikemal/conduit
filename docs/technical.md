@@ -9,16 +9,16 @@ performance patches in [`vendor/`](../vendor/README.md)), meant for production u
 many sites. The design follows Pingora's own model (`ProxyHttp` hooks, load balancer, background
 services), not an imitation of nginx.
 
-**Status: phases 1 and 2 are done. Phase 2: ACME, CrowdSec, rate limiting, mTLS, auth, plus a
-static file server, a response cache, and WebSocket/upgrade. Phase 1 closed on 2026-11-08 with
-the throughput target changed from "on par with nginx" to ≥0.75× tuned nginx or CPU per request
-≤1.4×: HTTP/1.1 and HTTPS are now at 0.76–0.81× after the Pingora patches, up from about 0.6×
-(see [HTTP/1.1 and HTTPS throughput](#http11-and-https-throughput)). Phase 3 (core stability, no
-new features): all six items are done, including a 24-hour soak test (2026-11-09).
-On request, rules gained a `proxy` action (per-path upstream, `strip_prefix`, `add_prefix`,
-`rewrite`) and there is a new `body_replace` plugin, the equivalents of nginx's
-`proxy_pass`/`rewrite`/`sub_filter`, plus the `block_exploits` plugin (built-in blocking of common
-exploit payloads). All of it is tested locally; the production rollout began in November 2026.**
+**Status: pre-1.0.** Phases 1 and 2 and the historical phase 3 checklist are complete.
+The 10 November revision adds the audit fixes and HTTP/2 upstream, with the full local
+validation described below. Routing, auth, ACME, CrowdSec, static files, response caching,
+WebSocket upgrades, per-path proxy routing and streaming body replacement remain supported.
+Configuration and API details can change before 1.0.
+
+Implementation reference: `03cae2b`, 10 November 2026. The completed HTTP/2 upstream work
+and audit fixes are summarized in [current local validation](#current-local-validation).
+The older phase, fuzzing, parity and 24-hour soak results below retain their original build
+scope. They do not validate the separate Krynox run or imply this revision was deployed.
 
 ## Features
 
@@ -49,8 +49,8 @@ exploit payloads). All of it is tested locally; the production rollout began in 
   `Server`), local answers (403, 404, redirects), 502/504 error pages, and responses Pingora
   writes itself (400 for a broken header, 405 for `CONNECT`; Pingora patch `499f89d`). Any other
   value can be set, for example `server_header: edge`. With `server_header: off` (or `false`),
-  conduit sends no `Server` at all, including the "Pingora" name that used to leak in those two
-  responses, and the upstream's `Server` passes through unchanged. A site can drop it with
+  conduit and Pingora add no `Server` header, including on those local error responses;
+  an upstream's own `Server` passes through unchanged. A site can drop it with
   `headers: { response: { remove: [server] } }`. It changes on reload. For Wappalyzer to detect
   conduit, a `Server: ^conduit$` fingerprint still has to be added to their database.
 
@@ -76,8 +76,9 @@ exploit payloads). All of it is tested locally; the production rollout began in 
 - One access log line per connection, written when the connection closes, with status 101, the
   duration of the whole session, and the bytes the client sent. The `concurrency` plugin holds
   its slot while the connection is open; `rate_limit` counts only the handshake.
-- WebSocket over HTTP/2 (RFC 8441) is not supported by Pingora. Browsers fall back to HTTP/1.1
-  for WebSocket on their own, and so does Cloudflare towards the origin.
+- Extended CONNECT/WebSocket over HTTP/2 (RFC 8441) is not implemented by this conduit build.
+  Forwarded HTTP/1 upgrades use HTTP/1.1 upstream: `auto` selects H1, required H2 rejects the
+  upgrade with 400. `upgrade: off` still removes the upgrade before that policy is applied.
 
 **mTLS per site** (`mtls: { ca, optional }`)
 - The site asks for a client certificate signed by the CA in `ca` (a PEM file, reloaded when it
@@ -473,11 +474,41 @@ RSS targets above, and phase 1 was closed. The reasons:
 
 That fast path stays open as optional work in case parity with nginx is ever needed.
 
+## Current local validation
+
+The final implementation in `03cae2b` passed **111 application unit tests and 34 E2E tests**:
+109 default unit tests plus two explicit measurement tests; 30 default E2E tests plus ACME,
+CrowdSec, slowloris and HTTP/2 soak run explicitly. The HTTP/2 cases cover h2c, TLS ALPN,
+strict fallback refusal, concurrent streams, stream-limit reloads, health probes, cache,
+gRPC bidirectional streaming, a 2 MiB frame, trailers, cancellation and reload mid-stream.
+Five functional H2 cases were repeated against the final release binary. One additional
+native Pingora regression passed for the H2 pool reuse backport; the full vendor suite was
+not repeated for this revision. Clippy and rustfmt passed.
+
+| Evidence | Scope and result |
+|---|---|
+| [Audit closure](audit/FIX_VALIDATION.md) | Eight security regressions and the final release PoC close the validated findings; F04 retains documented TTL/purge behavior. |
+| [HTTP/2 report](audit/HTTP2_UPSTREAM_VALIDATION.md) | Five H2 functional cases, one H2 soak and the complete application suite; source/binary hashes and raw logs. |
+| Default-path release A/B | Five alternating rounds, 6,000,000 requests, zero errors; all use H1 upstream. Median throughput change: HTTP +1.5%, HTTPS +9.3%, client H2 +2.5%. Shared-host and affinity limits prevent a universal speedup claim. |
+| Final release H2 soak | 120 seconds, 1,500 req/s offered load, 179,999 successful requests, 23 reloads, FDs 40 → 39 after drain; RSS 28,152 → 29,596 KiB. |
+| Earlier mixed local soak | Before the H2 feature: 600 seconds of traffic, 432,000 requests and 23,960 long-lived WebSocket echoes, zero observed errors. |
+
+The local 120-second run is bounded stability evidence. The Krynox 24-hour run mentioned by
+the operator remains a separate run; no deployment, restart or live verification is claimed.
+See the [audit index](audit/README.md) for the distinction between historical and current
+results and the [configuration reference](configuration.md#upstream-protocol-behavior) for
+HTTP/1.1, required H2, auto negotiation, frontend TLS and upgrade constraints.
+
 ## Test results (local)
+
+This detailed catalog includes historical phase 1–3 runs. Counts such as 86 unit / 9 E2E
+in the fork row describe that earlier run. The totals and raw evidence for the final build
+are in [current local validation](#current-local-validation). Historical fuzz/production-log
+replay campaigns and the older 24-hour soak were not repeated during the HTTP/2 change.
 
 | | |
 |---|---|
-| Unit tests | 109 pass (plus 2 measurements, `--ignored`); importer tests were removed with that feature |
+| Unit tests, final validation 2026-11-10 | 109 default + 2 explicit measurements = 111 passed; importer tests were removed with that feature |
 | `Server` header (`server_header` e2e) | Default (option not set): proxied responses (replacing `Server: echo-upstream`), 404 for an unknown host, 403 from `ip_filter`, 502 for a dead upstream, 400 for a broken header, and 405 for `CONNECT` all carry exactly one `Server: conduit`; a site with a `headers` remove has no `Server`. After a reload with `server_header: off`: the upstream's `Server` passes through, and the five local responses above have no `Server` (not `Pingora`). A value with CRLF is refused on reload and the old config keeps running. Unit tests: unset → `conduit`, `off` and `false` → none, another name as written; empty, surrounding spaces, non-ASCII, longer than 64 characters → refused |
 | `block_exploits` on real traffic (2026-11-09) | 1,139,833 requests from a production nginx access log (17 Apr–9 Nov 2026, 51 proxy hosts; read read-only, client IPs hashed before storing, the copy deleted afterwards) replayed into the engine with default settings. 25,117 (2.2%) would be blocked, and every one was checked: secret file probes (`/.env*`, `/.git/config`, `/.aws/`, `.npmrc`, etc.; 22,554, from 2,313 clients), traversal (`../../`, `..;/`, `/proc/self/environ`), phpunit `eval-stdin.php`, Struts OGNL, Shellshock, pearcmd, cloud metadata through proxy parameters, `?=phpinfo()`, the zgrab UA, and Dolibarr `file=../conf/conf.php`. One false positive was found and fixed: TurnitinBot (a legitimate crawler, from NPM's UA list; the download managers on that list were dropped too). One missed attack was added: one level up to a config file (Dolibarr, 145 requests to 7 hosts). After the fixes, the only differences from the previous run are those two. Blocked by NPM but let through by conduit: `=http://` (on purpose, see parity) and `/./`; the rest come from Next.js header rules in advanced configs, which conduit handles with `rules` |
 | `block_exploits` (unit + `block_exploits` e2e) | 163 attack payloads (sqlmap, nuclei, PayloadsAllTheThings, Log4Shell and its obfuscations, Spring4Shell, Confluence/Struts OGNL, PHP-CGI CVE-2024-4577, phpunit, ThinkPHP, pearcmd, reverse shells, cloud metadata, scanner UAs, Dolibarr `../conf/conf.php`) must hit the right rule; 74 ordinary requests that look like attacks must pass (OAuth `redirect_uri=http://`, S3 presigned URLs, registry digests, repository files `etc/passwd` and `.env.example`, code search for `select * from`, `time.sleep(5)`, `<button onclick=`, "JavaScript: The Good Parts", "O'Reilly and Sons", `order=desc`, Grafana variables `${env:raw}`, WebDAV `.git/`, `/.well-known/`, Uptime Kuma/curl/python-requests/TurnitinBot/GetRight UAs, `../` to an ordinary file). Results with and without the Aho-Corasick keywords are the same for all of these inputs. E2E: attacks → 403 and never reach the upstream, ordinary requests arrive whole, `except` and `skip_params`, `log` mode lets through and counts, metrics per category, `blocked_by` in the access log, warning lines with the rule id. Cost (`cost`, release): about 0.22 µs without a query, 0.5 µs with an ordinary query, 0.6 µs for an OAuth URL, 19 µs for a 5 KB query |
@@ -513,6 +544,11 @@ completed without failure. This smoke run validates the harness and daemon hando
 does not replace the 24-hour run.
 
 ## Benchmark
+
+The PGO/nginx comparison below records the 8 November build. HTTP/2 denotes the client
+connection, with HTTP/1.1 upstreams. It is separate from the final before/after H2-feature
+benchmark in [current local validation](#current-local-validation); backend H2 peak versus
+H1 peak has not been compared.
 
 `scripts/bench.sh`: the proxy is limited to 2 CPUs, the upstream and the load generator run on other
 CPUs, 2 KB bodies, 64 connections, 50,000 requests per scenario, access log on in both proxies.
@@ -841,7 +877,7 @@ mise run test                 # unit + e2e
 mise run test-acme            # ACME end-to-end with Pebble (needs Docker)
 mise run test-crowdsec        # CrowdSec end-to-end with a real CrowdSec (needs Docker)
 mise run lint                 # fmt + clippy
-mise run release              # dist/conduit (PGO) for Ubuntu 22.04 (glibc ≤ 2.35), via Docker
+mise run release              # dist/conduit (PGO), Ubuntu 22.04 / glibc 2.35 baseline, via Docker
 mise run pgo                  # local PGO build into target/pgo/conduit (needs rustup llvm-tools)
 mise run bench                # conduit vs nginx (tuned and without upstream keep-alive), Docker
 mise run compare              # dist/conduit vs nginx, Caddy, Apache, HAProxy, Traefik, Envoy (Docker)
@@ -853,6 +889,24 @@ conduit check -c conduit.yaml
 conduit run -c conduit.yaml [-d] [-u]
 scripts/parity.py CONFIG NPM_IP CONDUIT_IP --http-port 80,18080 --https-port 443,18443
 ```
+
+`mise` test/lint/build entry points prepare the local Pingora backport. Direct Cargo
+commands need preparation first, also after resetting the submodule:
+
+```sh
+bash scripts/prepare-vendor.sh
+cargo test --locked --all-targets
+cargo test --locked --lib -- --ignored --nocapture
+cargo test --locked --test e2e upstream_http2_ -- --nocapture
+cargo test --locked --test e2e slow_request_head_is_cut_off -- --ignored --nocapture
+OHA_BIN=/path/to/oha cargo test --locked --test e2e upstream_http2_load_stability -- --ignored --nocapture
+```
+
+ACME and CrowdSec use the dedicated mise tasks above. For the native H2 pool race command,
+see [the vendor test instructions](../vendor/README.md#tests). Reusing a release binary for
+the H2 tests is supported by `CONDUIT_HTTP2_TEST_BIN`; `CONDUIT_H2_REPORT` selects the soak
+JSON output path. The H2 soak requires oha 1.16.0. Default `cargo test` does not run these
+explicitly ignored cases.
 
 Fuzzing (`fuzz/`) uses cargo-fuzz. The targets live in `src/fuzzing.rs`, which is why conduit is
 built as a library plus a thin binary: the fuzz targets can call internal functions. Seeds are in
@@ -931,7 +985,7 @@ acquisition: [`deploy/crowdsec/`](../deploy/crowdsec/).
   be proposed to upstream Pingora ([`vendor/README.md`](../vendor/README.md)).
 - **Phase 2 (done):** built-in ACME, CrowdSec bouncer + AppSec, rate and connection limits, mTLS,
   `basic_auth` and `forward_auth`. Added: a static file server and a response cache.
-- **Phase 3 (next): core stability, no new features.** Core = routing, TLS, WebSocket/upgrades,
+- **Phase 3 (historical checklist completed 2026-11-09): core stability.** Core = routing, TLS, WebSocket/upgrades,
   reloads and graceful upgrades, upstream pools and health checks, the access log. Order:
   1. ✓ Upstream flapping under load (done 2026-11-08, `upstream_flapping` in
      [Test results](#test-results-local)). Finding: upstream timeouts were answered with 502, now
@@ -956,9 +1010,15 @@ acquisition: [`deploy/crowdsec/`](../deploy/crowdsec/).
      remaining behavior differences are in the nginx exploit-blocking rules (on for 38 of 51
      hosts), now covered by the `block_exploits` plugin: conduit no longer has their false
      positives, and it catches attacks they let through.
-- **Deferred until the core is stable:** session ticket keys shared between processes, OCSP, an
-  admin API, OpenTelemetry, CrowdSec captcha, DNS-01. CrowdSec and AppSec are not developed
-  further; what exists stays, and is optional during migration. `.deb`/container packages and
-  documentation are done close to the migration.
+- **Completed after the core checklist (2026-11-10):** audit fixes for decoding, descriptor
+  containment, authority/encoding cache identity, checked durations, watcher validation,
+  serialized admission and wildcard certs; HTTP/2 upstream with TLS/h2c, gRPC streams and
+  trailers, protocol isolation, stream limits and the local Pingora pool backport. See
+  [current local validation](#current-local-validation).
+- **Deferred:** session ticket keys shared between processes, OCSP, a configuration mutation
+  API (the health/status/metrics/cache-purge admin API already exists), OpenTelemetry,
+  CrowdSec captcha, DNS-01. CrowdSec and AppSec are not developed
+  further; what exists stays, and is optional during migration. Distribution packages
+  (`.deb` and runnable containers) remain separate from the current source and documentation validation.
 - **Optional:** an HTTP/1→HTTP/1 fast path in the Pingora fork, in case parity with nginx is ever
   needed.

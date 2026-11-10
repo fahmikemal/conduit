@@ -1,6 +1,10 @@
 # Perbaikan dan validasi penutupan temuan
 
-Tanggal: 10 November 2026. Laporan ini menggantikan status tindakan di laporan audit dan recheck sebelumnya; bukti sebelum perbaikan tetap disimpan sebagai riwayat.
+Tanggal: 10 November 2026. Laporan ini mencatat putaran perbaikan audit **sebelum fitur
+HTTP/2 upstream**. Bukti dan angka 111 unit / 28 E2E di bawah berlaku pada putaran itu.
+Implementasi final `03cae2b` mengulang seluruh suite dan closure: **111 unit / 34 E2E lulus**,
+seperti dicatat di [HTTP2_UPSTREAM_VALIDATION.md](HTTP2_UPSTREAM_VALIDATION.md). [Indeks audit](README.md)
+merangkum status sekarang; bukti sebelum perbaikan dipertahankan sebagai riwayat.
 
 Perbaikan implementasi F01/F02/F03/F05/F06/F07/F09, perbaikan warning serta penegasan override wildcard F08, dan koreksi dokumentasi F10 sudah diterapkan. F04 tetap ditarik sebagai bug karena sesuai kontrak cache yang didokumentasikan. Delapan tes e2e regresi baru memakai binary nyata; masing-masing dijalankan setelah perbaikan terkait.
 
@@ -57,6 +61,7 @@ Total: **111 unit dan seluruh 28 e2e lulus**; tidak ada e2e yang tersisa hanya s
 Perintah pokok:
 
 ```sh
+bash scripts/prepare-vendor.sh
 cargo test --locked --all-targets
 cargo test --locked --lib -- --ignored --nocapture
 cargo test --locked --test e2e acme_with_pebble -- --ignored --nocapture
@@ -132,7 +137,12 @@ python3 docs/audit/fix_stability.py /path/to/release/conduit \
 ## Integritas dan batas kesimpulan
 
 - Source `src/*.rs` dan manifest di build copy cocok dengan checkout hasil perbaikan. Hash binary dan source dicatat pada [fix-validation.json](fix-validation.json).
-- Rust 1.99.1; fork Pingora tetap pada gitlink terkunci `5c765c66590bdb7829ad32e00abc6f9a4e0410af`. Inisialisasi submodule tidak mengubah versi dependency.
+- Rust 1.99.1; fork Pingora pada putaran ini memakai gitlink `5c765c66590bdb7829ad32e00abc6f9a4e0410af`.
+  Implementasi H2 berikutnya menambahkan patch lokal di atas gitlink yang sama. Native
+  build sekarang memerlukan `scripts/prepare-vendor.sh`; lihat [vendor README](../../vendor/README.md).
+- Hash artefak graph/source dokumentasi pada `graphify-resync.json` adalah snapshot putaran
+  tersebut. Sinkronisasi dokumentasi terbaru dicatat di [documentation-sync.json](documentation-sync.json);
+  hash implementasi final tetap ada di [http2-validation.json](http2-validation.json).
 - Audit awal memakai graph yang sudah tersedia. Setelah patch, Graphify disinkronkan ulang melalui ekstraksi AST, pembaruan pemetaan dokumentasi, dan regenerasi JSON/HTML/report. Bukti sinkronisasi dicatat terpisah pada [graphify-resync.json](graphify-resync.json). Graph memetakan hubungan sumber; pembacaan source dan eksekusi binary tetap menentukan hasil closure.
 - Context7 dipakai untuk memeriksa kontrak library, termasuk interval Tokio dan cache variance Pingora. Source fork lokal tetap menjadi rujukan untuk perilaku versi terkunci; dokumentasi branch main tidak otomatis membuktikan kesesuaian fork.
 - Fallback files kini menolak semua symlink. Listing membutuhkan `/proc/self/fd`. Ini pembatasan kompatibilitas yang disengaja dan dicantumkan di dokumentasi konfigurasi.

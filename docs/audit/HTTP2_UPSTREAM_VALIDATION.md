@@ -2,11 +2,17 @@
 
 Tanggal: 10 November 2026. Perubahan ini menambahkan HTTP/2 upstream untuk layanan internal tanpa mengubah default HTTP/1.1 pada konfigurasi lama. Pengujian menggunakan binary Conduit nyata dan server HTTP/2 dengan framing/flow control, bukan mock respons HTTP/1 yang diberi label HTTP/2.
 
+Implementasi yang diuji sudah masuk commit `03cae2b`. [Indeks audit](README.md) merangkum
+penutupan temuan dan [referensi konfigurasi](../configuration.md#4-upstream-pools) menjadi
+rujukan opsi. Perubahan Markdown berikutnya tidak mengganti binary atau source yang diuji.
+
 ## Pemakaian
 
-Untuk layanan internal HTTP/2 tanpa TLS:
+Untuk layanan internal HTTP/2 tanpa TLS, konfigurasi minimal yang dapat di-check:
 
 ```yaml
+listen:
+  http: ["127.0.0.1:8080"]
 sites:
   - id: internal
     hosts: [internal.example.com]
@@ -122,6 +128,11 @@ Soak ini merupakan pengujian lokal terbatas. Run 24 jam Krynox yang disebut peng
 
 ## Integritas dan pemetaan
 
-Hash source, binary, patch dan hasil pemeriksaan final berada di [http2-validation.json](http2-validation.json). Graphify disinkronkan setelah implementasi, dengan kode, dokumentasi policy HTTP, tes H2 dan backport rationale. [Bukti sinkronisasi](http2-graphify-resync.json).
+Hash source, binary, patch dan hasil pemeriksaan final berada di [http2-validation.json](http2-validation.json).
+Graphify disinkronkan setelah implementasi, dengan kode, dokumentasi policy HTTP, tes H2
+dan backport rationale. [Bukti sinkronisasi H2](http2-graphify-resync.json) merekam snapshot
+graph pada putaran tersebut; hash source/dokumen di sana tidak dimaksudkan berubah mengikuti
+edit Markdown berikutnya. [documentation-sync.json](documentation-sync.json) mencatat
+pemeriksaan dan graph terbaru untuk putaran dokumentasi ini.
 
 Context7 digunakan untuk kontrak PeerOptions/ALPN Pingora dan framing/flow control/trailer crate h2. Source fork terkunci dan pengujian wire menentukan perilaku aktual. Menambahkan H2 tidak berarti seluruh API Pingora sudah diekspos sebagai opsi konfigurasi Conduit.

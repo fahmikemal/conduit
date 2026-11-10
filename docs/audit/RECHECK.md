@@ -1,12 +1,16 @@
 # Verifikasi ulang: bug, risiko bersyarat, atau false positive?
 
-**Sesudah perbaikan:** hasil closure dan suite terbaru berada di [FIX_VALIDATION.md](FIX_VALIDATION.md). Dokumen ini mempertahankan hasil recheck pada binary sebelum patch.
+**Status pada implementasi `03cae2b` (10 November 2026):** semua temuan valid sudah
+ditangani dan kontrol perilaku F04 tetap sesuai kontrak. [FIX_VALIDATION.md](FIX_VALIDATION.md)
+mencatat perbaikannya; [HTTP2_UPSTREAM_VALIDATION.md](HTTP2_UPSTREAM_VALIDATION.md) mencatat
+pengulangan closure pada release final, 111 unit dan 34 E2E lulus. Dokumen ini mempertahankan
+hasil recheck pada binary sebelum patch; bukti bug di bawah adalah bukti historis.
 
 **Hasil:** tujuh temuan implementasi terkonfirmasi dengan eksekusi Rust/binary asli (F01/F02/F03/F05/F06/F07/F09). F04 ditarik sebagai bug karena perilaku itu sesuai kontrak cache. F08 harus dipisahkan antara perilaku override yang kontraknya ambigu dan bug warning yang terbukti. F10 hanya ketidaksesuaian README, bukan bug implementasi.
 
-Audit awal terlalu luas ketika mengelompokkan semuanya sebagai temuan bug. Recheck ini menjadi rujukan terbaru untuk status; uraian historis di laporan awal bukan bukti runtime tambahan.
+Audit awal terlalu luas ketika mengelompokkan semuanya sebagai temuan bug. Recheck ini menjadi rujukan klasifikasi sebelum patch; uraian historis di laporan awal bukan bukti runtime tambahan.
 
-## Matriks keputusan akhir
+## Matriks keputusan sebelum perbaikan
 
 | ID | Keputusan | Bukti utama | Batas kesimpulan |
 |---|---|---|---|
@@ -156,4 +160,6 @@ Hasil positif suite lama tidak membatalkan temuan: skenario double encoding, aut
 - [Test fallback](recheck_fallback.rs): test private helper, untuk salinan disposable atau wrapper yang mengekstrak fungsi utuh. Memaksa flag fallback hanya dalam fixture test.
 - [Hasil native](recheck-native.log), [hasil fallback](recheck-fallback.log), [hasil existing unit](recheck-unit.log), [hasil existing file e2e](recheck-e2e-files.log).
 
-Prioritas perbaikan yang masih kuat: **F01 dan F03**, disusul **F09**, **F02 pada root mutable/fallback**, serta validasi durasi/watcher dan admission race. F04 bukan alasan mengubah arsitektur cache tanpa keputusan produk; F08/F10 perlu penanganan yang sesuai cakupan kecil/kontraknya.
+Prioritas historis putaran ini adalah **F01 dan F03**, disusul **F09**, **F02 pada root
+mutable/fallback**, validasi durasi/watcher dan admission race. Perbaikannya kini sudah
+diterapkan; gunakan [matriks penutupan saat ini](README.md#matriks-penutupan) untuk status. F04 bukan alasan mengubah arsitektur cache tanpa keputusan produk; F08/F10 perlu penanganan yang sesuai cakupan kecil/kontraknya.

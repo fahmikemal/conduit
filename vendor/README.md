@@ -9,12 +9,19 @@ in conduit's code (see "HTTP/1.1 and HTTPS throughput" in the
 [technical documentation](../docs/technical.md#http11-and-https-throughput)). Decision of
 2026-11-07: stay on Pingora and patch its hot spots rather than write an HTTP/1 stack of our own.
 
+The conduit implementation at `03cae2b` also carries a local H2 pool backport over the pinned
+fork commit `5c765c66590bdb7829ad32e00abc6f9a4e0410af`. The performance tables below describe
+the earlier fork patches; the new H2 change and its validation are documented separately in
+[the HTTP/2 report](../docs/audit/HTTP2_UPSTREAM_VALIDATION.md).
+
 ## How it is wired in
 
 - `vendor/pingora` is a git submodule pointing at branch `conduit` of the fork repository. Clone
   conduit with `git clone --recurse-submodules`, or run `git submodule update --init` after a
   plain clone. New patches are committed in the fork and pushed to branch `conduit`, then the
-  submodule commit in the conduit repository is updated.
+  submodule commit in the conduit repository is updated. The H2 pool fix is currently an
+  additional checked-in patch, not a new fork commit. After initialization or a reset, run
+  `bash scripts/prepare-vendor.sh` from the conduit root before invoking Cargo directly.
 - `Cargo.toml` takes every `pingora-*` crate from this folder through `[patch.crates-io]`, so no
   Pingora crate is built twice. The version stays 0.9.1, and `Cargo.lock` keeps exactly the same
   dependency versions as before the fork.
@@ -236,6 +243,23 @@ fast and slow upstreams (backpressure), parallel uploads, and a 20 MB response.
 
 ## Tests
 
+For the current H2 backport, prepare the pinned source and run its deterministic regression:
+
+```sh
+bash scripts/prepare-vendor.sh
+CARGO_INCREMENTAL=0 CARGO_TARGET_DIR="$HOME/.cache/conduit-pingora-target" \
+  cargo test --manifest-path vendor/pingora/Cargo.toml -p pingora-core \
+  --features openssl test_reused_http_session_no_duplicate_in_use_entry -- --nocapture
+```
+
+Run this block from the conduit root. It selected one native test, which passed; it did not
+run the full vendor suite. The app's 111 unit / 34 E2E results and five repeated release
+H2 cases are recorded in [the final report](../docs/audit/HTTP2_UPSTREAM_VALIDATION.md).
+The vendor workspace resolves its own dev-dependency lock; application builds use the
+root Cargo.lock with `--locked`.
+
+The following full-suite command and counts are the earlier fork validation procedure:
+
 Pingora's tests need a target directory without spaces, because jemalloc (a Pingora
 dev-dependency) refuses to build in a path that contains spaces:
 
@@ -252,6 +276,12 @@ What is run for this fork: all unit tests of `pingora-http`, `pingora-core` (wit
 `pingora-proxy` integration tests (`tests/`) do not run here: they use `openresty` as the origin.
 
 ## Updating to a new Pingora
+
+Inspect the local H2 backport before changing the submodule base: preparation intentionally
+leaves `pingora-core/src/connectors/http/v2.rs` modified. Preserve the patch file, determine
+whether the new base contains the fix, then adapt or retire the patch and rerun its native
+regression plus the conduit H2 E2E tests. `prepare-vendor.sh` refuses an incompatible source;
+do not bypass that failure and build without checking the pool fix.
 
 ```sh
 cd vendor/pingora
@@ -272,6 +302,10 @@ discussed first. `79bf391` changes the pool's behavior (idle connections closed 
 needs a discussion with the maintainers first.
 
 ## Upstream status (checked 2026-11-09)
+
+This dated survey is historical. The additional local H2 backport described at the end of
+this section was validated on 10 November; the survey is not a claim about current upstream
+release or merge status.
 
 The latest release is still 0.9.1. What was checked: the 74 branches of cloudflare/pingora (the
 newest, `ewang/ci-fuzz-soak-nextest`, is 36 commits ahead of 0.9.1; `main` 20 commits), and the PRs

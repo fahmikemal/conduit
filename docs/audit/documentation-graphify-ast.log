@@ -1,0 +1,6 @@
+Updating code graph in . (no LLM needed)...
+[graphify watch] 14 file(s) not classified (no supported extension or shebang), skipped: .dockerignore, .gitattributes, .gitignore, .gitmodules, .graphifyignore, Dockerfile (+8 more)
+[graphify watch] Incremental: re-extracting 1 of 75 scanned files that changed since the last build.
+[graphify watch] No tracked code files in change set - skipping rebuild.
+Code graph updated. For doc/paper/image changes run /graphify --update in your AI assistant.
+Tip: set GEMINI_API_KEY or GOOGLE_API_KEY to use Gemini for semantic extraction.

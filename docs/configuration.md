@@ -5,6 +5,11 @@ its default, how it is validated, and what it does to a request. The rules engin
 plugin are described in depth, with examples. [`conduit.example.yaml`](../conduit.example.yaml)
 is the same reference in compact form, as a commented configuration file.
 
+Implementation reference: commit `03cae2b` (10 November 2026). The
+[technical guide](technical.md), [audit index](audit/README.md) and
+[HTTP/2 validation](audit/HTTP2_UPSTREAM_VALIDATION.md) describe the evidence behind these
+contracts. Native builds must first run `bash scripts/prepare-vendor.sh`.
+
 Contents:
 
 1. [The configuration file](#1-the-configuration-file)
@@ -65,6 +70,9 @@ error.
 | Header name | any valid HTTP field name, compared case-insensitively | `X-Api-Key`, `user-agent`       |
 
 Identifiers (site ids and pool names) are letters, digits, `.`, `-` and `_`.
+Duration multiplication that exceeds `u64` seconds is a configuration error, including on
+reload; it does not wrap. Additional runtime limits are checked where required, such as a
+positive `tls.watch_interval` that fits the runtime clock.
 
 ### When changes take effect
 
@@ -80,8 +88,10 @@ files are:
 - files served by the `file` action of rules;
 - `default_site.page` and `crowdsec.ban_page`.
 
-A reload is atomic: the new configuration is built completely, and only then swapped in.
-Requests in flight finish on the configuration they started with. If the new configuration
+A new runtime is built completely before publication. Each request holds the runtime
+snapshot it started with, so a reload does not replace its routing or plugin state mid-request.
+Runtime, certificate store and process-wide settings are published separately; they are not
+one global transaction across all handshakes and admin observations. If the new configuration
 has an error, it is logged, recorded in `/status` and in
 `conduit_config_reloads_total{result="failure"}`, and the running configuration stays.
 
@@ -131,8 +141,9 @@ itself, which ends it.
    cannot be normalized is answered with 400. A plugin that has to wait (`basic_auth`
    verifying a new password, `forward_auth` asking its service) is awaited in its place in
    the chain, so the written order always holds.
-10. **Files and cache.** A site with `files:` serves the request from disk when it applies
-    (step 12); otherwise the request may use the site's response cache.
+10. **File/cache eligibility.** Determine whether to attempt file lookup or enable the
+    response cache after the plugin chain. File lookup and serving happen after AppSec
+    in step 12.
 11. **CrowdSec AppSec**, for sites with `crowdsec: { appsec: true }`, once every plugin let
     the request through.
 12. **Answer:** a file, or the request is proxied: a backend is chosen from the pool (a
@@ -176,8 +187,9 @@ Process settings, read at start only.
 | `https` | `[]` | Addresses for HTTPS. HTTP/2 is offered over ALPN next to HTTP/1.1. |
 
 At least one address is required. `[::]` listens on IPv6 only, so `0.0.0.0:443` and
-`[::]:443` can be listed together on dual-stack hosts. Cleartext HTTP/2 (h2c) is not
-offered. Read at start only.
+`[::]:443` can be listed together on dual-stack hosts. These client-facing listeners do not
+offer cleartext HTTP/2 (h2c). Upstream `h2c://` is supported separately in
+[upstream pools](#4-upstream-pools). Read at start only.
 
 ### `admin`
 
@@ -405,6 +417,19 @@ sites:
 `h2c://` is the shorthand, including in `upstream: h2c://127.0.0.1:50051`. There is no HTTP/1
 `Upgrade: h2c` negotiation, and cleartext HTTP/2 does not fall back to HTTP/1.1. An explicit
 `http_version: "1.1"` or `auto` conflicts with an `h2c://` backend and is rejected.
+
+### Upstream protocol behavior
+
+| Pool policy | `http://` | `https://` | `h2c://` |
+|---|---|---|---|
+| omitted | HTTP/1.1 | HTTP/1.1 | required HTTP/2 prior knowledge |
+| `"1.1"` | HTTP/1.1 | HTTP/1.1 | configuration error |
+| `"2"` or numeric `2` | required HTTP/2 prior knowledge | required TLS HTTP/2 | required HTTP/2 prior knowledge |
+| `auto` | HTTP/1.1 | ALPN HTTP/2 preferred, HTTP/1.1 allowed | configuration error |
+
+With required TLS HTTP/2, a backend that does not negotiate H2 yields 502 before the
+application request is sent. `auto` permits fallback. Changing the client protocol does not
+change the pool policy.
 
 HTTP health checks use the selected upstream protocol too; TCP checks inspect only the
 transport connection. Protocol/stream-limit changes take
@@ -1382,20 +1407,24 @@ The upstream decides what is shared: a page that differs per cookie must say `pr
 
 ### Keys and variants
 
-The key is the site, the scheme, the host and the target (path and query as received), plus
-everything conduit tells the upstream about the client:
+The key includes the site, scheme, normalized routing host, original request authority
+(including its port), and target (path and query as received). The original authority also
+separates `Host: app.test:8080` from `Host: app.test:9090`. Additional identity includes:
 
 - headers set by `forward_auth` (`copy_headers`);
 - the client certificate's fingerprint on `mtls` sites;
 - an `X-Forwarded-Host` a trusted proxy passed on;
 - the pool and rewritten target of a `proxy` rule, and whether `body_replace` applies.
 
-So two users behind `forward_auth`, or two client certificates, never share an entry, and a
-client cannot poison what others receive.
+Different copied forward-auth headers or client certificate fingerprints separate cache
+entries. The origin must still declare responses private when they depend on identity that
+is not represented in the key, such as an application session cookie.
 
-`Vary` is honored: each combination of the listed request headers is its own variant. A
-stored body that is compressed always varies on whether the client accepts that encoding,
-so a compressed body never reaches a client that cannot read it.
+`Vary` is honored: each combination of the listed request headers is its own variant.
+Explicit `Vary: Accept-Encoding` preserves all raw field values, field boundaries, unknown
+codings, q-values and absent versus empty. This conservative separation may store multiple
+entries for equivalent spellings. Without explicit Vary, compressed responses also vary on
+the client's acceptance of the stored encoding; unknown encodings use raw header values.
 
 ### Freshness, revalidation and failures
 
@@ -1434,7 +1463,10 @@ curl -X POST 'http://127.0.0.1:9180/cache/purge?site=cms&prefix=/blog/'
 
 Drops a site's entries, or those whose target (path and query, as clients send them) starts
 with `prefix`. The answer is `{"site": "cms", "purged": <count>}`. A reload drops the
-entries of sites that no longer have `cache:`.
+entries of sites that no longer have `cache:`. Changing an upstream, its HTTP policy or
+headers does not by itself invalidate a fresh cached response. Purge affected entries when
+a cutover must immediately serve the new origin. The endpoint removes entries present at
+the time of purge; an in-flight fill can insert an entry afterwards.
 
 ## 11. TLS, ACME and client certificates
 
