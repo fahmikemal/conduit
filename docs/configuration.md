@@ -10,6 +10,11 @@ Implementation reference: commit `03cae2b` (10 November 2026). The
 [HTTP/2 validation](audit/HTTP2_UPSTREAM_VALIDATION.md) describe the evidence behind these
 contracts. Native builds must first run `bash scripts/prepare-vendor.sh`.
 
+The optional Web UI, SQLite management store, admin OIDC and configuration editing API are
+planned in the [management roadmap](roadmap.md). They are not configuration options in the
+current release; the admin listener described below still requires its existing private-network
+deployment policy.
+
 Contents:
 
 1. [The configuration file](#1-the-configuration-file)

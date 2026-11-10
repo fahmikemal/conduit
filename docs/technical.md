@@ -978,6 +978,13 @@ acquisition: [`deploy/crowdsec/`](../deploy/crowdsec/).
 
 ## Roadmap
 
+The [management and Web UI roadmap](roadmap.md) records the agreed next milestones:
+headless by default, an optional Hallmark-designed UI, SQLite-backed management state,
+local authentication and generic OIDC (including tested Authentik/ZITADEL integrations),
+and one revision-controlled change coordinator for UI/API/CLI and YAML imports. It specifies
+conflict rejection, durable apply/recovery, audit, and E2E/stability/performance release gates.
+These are planned requirements; they do not describe existing admin capabilities.
+
 - **Phase 1 (done 2026-11-08):** the HTTP/1.1 and HTTPS throughput target was changed to ≥0.75×
   tuned nginx or CPU per request ≤1.4×. Ten Pingora patches (three rounds and stage A) plus the new
   access log took it from about 0.6× to 0.76–0.81×; see
@@ -1015,8 +1022,11 @@ acquisition: [`deploy/crowdsec/`](../deploy/crowdsec/).
   serialized admission and wildcard certs; HTTP/2 upstream with TLS/h2c, gRPC streams and
   trailers, protocol isolation, stream limits and the local Pingora pool backport. See
   [current local validation](#current-local-validation).
-- **Deferred:** session ticket keys shared between processes, OCSP, a configuration mutation
-  API (the health/status/metrics/cache-purge admin API already exists), OpenTelemetry,
+- **Next, planned:** milestones 4–6 in the [management roadmap](roadmap.md#milestones):
+  authenticated management foundation, OIDC and monitoring UI, then configuration editing.
+  The configuration mutation API is part of that work; the current admin API already exposes
+  health/status/metrics/cache purge. UI design and implementation must use Hallmark.
+- **Deferred:** session ticket keys shared between processes, OCSP, OpenTelemetry,
   CrowdSec captcha, DNS-01. CrowdSec and AppSec are not developed
   further; what exists stays, and is optional during migration. Distribution packages
   (`.deb` and runnable containers) remain separate from the current source and documentation validation.

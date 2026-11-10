@@ -219,6 +219,9 @@ how each one stands against upstream are listed in [`vendor/README.md`](vendor/R
   depth, files, cache, TLS, headers, the access log, metrics, and a guide for nginx users.
 - [Technical documentation](docs/technical.md): every feature in detail, test
   results, benchmarks and their method, profiling notes, and the roadmap.
+- [Management and Web UI roadmap](docs/roadmap.md): planned optional Hallmark-designed UI,
+  headless default, SQLite/auth, Authentik/ZITADEL OIDC, conflict-safe configuration changes
+  and production release criteria. These management features are not implemented yet.
 - [`conduit.example.yaml`](conduit.example.yaml): every configuration option.
 - [`vendor/README.md`](vendor/README.md): the pinned Pingora fork, required local H2 pool
   backport, build preparation and historical upstream survey.

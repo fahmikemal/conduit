@@ -1,0 +1,5 @@
+Graph: graphify-out/graph.json (2638 nodes) | Traversal: BFS depth=1 | Start (given): ['Hallmark UI design requirement'] | 2 nodes found
+
+NODE Hallmark UI design requirement [src=docs/roadmap.md loc=L15 community=Planned Management and UI]
+NODE roadmap.md [src=docs/roadmap.md loc=L1 community=Planned Management and UI]
+EDGE roadmap.md --references [EXTRACTED]--> Hallmark UI design requirement at=docs/roadmap.md:L15
