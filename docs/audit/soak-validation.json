@@ -1,0 +1,447 @@
+{
+  "status": "passed",
+  "checked_utc": "2026-11-10T18:29:44.809612+00:00",
+  "base_commit": "1fa0020848f261cd4b36e3ffcda80fe0e4600c3e",
+  "scope": "Old completed 24-hour run verified; latest release and expanded smoke validated. New full 24-hour result pending.",
+  "release_binary_sha256": "474e0cbf143e0abbda86f1ff6ae42c9a2bfc13ed309f515d86dae381a7a41429",
+  "application_build_source_hashes_match_release_provenance": true,
+  "previous_24h": {
+    "duration_seconds": 86419,
+    "requests": 56153878,
+    "failures": 68,
+    "binary_sha256": "a0009745671b39d671a6e20d66f82bb6da18ede83eacf5921113b0c5057f8fbd",
+    "archive": "~/soak/archive/run-20261110T180805Z/"
+  },
+  "latest_release_e2e": {
+    "passed": 5,
+    "failed": 0,
+    "ignored": 1,
+    "full_application_suite_reexecuted": false
+  },
+  "runtime_closure": {
+    "F01": {
+      "passed": true,
+      "classification": "closed"
+    },
+    "F03": {
+      "passed": true,
+      "classification": "closed"
+    },
+    "F09": {
+      "passed": true,
+      "classification": "closed"
+    },
+    "F08": {
+      "passed": true,
+      "classification": "closed"
+    },
+    "F10": {
+      "passed": true,
+      "classification": "documented_behavior_preserved"
+    },
+    "F04": {
+      "passed": true,
+      "classification": "documented_behavior_preserved"
+    },
+    "F06": {
+      "passed": true,
+      "classification": "closed"
+    }
+  },
+  "local_grpc_preflight": {
+    "bytes": 407046144,
+    "completed": true,
+    "connections": 2,
+    "early_responses": 97,
+    "errors": 0,
+    "large_messages": 194,
+    "messages": 388,
+    "rpcs": 97,
+    "sampled_at": 1794334837.658801,
+    "status_7": 13
+  },
+  "focused_client_regressions": {
+    "passed": 2,
+    "failed": 0
+  },
+  "report_classifier_checks": {
+    "protocol_error_during_upgrade_rejected": {
+      "expected_passed": false,
+      "exit_code": 1,
+      "failed_checks": [
+        "gRPC failures restricted to upgrade shutdown"
+      ]
+    },
+    "typed_shutdown_during_upgrade_accepted": {
+      "expected_passed": true,
+      "exit_code": 0,
+      "failed_checks": []
+    },
+    "payload_corruption_during_upgrade_rejected": {
+      "expected_passed": false,
+      "exit_code": 1,
+      "failed_checks": [
+        "gRPC failures restricted to upgrade shutdown"
+      ]
+    },
+    "http1_fallback_rejected": {
+      "expected_passed": false,
+      "exit_code": 1,
+      "failed_checks": [
+        "HTTP2 protocol probes"
+      ]
+    }
+  },
+  "active_run_deployment_guard": "Rejected replacement while the first smoke was active; original unit continued.",
+  "initial_smoke": "Strict failure exposed coalesced GOAWAY/PING fixture-client bug; protocol/payload failure classifier retained.",
+  "expanded_smoke": {
+    "passed": true,
+    "checks": {
+      "end marker": true,
+      "no abort": true,
+      "no panic/dead process": true,
+      "log dropped/reuse lost counters": true,
+      "all eight load streams": true,
+      "readable load results": true,
+      "load failures attributed to disruptions": true,
+      "WebSocket behavior": true,
+      "gRPC completed and framed replies verified": true,
+      "gRPC failures restricted to upgrade shutdown": true,
+      "gRPC origin protocol integrity": true,
+      "HTTP2 protocol probes": true,
+      "certificate rotation observed": true
+    },
+    "requests": 372848,
+    "grpc": {
+      "bytes": 26847232,
+      "completed": true,
+      "connections": 6,
+      "early_responses": 16,
+      "errors": 4,
+      "large_messages": 12,
+      "messages": 1654,
+      "rpcs": 16,
+      "sampled_at": 1794335266.224304,
+      "status_7": 0
+    },
+    "origin": {
+      "active_connections": 0,
+      "connections": 482,
+      "grpc_streams": 20,
+      "large_messages": 12,
+      "messages": 1656,
+      "protocol_errors": 0,
+      "resets": 2,
+      "sampled_at": 1794335292.9784327
+    },
+    "protocol_probe_count": 15,
+    "certificate_fingerprints": 6
+  },
+  "expanded_smoke_events": [
+    "1794334848 start target_seconds=420 pid=2065020 hours=24 upgrade_at=1,3 sha256=474e0cbf143e0abb",
+    "1794334852 reload",
+    "1794334860 reload",
+    "1794334866 reload",
+    "1794334868 flap 9002 down",
+    "1794334870 access log rotated",
+    "1794334873 flap 9002 up",
+    "1794334874 reload",
+    "1794334881 reload",
+    "1794334883 flap 9002 down",
+    "1794334887 reload",
+    "1794334888 flap 9002 up",
+    "1794334893 certificate rotated",
+    "1794334895 reload",
+    "1794334897 flap 9002 down",
+    "1794334901 reload",
+    "1794334902 flap 9002 up",
+    "1794334909 reload",
+    "1794334913 flap 9002 down",
+    "1794334915 reload",
+    "1794334915 access log rotated",
+    "1794334918 flap 9002 up",
+    "1794334923 reload",
+    "1794334927 flap 9002 down",
+    "1794334929 reload",
+    "1794334932 flap 9002 up",
+    "1794334937 reload",
+    "1794334942 flap 9002 down",
+    "1794334944 reload",
+    "1794334947 flap 9002 up",
+    "1794334961 upgrade old=2065020 new=2066571 served_by=2066571 old_gone=yes quit=1794334946 exit_s=15.1",
+    "1794334963 flap 9002 down",
+    "1794334963 reload",
+    "1794334963 access log rotated",
+    "1794334965 reload",
+    "1794334967 reload",
+    "1794334968 flap 9002 up",
+    "1794334971 reload",
+    "1794334973 flap 9002 down",
+    "1794334978 flap 9002 up",
+    "1794334979 reload",
+    "1794334983 certificate rotated",
+    "1794334985 reload",
+    "1794334987 flap 9002 down",
+    "1794334992 flap 9002 up",
+    "1794334993 reload",
+    "1794335000 reload",
+    "1794335002 flap 9002 down",
+    "1794335004 access log rotated",
+    "1794335006 reload",
+    "1794335007 flap 9002 up",
+    "1794335014 reload",
+    "1794335018 flap 9002 down",
+    "1794335020 reload",
+    "1794335023 flap 9002 up",
+    "1794335028 reload",
+    "1794335032 flap 9002 down",
+    "1794335034 reload",
+    "1794335037 flap 9002 up",
+    "1794335042 reload",
+    "1794335048 flap 9002 down",
+    "1794335048 reload",
+    "1794335050 access log rotated",
+    "1794335053 flap 9002 up",
+    "1794335056 reload",
+    "1794335062 reload",
+    "1794335062 flap 9002 down",
+    "1794335068 flap 9002 up",
+    "1794335069 reload",
+    "1794335073 certificate rotated",
+    "1794335077 flap 9002 down",
+    "1794335077 reload",
+    "1794335082 flap 9002 up",
+    "1794335083 reload",
+    "1794335091 reload",
+    "1794335093 flap 9002 down",
+    "1794335095 access log rotated",
+    "1794335097 reload",
+    "1794335098 flap 9002 up",
+    "1794335105 reload",
+    "1794335107 flap 9002 down",
+    "1794335111 reload",
+    "1794335112 flap 9002 up",
+    "1794335119 reload",
+    "1794335123 flap 9002 down",
+    "1794335125 reload",
+    "1794335128 flap 9002 up",
+    "1794335143 upgrade old=2066571 new=2069408 served_by=2069408 old_gone=yes quit=1794335128 exit_s=15.1",
+    "1794335145 flap 9002 down",
+    "1794335145 reload",
+    "1794335145 access log rotated",
+    "1794335147 reload",
+    "1794335149 reload",
+    "1794335150 flap 9002 up",
+    "1794335153 flap 9002 down",
+    "1794335153 reload",
+    "1794335158 flap 9002 up",
+    "1794335161 reload",
+    "1794335163 certificate rotated",
+    "1794335167 flap 9002 down",
+    "1794335167 reload",
+    "1794335172 flap 9002 up",
+    "1794335175 reload",
+    "1794335181 reload",
+    "1794335183 flap 9002 down",
+    "1794335185 access log rotated",
+    "1794335188 flap 9002 up",
+    "1794335190 reload",
+    "1794335196 reload",
+    "1794335198 flap 9002 down",
+    "1794335202 reload",
+    "1794335203 flap 9002 up",
+    "1794335210 reload",
+    "1794335212 flap 9002 down",
+    "1794335216 reload",
+    "1794335217 flap 9002 up",
+    "1794335224 reload",
+    "1794335228 flap 9002 down",
+    "1794335230 reload",
+    "1794335230 access log rotated",
+    "1794335233 flap 9002 up",
+    "1794335238 reload",
+    "1794335242 flap 9002 down",
+    "1794335244 reload",
+    "1794335247 flap 9002 up",
+    "1794335252 reload",
+    "1794335252 certificate rotated",
+    "1794335258 flap 9002 down",
+    "1794335259 reload",
+    "1794335264 flap 9002 up",
+    "1794335265 reload",
+    "1794335293 end"
+  ],
+  "smoke_settings": {
+    "SOAK_HOURS": "24",
+    "SOAK_SCALE": "40",
+    "SOAK_UPGRADE_AT": "1 3",
+    "SOAK_SECONDS": "420"
+  },
+  "smoke_dependency_versions": {
+    "hyperframe": "6.1.0",
+    "hpack": "4.2.0",
+    "h2": "4.4.1"
+  },
+  "previous_failed_smoke_archive": "/home/ubuntu/soak/archive/run-20261110T182047Z",
+  "current_runtime_script_differences_from_smoke": [
+    "soak.sh"
+  ],
+  "script_difference_reason": "soak.sh: load/header comments updated; upstream_conns sampler extended to include H2/gRPC origin ports. Workload and control flow unchanged. New ss selector verified on Krynox.",
+  "independent_report_recomputation_matches_checks": true,
+  "documentation_checks": {
+    "markdown_files": 16,
+    "local_links": 652,
+    "yaml_examples": 39,
+    "shell_examples": 20
+  },
+  "graphify": {
+    "base_commit": "1fa0020848f261cd4b36e3ffcda80fe0e4600c3e",
+    "nodes": 2718,
+    "edges": 6147,
+    "communities": 174,
+    "pending_files": 0,
+    "refreshed_sources": [
+      "docs/audit/SOAK_REVALIDATION_20261111.md",
+      "docs/technical.md",
+      "scripts/soak/README.md",
+      "scripts/soak/deploy.py",
+      "scripts/soak/deploy.sh",
+      "scripts/soak/grpc.py",
+      "scripts/soak/probe.py",
+      "scripts/soak/report.py",
+      "scripts/soak/requirements.txt",
+      "scripts/soak/soak.sh",
+      "scripts/soak/test_grpc.py"
+    ],
+    "health": {
+      "node_count": 2718,
+      "unverified_node_count": 0,
+      "raw_edge_count": 6147,
+      "non_object_edges": 0,
+      "missing_endpoint_edges": 0,
+      "dangling_endpoint_edges": 0,
+      "external_reference_edges": 0,
+      "self_loop_edges": 0,
+      "valid_candidate_edges": 6147,
+      "exact_duplicate_edges": 0,
+      "directed_unique_endpoint_pairs": 6147,
+      "directed_same_endpoint_collapsed_edges": 0,
+      "undirected_unique_endpoint_pairs": 6147,
+      "undirected_same_endpoint_collapsed_edges": 0,
+      "same_endpoint_group_count": 0,
+      "relation_variant_groups": 0,
+      "source_file_variant_groups": 0,
+      "source_location_variant_groups": 0,
+      "context_variant_groups": 0,
+      "post_build_graph_type": "Graph",
+      "post_build_node_count": 2718,
+      "post_build_edge_count": 6147,
+      "post_build_error": "",
+      "producer_suppression": {
+        "path": "/home/tesseract/.local/share/uv/tools/graphifyy/lib/python3.12/site-packages/graphify/extract.py",
+        "total_sites": 12,
+        "sites": [
+          {
+            "line": 1887,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+          },
+          {
+            "line": 2582,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+          },
+          {
+            "line": 2584,
+            "name": "seen_doc_refs",
+            "tuple_arity": 0,
+            "sample": "seen_doc_refs: set[str] = set()"
+          },
+          {
+            "line": 3251,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids: set[str] = {n[\"id\"] for n in nodes}"
+          },
+          {
+            "line": 3398,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids = {n.get(\"id\") for n in nodes}"
+          },
+          {
+            "line": 4812,
+            "name": "seen_keys",
+            "tuple_arity": 0,
+            "sample": "seen_keys: set[tuple] = set()"
+          },
+          {
+            "line": 4998,
+            "name": "seen_keys",
+            "tuple_arity": 0,
+            "sample": "seen_keys: set[tuple] = set()"
+          },
+          {
+            "line": 9409,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids: set[str] = set()"
+          },
+          {
+            "line": 9517,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids: set[str] = set()"
+          },
+          {
+            "line": 9596,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids: set[str] = set()"
+          },
+          {
+            "line": 10121,
+            "name": "seen_ids",
+            "tuple_arity": 0,
+            "sample": "seen_ids: set[str] = set()"
+          },
+          {
+            "line": 10122,
+            "name": "seen_edges",
+            "tuple_arity": 4,
+            "sample": "seen_edges: set[tuple[str, str, str, str | None]] = set()"
+          }
+        ],
+        "error": ""
+      },
+      "examples": []
+    },
+    "semantic_cache_files_written": 8
+  },
+  "harness_source_sha256": {
+    "scripts/soak/README.md": "e8fdb78aa7d32598ffe45016bb6148030f7638a1dbae6b128242fec2c32948e9",
+    "scripts/soak/deploy.py": "c3b779f8415bb0decd6d953fdbd18193fa0bbf597948f9106fabc0db744344fd",
+    "scripts/soak/deploy.sh": "491f53bb096675005b58676ec58e92f57b709b4a2abb6e2e346a9b0a67cef9a6",
+    "scripts/soak/grpc.py": "c5740ee4efce2cabd8fbf887cff2ea17de0105e4ec3748c535b143527d448e35",
+    "scripts/soak/probe.py": "8652d2e32f7320a7302d165379e4006ea77d0aed4ddfaf35b8749e23a9ff2378",
+    "scripts/soak/report.py": "a1ebf822307c87cda189b2c555bd7a9027063465abf33c72c2da23e8a29f0e0e",
+    "scripts/soak/requirements.txt": "50349793aa47b5ffe2edc1f28b847afafea9620758db383228ba97d2c08e0f2c",
+    "scripts/soak/soak.sh": "460c51c81ad3b584dea211682b8a869f18ceba00eaea93d2ae1b5aa44a4f51f1",
+    "scripts/soak/test_grpc.py": "a2287e7cd34793704c53cd596be5350a3ba8d4aac30a9f32546c42d01a5c5205",
+    "scripts/soak/ws.py": "20f37347cd40af9fdfa8f5e5787bb9b495123753882c3775af9d430a2bd62d59"
+  },
+  "evidence_sha256": {
+    "docs/audit/soak-smoke-report.log": "cc46a977aa03a2f4a2ddef69f27c3f033b5b3a3f5b787002eb4a0dab91aa34a1",
+    "docs/audit/soak-smoke-checks.json": "0fddb274f58fa73b42fc9245ac984936fb2b753dabf69a202360137c26bd3b94",
+    "docs/audit/soak-previous-analysis.json": "836ab8d94bca4ff904d6ad37924af125a33910b8f51dca5ca3b1db3707167e5e",
+    "docs/audit/soak-previous-report.log": "80f915296d86bd1053533f3358923e605d51fe84c4b807eb62c67425f995753b",
+    "docs/audit/soak-release-e2e.log": "c9ef73ca797f88040a17143704a4401c7e6cf1a82e71bf412b264e77341bd262"
+  },
+  "graph_artifact_sha256": {
+    "graphify-out/graph.json": "7a4c276de10635868db585880b15a2e9be51318dead147700eaa3eb6b02c03c2",
+    "graphify-out/graph.html": "64a720d8f896b3ce9bd75fb159d6abc015a4a6169cc51f4a342c6384ee3446c7",
+    "graphify-out/GRAPH_REPORT.md": "bb09b1a614c91273ae714dfcf733b3792ee6602b14524f6437031360c47fd6ae"
+  }
+}

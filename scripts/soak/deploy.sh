@@ -1,36 +1,7 @@
 #!/usr/bin/env bash
-# Starts the soak test on HOST (a disposable machine: it installs nginx and adds an nftables
-# table) as the transient systemd unit conduit-soak, with dist/conduit and the local oha.
-#   scripts/soak/deploy.sh HOST [HOURS]       start (SOAK_SCALE, SOAK_SECONDS and
-#                                             SOAK_UPGRADE_AT pass through)
-#   ssh HOST systemctl status conduit-soak    progress; results in ~/soak/out, report.txt last
-# A running soak on HOST is stopped first. Its output and runtime files move to a unique
-# directory in ~/soak/archive/; earlier results are never overwritten.
+# Start a native release soak on a disposable host; refuses to replace an active run.
+# SOAK_BIN, OHA_BIN and SOAK_PYTHON_LIB select locally staged build/fixture artifacts.
+# scripts/soak/deploy.sh HOST [HOURS]
 set -euo pipefail
-host=$1
-hours=${2:-24}
-here=$(cd "$(dirname "$0")" && pwd)
-root=$(cd "$here/../.." && pwd)
-oha=$(mise which oha)
-ssh "$host" 'set -e
-    sudo -n systemctl stop conduit-soak 2>/dev/null || true
-    sudo -n systemctl reset-failed conduit-soak 2>/dev/null || true
-    if ! command -v nginx >/dev/null; then
-        sudo -n apt-get update -qq
-        sudo -n DEBIAN_FRONTEND=noninteractive apt-get install -y -qq nginx >/dev/null
-    fi
-    # Only the soak'"'"'s own nginx runs, from its own config.
-    sudo -n systemctl disable --now nginx >/dev/null 2>&1 || true
-    mkdir -p ~/soak/archive
-    archive=$(mktemp -d "$HOME/soak/archive/run-$(date -u +%Y%m%dT%H%M%SZ)-XXXXXX")
-    for dir in out run; do
-        if [ -d "$HOME/soak/$dir" ]; then mv "$HOME/soak/$dir" "$archive/"; fi
-    done
-    echo "Previous run archived: $archive"'
-scp -q "$root/dist/conduit" "$oha" "$here/soak.sh" "$here/ws.py" "$here/report.py" "$host:soak/"
-ssh "$host" "sudo -n systemd-run --quiet --unit conduit-soak --uid \$(id -u) --gid \$(id -g) \
-    -p WorkingDirectory=\$HOME/soak -p LimitNOFILE=65536 \
-    --setenv SOAK_HOURS=$hours --setenv SOAK_SCALE=${SOAK_SCALE:-1} \
-    ${SOAK_SECONDS:+--setenv SOAK_SECONDS=$SOAK_SECONDS} \
-    ${SOAK_UPGRADE_AT:+--setenv \"SOAK_UPGRADE_AT=$SOAK_UPGRADE_AT\"} \
-    /bin/bash \$HOME/soak/soak.sh && systemctl is-active conduit-soak"
+cd "$(dirname "$0")/../.."
+exec python3 scripts/soak/deploy.py "$@"

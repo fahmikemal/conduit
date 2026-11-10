@@ -1,0 +1,66 @@
+Run: Wed Nov 11 02:20:48 2026 → Wed Nov 11 02:28:13 2026 (0.1 h)
+   start target_seconds=420 pid=2065020 hours=24 upgrade_at=1,3 sha256=474e0cbf143e0abb
+Events: access 9, certificate 5, end 1, flap 54, reload 60, start 1, upgrade 2
+   upgrade old=2065020 new=2066571 served_by=2066571 old_gone=yes quit=1794334946 exit_s=15.1
+   upgrade old=2066571 new=2069408 served_by=2069408 old_gone=yes quit=1794335128 exit_s=15.1
+
+Samples: 15 (dead process seen in 0)
+hour         rss_kb            fds        threads upstream_conns       ws_conns   client_conns      time_wait  cpu%
+   0          52164            207             12              8             40            108           2167   20.1  (partial)
+Per process:
+  pid 2065020: 1.5 min, RSS 26.0 MB at 0 min, 50.9 MB at the end, peak 52.6 MB, trend unavailable (<2 samples after 15 min); fds 75–216
+  pid 2066571: 2.5 min, RSS 46.1 MB at 0 min, 51.7 MB at the end, peak 53.6 MB, trend unavailable (<2 samples after 15 min); fds 207–212
+  pid 2069408: 1.5 min, RSS 48.9 MB at 0 min, 53.2 MB at the end, peak 53.2 MB, trend unavailable (<2 samples after 15 min); fds 138–208
+max RSS 53.6 MB, max fds 216
+access log lines dropped: 0, idle upstream reuse lost: 0
+
+Load (oha):
+  big          7,896 requests,      0 failed (0.0000%), p99 median 6.69 ms, worst 20.68 ms
+  churn       11,816 requests,      0 failed (0.0000%), p99 median 4.02 ms, worst 20.69 ms
+  h1          98,056 requests,      1 failed (0.0010%), p99 median 2.70 ms, worst 11.64 ms
+  h2          58,856 requests,     24 failed (0.0408%), p99 median 3.22 ms, worst 9.55 ms
+         plus 509 cancelled by oha at the end of its windows
+  h2c         58,856 requests,      1 failed (0.0017%), p99 median 3.01 ms, worst 15.42 ms
+  h2tls       58,856 requests,      0 failed (0.0000%), p99 median 3.13 ms, worst 13.90 ms
+  post        19,656 requests,      6 failed (0.0305%), p99 median 2.22 ms, worst 9.33 ms
+  tls         58,856 requests,      1 failed (0.0017%), p99 median 3.29 ms, worst 13.00 ms
+  total 372,848 requests
+
+Failed requests by the disruption in their window:
+  h1     flap+upgrade        1  {'operation was canceled': 1}
+  h2     flap+upgrade       24  {'operation was canceled': 24}
+  h2c    flap+upgrade        1  {'operation was canceled': 1}
+  post   flap                1  {'502': 1}
+  post   flap+upgrade        5  {'502': 5}
+  tls    flap+upgrade        1  {'operation was canceled': 1}
+Windows with failures and no disruption: 0
+
+WebSocket: 16,720 echoes on long-lived connections, 80 errors (80 reconnects); short-lived 836 ok, 0 failed
+  WebSocket errors outside an upgrade (SIGQUIT until 30 s after the old process left): 0
+
+Access log: 373,829 lines over all rotations
+  88 with an error or a 4xx/5xx status (cause, site, status, error):
+       80 flap+upgrade   ws     101  Cancelled
+        4 flap           web    502  WriteError
+        2 flap+upgrade   web    502  WriteError
+        1 flap+upgrade   grpc   200  ReadError
+        1 flap+upgrade   grpctls 200  ReadError
+
+conduit log: {'INFO': 273, 'WARN': 246, 'ERROR': 8}; panics: 0
+       91 WARN pingora_proxy: Fail to proxy: Upstream ReadError context: Peer: addr: 127.0.0.1:9002, scheme: HTTP cause:
+       70 WARN pingora_proxy: Fail to proxy: Upstream ConnectRefused context: Fail to connect to addr: 127.0.0.1:9002, s
+       27 WARN conduit::upstream: pool web: backend 127.0.0.1:9002 failed its health checks
+
+       27 WARN pingora_load_balancing: Backend { addr: Inet(127.0.0.1:9002), weight: 1, ext: {} } becomes unhealthy,  Co
+       25 WARN conduit::upstream: pool web: backend 127.0.0.1:9002 ejected for 10s after 3 consecutive errors
+
+        6 WARN pingora_proxy::proxy_h1: send error, draining read buf: Upstream WriteError context: while writing body c
+        6 ERROR pingora_proxy: Fail to proxy: Upstream WriteError context: Peer: addr: 127.0.0.1:9002, scheme: HTTP caus
+        2 ERROR pingora_core::server::transfer_fd: No incoming socket transfer, sleep 1s and try again
+
+
+gRPC: {'bytes': 26847232, 'completed': True, 'connections': 6, 'early_responses': 16, 'errors': 4, 'large_messages': 12, 'messages': 1654, 'rpcs': 16, 'sampled_at': 1794335266.224304, 'status_7': 0}
+gRPC unexpected errors outside allowed shutdown failures: 0
+Protocol probes: 15, unexpected failures 0, certificate fingerprints 6
+
+Strict checks: {'end marker': True, 'no abort': True, 'no panic/dead process': True, 'log dropped/reuse lost counters': True, 'all eight load streams': True, 'readable load results': True, 'load failures attributed to disruptions': True, 'WebSocket behavior': True, 'gRPC completed and framed replies verified': True, 'gRPC failures restricted to upgrade shutdown': True, 'gRPC origin protocol integrity': True, 'HTTP2 protocol probes': True, 'certificate rotation observed': True}

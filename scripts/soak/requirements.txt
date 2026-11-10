@@ -1,0 +1,4 @@
+# Pure Python HTTP/2 fixture dependencies, copied into the disposable soak directory.
+h2==4.4.1
+hpack==4.2.0
+hyperframe==6.1.0

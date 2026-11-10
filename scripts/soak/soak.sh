@@ -3,20 +3,23 @@
 # while backends flap, the config reloads, the certificate and the access log rotate, and
 # the binary upgrades itself in place. Everything listens on 127.0.0.1.
 #
-# Load (≈650 req/s plus WebSocket), each oha stream in 5-minute windows:
+# Load (≈950 req/s plus WebSocket and gRPC), each oha stream in 5-minute windows:
 #   h1     GET  /small  HTTP/1.1 keep-alive   250/s
 #   big    GET  /big    256 KiB, gzip          20/s
 #   post   POST /post   4 KiB body             50/s
 #   tls    GET  /small  HTTPS keep-alive      150/s
 #   h2     GET  /small  HTTP/2, 8 streams     150/s
 #   churn  GET  /small  HTTPS, new TLS connection per request 30/s
+#   h2c    GET  /small  native cleartext HTTP/2 upstream   150/s
+#   h2tls  GET  /small  TLS ALPN HTTP/2 upstream           150/s
+#   grpc.py validates bidirectional framed echoes and status trailers on both H2 upstreams.
 #   ws.py  40 long-lived WebSockets (half over TLS) echoing every second, plus a short-lived
 #          one every 0.5 s.
 # Events: reload every 5 min, backend :9002 refused for 30 s every 10 min, access log rotated
 # every 30 min, certificate rotated every hour, graceful upgrades at SOAK_UPGRADE_AT hours
 # (default 2 and 6, so the last process runs 18 hours). Flaps fall in the middle of every
 # other oha window and upgrades in the middle of one in between, so report.py can tell which
-# of the two caused a failure.
+# disruptions overlap each failure window; correlation is not causal proof.
 # Samples every 30 s: RSS, fds, threads, CPU, connections, conduit metrics. Access log lines
 # with an error or a 4xx/5xx status are kept in access-errors.log. Results in $OUT;
 # report.py summarizes them.
@@ -39,9 +42,36 @@ END=$((START + ${SOAK_SECONDS:-$((HOURS * 3600))}))
 mkdir -p "$OUT/oha" "$RUN/www" "$RUN/nginx"
 event() { echo "$(date +%s) $*" >>"$OUT/events.log"; }
 
+# Own only these fixture processes and the dedicated nftables table. Cleanup runs on
+# failed preflight as well as normal completion, so an aborted run cannot poison the next.
+NGINX_PID= WS_SERVER= GRPC_SERVER= LOAD=
+cleanup() {
+    local pid
+    [ -n "$LOAD" ] && kill $LOAD 2>/dev/null || true
+    if [ -r "$RUN/conduit.pid" ]; then
+        pid=$(cat "$RUN/conduit.pid")
+        if [ "$(readlink "/proc/$pid/exe" 2>/dev/null)" = "$BIN" ]; then
+            kill -TERM "$pid" 2>/dev/null || true
+            for _ in $(seq 450); do
+                [ -d "/proc/$pid" ] || break
+                sleep 0.1
+            done
+            if [ -d "/proc/$pid" ]; then
+                event "abort proxy shutdown deadline exceeded"
+                kill -KILL "$pid" 2>/dev/null || true
+            fi
+        fi
+    fi
+    for pid in "$NGINX_PID" "$WS_SERVER" "$GRPC_SERVER"; do
+        [ -n "$pid" ] && kill -TERM "$pid" 2>/dev/null || true
+    done
+    sudo -n nft delete table inet soak 2>/dev/null || true
+}
+trap cleanup EXIT
+
 cert() {
     openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256 -nodes -days 30 \
-        -subj /CN=soak.test -addext "subjectAltName=DNS:soak.test,DNS:ws.soak.test" \
+        -subj /CN=soak.test -addext "subjectAltName=DNS:soak.test,DNS:*.soak.test" \
         -keyout "$RUN/new.key" -out "$RUN/new.crt" 2>/dev/null
     # certbot order: key first, then the certificate.
     mv "$RUN/new.key" "$RUN/soak.key"
@@ -73,6 +103,22 @@ http {
         location = /big { root $RUN/www; }
         location = /post { client_max_body_size 1m; return 200 "posted\n"; }
     }
+    # Both origins require actual HTTP/2 on the wire; /protocol exposes the observed
+    # protocol to the independent probe, not a label assigned by the proxy.
+    server {
+        listen 127.0.0.1:9003;
+        http2 on;
+        location = /health { return 200; }
+        location / { return 200 "\$server_protocol\n"; }
+    }
+    server {
+        listen 127.0.0.1:9443 ssl;
+        http2 on;
+        ssl_certificate $RUN/soak.crt;
+        ssl_certificate_key $RUN/soak.key;
+        location = /health { return 200; }
+        location / { return 200 "\$server_protocol\n"; }
+    }
 }
 NGINX
 
@@ -90,6 +136,8 @@ admin:
   listen: "127.0.0.1:9180"
 access_log:
   path: $RUN/access.log
+defaults:
+  upstream_idle_timeout: 2s
 tls:
   watch_interval: 5s
   certs:
@@ -100,6 +148,26 @@ upstreams:
     retries: 1
     health_check: { path: /health, interval: 2s, timeout: 1s, rise: 2, fall: 2 }
     passive: { failures: 3, eject: 10s }
+  h2c:
+    backends: [h2c://127.0.0.1:9003]
+    http2_max_streams: 32
+    health_check: { path: /health, interval: 2s, timeout: 1s }
+  h2tls:
+    backends: [https://127.0.0.1:9443]
+    verify_tls: false
+    http_version: "2"
+    http2_max_streams: 32
+    health_check: { path: /health, interval: 2s, timeout: 1s }
+  grpc:
+    backends: [h2c://127.0.0.1:9101]
+    http2_max_streams: 32
+    health_check: { path: /health, interval: 2s, timeout: 1s }
+  grpctls:
+    backends: [https://127.0.0.1:9102]
+    verify_tls: false
+    http_version: "2"
+    http2_max_streams: 32
+    health_check: { path: /health, interval: 2s, timeout: 1s }
 sites:
   - id: web
     hosts: [soak.test]
@@ -108,7 +176,15 @@ sites:
     hosts: [ws.soak.test]
     upstream: http://127.0.0.1:9100
     upgrade_idle_timeout: 120s
+  - { id: h2c, hosts: [h2c.soak.test], upstream: h2c }
+  - { id: h2tls, hosts: [h2tls.soak.test], upstream: h2tls }
+  - { id: grpc, hosts: [grpc.soak.test], upstream: grpc }
+  - { id: grpctls, hosts: [grpctls.soak.test], upstream: grpctls }
 YAML
+
+python3 -c 'import sys; sys.path.insert(0, "python"); import h2, hpack, hyperframe' || exit 1
+nginx -t -c "$RUN/nginx.conf" -p "$RUN/nginx" || exit 1
+"$BIN" check -c "$CFG" || exit 1
 
 sudo -n nft delete table inet soak 2>/dev/null
 sudo -n nft add table inet soak
@@ -118,9 +194,34 @@ nginx -c "$RUN/nginx.conf" -p "$RUN/nginx" 2>>"$OUT/nginx.log" &
 NGINX_PID=$!
 python3 -I "$HERE/ws.py" server 9100 2>>"$OUT/ws-server.log" &
 WS_SERVER=$!
+python3 "$HERE/grpc.py" server --cert "$RUN/soak.crt" --key "$RUN/soak.key" \
+    --stats "$OUT/grpc-origin.json" 2>>"$OUT/grpc-origin-errors.log" &
+GRPC_SERVER=$!
+# Wait for all fixture origins, including the Python H2 listeners.
+python3 - <<'READY' || exit 1
+import socket, time
+for port in (9001, 9002, 9003, 9443, 9100, 9101, 9102):
+    for attempt in range(100):
+        try:
+            with socket.create_connection(('127.0.0.1', port), timeout=.1):
+                break
+        except OSError:
+            time.sleep(.1)
+    else:
+        raise SystemExit(f'origin on {port} did not start')
+READY
 # As deploy/conduit.service runs it: daemonized, returning once the child is ready.
 "$BIN" run -d -c "$CFG" || { event "conduit did not start"; exit 1; }
-event "start pid=$(cat "$RUN/conduit.pid") hours=$HOURS upgrade_at=${UPGRADE_AT// /,} sha256=$(sha256sum "$BIN" | cut -c1-16)"
+event "start target_seconds=$((END - START)) pid=$(cat "$RUN/conduit.pid") hours=$HOURS upgrade_at=${UPGRADE_AT// /,} sha256=$(sha256sum "$BIN" | cut -c1-16)"
+
+for _ in $(seq 100); do
+    curl -sf --max-time 1 http://127.0.0.1:9180/healthz >/dev/null && break
+    sleep 0.1
+done
+for site in h2c h2tls; do
+    body=$(curl -sf --max-time 5 -H "Host: $site.soak.test" http://127.0.0.1:8080/protocol) || exit 1
+    [ "$body" = "HTTP/2.0" ] || { event "abort $site protocol preflight: $body"; exit 1; }
+done
 
 stream() { # name, oha arguments...
     local name=$1
@@ -139,9 +240,19 @@ stream post $C -q 50 -c 4 -m POST -D "$RUN/post.body" http://soak.test:8080/post
 stream tls $C -q 150 -c 8 --insecure https://soak.test:8443/small &
 stream h2 $C -q 150 -c 2 -p 8 --http2 --insecure https://soak.test:8443/small &
 stream churn $C -q 30 -c 4 --disable-keepalive --insecure https://soak.test:8443/small &
+stream h2c -q 150 -c 16 -H 'Host: h2c.soak.test' http://127.0.0.1:8080/ &
+stream h2tls -q 150 -c 16 -H 'Host: h2tls.soak.test' http://127.0.0.1:8080/ &
 python3 -I "$HERE/ws.py" client 8080 8443 "$END" "$OUT/ws.csv" "$OUT/ws-events.log" \
     2>>"$OUT/ws-client.log" &
-LOAD=$(jobs -p | tail -n 7)
+python3 "$HERE/grpc.py" client --until "$END" --stats "$OUT/grpc.json" \
+    --events "$OUT/grpc-events.log" 2>>"$OUT/grpc-client.log" &
+# Fixture origins were started before the ten load clients.
+LOAD=$(jobs -p | tail -n 10)
+
+echo 'ts,h2c,h2tls,cert_sha256,reload_ok' > "$OUT/protocol.csv"
+probe_protocol() {
+    python3 "$HERE/probe.py" >> "$OUT/protocol.csv"
+}
 
 sample() {
     local pid
@@ -152,7 +263,7 @@ sample() {
     fds=$(ls "/proc/$pid/fd" | wc -l)
     thr=$(ls "/proc/$pid/task" | wc -l)
     cpu=$(awk '{print $14 + $15}' "/proc/$pid/stat")
-    up=$(ss -Htn state established '( dport = :9001 or dport = :9002 )' | wc -l)
+    up=$(ss -Htn state established '( dport = :9001 or dport = :9002 or dport = :9003 or dport = :9443 or dport = :9101 or dport = :9102 )' | wc -l)
     ws=$(ss -Htn state established '( dport = :9100 )' | wc -l)
     cli=$(ss -Htn state established '( sport = :8080 or sport = :8443 )' | wc -l)
     tw=$(ss -Htn state time-wait | wc -l)
@@ -161,6 +272,7 @@ sample() {
         $1 == "conduit_upstream_reuse_lost_total" {r = $2}
         END {printf "%s,%s", d + 0, r + 0}')
     echo "$(date +%s),$pid,$rss,$fds,$thr,$cpu,$up,$ws,$cli,$tw,$m" >>"$OUT/samples.csv"
+    probe_protocol
 }
 [ -s "$OUT/samples.csv" ] || echo "ts,pid,rss_kb,fds,threads,cpu_ticks,upstream_conns,ws_conns,client_conns,time_wait,log_dropped,reuse_lost" >"$OUT/samples.csv"
 
@@ -232,6 +344,17 @@ while [ "$(date +%s)" -lt "$END" ]; do
         next_flap=$((next_flap + $(every 600)))
     fi
     if [ "$now" -ge "$next_reload" ]; then
+        # Change the peer reuse signature while existing gRPC streams remain open.
+        python3 - "$CFG" <<'RELOAD'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1])
+s = p.read_text()
+old, new = (32, 64) if 'http2_max_streams: 32' in s else (64, 32)
+tmp = p.with_suffix('.tmp')
+tmp.write_text(s.replace(f'http2_max_streams: {old}', f'http2_max_streams: {new}'))
+tmp.replace(p)
+RELOAD
         kill -HUP "$(cat "$RUN/conduit.pid")"
         event "reload"
         next_reload=$((next_reload + $(every 300)))
@@ -256,8 +379,8 @@ done
 wait $LOAD
 sleep 15 # a flap or log rotation still running
 sample
+cleanup
+trap - EXIT
 keep_log "$RUN/access.log"
-kill -TERM "$(cat "$RUN/conduit.pid")" "$NGINX_PID" "$WS_SERVER" 2>/dev/null
-sudo -n nft delete table inet soak
 event "end"
-python3 -I "$HERE/report.py" "$OUT" >"$OUT/report.txt" 2>&1
+python3 -I "$HERE/report.py" "$OUT" --strict >"$OUT/report.txt" 2>&1

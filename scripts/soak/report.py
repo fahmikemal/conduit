@@ -128,11 +128,13 @@ print(f"access log lines dropped: {rows[-1]['log_dropped']}, idle upstream reuse
 # Load generator windows.
 print("\nLoad (oha):")
 streams = collections.defaultdict(list)
+unreadable_oha = 0
 for f in sorted(glob.glob(path("oha/*.json"))):
     name, ts = os.path.basename(f)[:-5].rsplit("-", 1)
     try:
         streams[name].append((int(ts), json.load(open(f))))
     except json.JSONDecodeError:
+        unreadable_oha += 1
         print(f"  unreadable {f}")
 total_req = 0
 by_cause = collections.defaultdict(collections.Counter)
@@ -174,10 +176,13 @@ if by_cause:
         print(f"  {fmt(ts)} {name}: {bad}")
 
 # WebSockets.
+ws_unexplained_count = 0
+ws_short_errors = 0
 if os.path.exists(path("ws.csv")):
     w = list(csv.DictReader(open(path("ws.csv"))))
     if w:
         last = w[-1]
+        ws_short_errors = int(last["short_err"])
         print(
             f"\nWebSocket: {int(last['msgs']):,} echoes on long-lived connections, "
             f"{last['errors']} errors ({last['reconnects']} reconnects); short-lived "
@@ -188,6 +193,7 @@ if os.path.exists(path("ws.csv")):
         t = float(line.split(" ", 1)[0])
         if not any(k == "upgrade" and a - 1 <= t <= b + 30 for a, b, k in disruptions):
             unexplained.append(line.strip())
+    ws_unexplained_count = len(unexplained)
     print(f"  WebSocket errors outside an upgrade (SIGQUIT until 30 s after the old process left): {len(unexplained)}")
     for line in unexplained[:15]:
         print("   ", line)
@@ -229,3 +235,58 @@ for p in panics[:5]:
     print("  ", p)
 for m, n in msgs.most_common(12):
     print(f"  {n:>7} {m}")
+
+
+# Expanded harness: gRPC payload/trailer validation and actual upstream protocol probes.
+grpc = None
+grpc_unexpected = []
+if os.path.exists(path("grpc.json")):
+    grpc = json.load(open(path("grpc.json")))
+    print(f"\ngRPC: {grpc}")
+    for line in open(path("grpc-events.log")):
+        t = float(line.split(" ", 1)[0])
+        in_upgrade = any(k == "upgrade" and a - 1 <= t <= b + 30 for a, b, k in disruptions)
+        shutdown_error = any(s in line for s in ("ConnectionError:", "ConnectionResetError:", "IncompleteReadError:", "TimeoutError:", "SSLError:"))
+        if not (in_upgrade and shutdown_error):
+            grpc_unexpected.append(line.strip())
+    print(f"gRPC unexpected errors outside allowed shutdown failures: {len(grpc_unexpected)}")
+    for line in grpc_unexpected[:10]:
+        print("  ", line)
+origin = json.load(open(path("grpc-origin.json"))) if os.path.exists(path("grpc-origin.json")) else None
+probes = list(csv.DictReader(open(path("protocol.csv")))) if os.path.exists(path("protocol.csv")) else []
+bad_probes = []
+for r in probes:
+    t = int(r["ts"])
+    in_upgrade = any(k == "upgrade" and a - 1 <= t <= b + 30 for a, b, k in disruptions)
+    for key in ("h2c", "h2tls"):
+        value = r[key]
+        if value != "HTTP/2.0" and not (value.startswith("ERROR:") and in_upgrade):
+            bad_probes.append((t, key, value))
+fingerprints = {r["cert_sha256"] for r in probes if len(r["cert_sha256"]) == 64}
+print(f"Protocol probes: {len(probes)}, unexpected failures {len(bad_probes)}, certificate fingerprints {len(fingerprints)}")
+for item in bad_probes[:10]:
+    print("  ", item)
+if "--strict" in sys.argv[2:]:
+    checks = {
+        "end marker": any(w == "end" for _, w in events),
+        "no abort": not any(w.startswith("abort") for _, w in events),
+        "no panic/dead process": not panics and dead == 0,
+        "log dropped/reuse lost counters": all(int(r["log_dropped"]) == 0 and int(r["reuse_lost"]) == 0 for r in rows),
+        "all eight load streams": {"h1", "big", "post", "tls", "h2", "churn", "h2c", "h2tls"} <= set(streams),
+        "readable load results": unreadable_oha == 0,
+        "load failures attributed to disruptions": not unexplained_windows,
+        "WebSocket behavior": ws_unexplained_count == 0 and ws_short_errors == 0,
+        "gRPC completed and framed replies verified": bool(grpc and grpc.get("completed") and grpc["rpcs"] > 0 and grpc["large_messages"] > 0 and grpc["early_responses"] == grpc["rpcs"]),
+        "gRPC failures restricted to upgrade shutdown": not grpc_unexpected,
+        "gRPC origin protocol integrity": bool(origin and origin["protocol_errors"] == 0),
+        "HTTP2 protocol probes": bool(probes) and not bad_probes,
+        "certificate rotation observed": len(fingerprints) >= 2,
+    }
+    result = {"passed": all(checks.values()), "checks": checks,
+              "requests": total_req, "grpc": grpc, "origin": origin,
+              "protocol_probe_count": len(probes), "certificate_fingerprints": len(fingerprints)}
+    with open(path("checks.json"), "w") as f:
+        json.dump(result, f, indent=2)
+    print("\nStrict checks:", checks)
+    if not result["passed"]:
+        sys.exit(1)

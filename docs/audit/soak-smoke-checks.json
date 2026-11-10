@@ -1,0 +1,43 @@
+{
+  "passed": true,
+  "checks": {
+    "end marker": true,
+    "no abort": true,
+    "no panic/dead process": true,
+    "log dropped/reuse lost counters": true,
+    "all eight load streams": true,
+    "readable load results": true,
+    "load failures attributed to disruptions": true,
+    "WebSocket behavior": true,
+    "gRPC completed and framed replies verified": true,
+    "gRPC failures restricted to upgrade shutdown": true,
+    "gRPC origin protocol integrity": true,
+    "HTTP2 protocol probes": true,
+    "certificate rotation observed": true
+  },
+  "requests": 372848,
+  "grpc": {
+    "bytes": 26847232,
+    "completed": true,
+    "connections": 6,
+    "early_responses": 16,
+    "errors": 4,
+    "large_messages": 12,
+    "messages": 1654,
+    "rpcs": 16,
+    "sampled_at": 1794335266.224304,
+    "status_7": 0
+  },
+  "origin": {
+    "active_connections": 0,
+    "connections": 482,
+    "grpc_streams": 20,
+    "large_messages": 12,
+    "messages": 1656,
+    "protocol_errors": 0,
+    "resets": 2,
+    "sampled_at": 1794335292.9784327
+  },
+  "protocol_probe_count": 15,
+  "certificate_fingerprints": 6
+}

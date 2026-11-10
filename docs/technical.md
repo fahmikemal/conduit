@@ -924,14 +924,18 @@ panics:
 | `body_replace` | the replacement result is identical however the body is cut into chunks (1–7 bytes, alternating) |
 | `block_exploits` | any input as query, path, user agent and header: no panic, and the keywords that select rules never hide a match (results with and without keywords are always the same) |
 
-The soak test (`scripts/soak/`) runs on a disposable test machine as a transient systemd unit,
-`conduit-soak`. The script installs nginx and adds an nftables table on that machine, and all its
-services listen only on 127.0.0.1. It consists of:
+The soak test ([`scripts/soak/README.md`](../scripts/soak/README.md)) runs on a disposable
+test machine as the transient systemd unit `conduit-soak`. Prepare nginx with HTTP/2,
+Python 3.12+, OpenSSL and nftables first. Deployment bundles pinned Python dependencies,
+verifies artifact hashes and refuses to replace an active run. Fixture services listen only
+on 127.0.0.1 and use a dedicated nftables table. It consists of:
 
-- **Backends:** nginx on two ports and a WebSocket echo server.
-- **Load:** about 650 req/s through oha in 5-minute windows (HTTP/1.1 GET of 256 KiB with gzip and
-  POST, HTTPS, HTTP/2, a new TLS handshake per request), plus 40 long-lived WebSockets and one
-  short WebSocket every 0.5 seconds.
+- **Backends:** nginx HTTP/1, h2c and TLS HTTP/2 origins, a WebSocket echo server and two
+  bidirectional gRPC echo origins (cleartext and TLS HTTP/2).
+- **Load:** about 950 req/s through eight oha streams in 5-minute windows (HTTP/1.1 GET of
+  256 KiB with gzip and POST, HTTPS, frontend HTTP/2, new TLS connections, h2c and TLS H2
+  upstreams), plus 40 long-lived WebSockets, one short WebSocket every 0.5 seconds and two
+  gRPC clients validating payload hashes/order, 2 MiB messages and status trailers.
 - **Periodic events:**
 
   | Event | Interval |
@@ -943,19 +947,24 @@ services listen only on 127.0.0.1. It consists of:
   | Graceful upgrade (`run -d -u` then SIGQUIT, like `systemctl reload`) | at 2 and 6 hours (`SOAK_UPGRADE_AT`), so the last process runs 18 hours |
 
   Flaps fall in the middle of every other oha window and upgrades in a window without a flap
-  or a reload close by, so each failure can be put down to one cause.
+  or a reload close by. The report correlates failures with these windows; correlation alone
+  does not prove the cause of every transport error. Reloads alternate H2 stream limits.
 
-- **Samples every 30 seconds:** RSS, fds, threads, CPU, connections, and metrics.
+- **Samples every 30 seconds:** RSS, fds, threads, CPU, connections, metrics, actual origin
+  protocol and frontend certificate fingerprints.
 - **Access log:** lines with an error or a 4xx/5xx status are kept from every rotation, to
   trace failed requests on conduit's side.
 
 The results are in `~/soak/out/` on that machine. Before another run starts, its output and
-runtime files are preserved in a unique directory under `~/soak/archive/`. Results include
+runtime files and previous input binaries/scripts are preserved in a unique directory under
+`~/soak/archive/`. A manifest records source revision, artifact/dependency hashes and optional
+release provenance. Results include
 a summary in `report.txt`: hourly medians, RSS per process (15 minutes in, at the end, peak, and
 trend in MB per hour, since upgrades start a new process), failed requests grouped by the
 disruption in their window, and the kept access log lines. For a smoke test of the harness,
 `SOAK_SCALE=40 SOAK_SECONDS=420 SOAK_UPGRADE_AT="1 3"` speeds up every interval and includes
-two upgrades within seven minutes.
+two upgrades within seven minutes. Require `checks.json` to pass before starting 24 hours;
+the strict report also rejects payload/protocol mismatches during upgrade windows.
 The harness aborts if a graceful upgrade fails to replace the old process or the admin
 endpoint is not served by the new PID.
 

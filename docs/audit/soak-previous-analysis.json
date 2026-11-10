@@ -1,0 +1,185 @@
+{
+  "scope": "Read-only Krynox remote soak evidence; no restart/deploy during collection.",
+  "start_wib": "2026-11-10T00:47:50+07:00",
+  "end_wib": "2026-11-11T00:48:09+07:00",
+  "end_marker_present": true,
+  "event_duration_seconds": 86419,
+  "at_least_24h_completed": true,
+  "event_counts": {
+    "start": 1,
+    "reload": 288,
+    "flap": 286,
+    "access": 48,
+    "certificate": 24,
+    "upgrade": 2,
+    "end": 1
+  },
+  "upgrade_events": [
+    "upgrade old=1506672 new=1554693 served_by=1554693 old_gone=yes quit=1794254070 exit_s=15.0",
+    "upgrade old=1554693 new=1645667 served_by=1645667 old_gone=yes quit=1794268471 exit_s=15.0"
+  ],
+  "dead_process_samples": 0,
+  "usable_samples": 2861,
+  "max_sample_gap_seconds": 48,
+  "peak_rss_mib": 49.578125,
+  "median_fds": 167,
+  "median_threads": 12,
+  "max_log_dropped": 0,
+  "max_upstream_reuse_lost": 0,
+  "per_process": [
+    {
+      "pid": "1506672",
+      "observed_load_hours": 2.1061111111111113,
+      "first_warm_hour_median_rss_mib": 44.40234375,
+      "last_hour_median_rss_mib": 44.390625,
+      "peak_rss_mib": 47.1796875,
+      "trend_mib_per_hour": -0.3498880696080045,
+      "fds_median": 167.0,
+      "fds_range": [
+        164,
+        170
+      ]
+    },
+    {
+      "pid": "1554693",
+      "observed_load_hours": 3.993888888888889,
+      "first_warm_hour_median_rss_mib": 45.697265625,
+      "last_hour_median_rss_mib": 45.759765625,
+      "peak_rss_mib": 48.8046875,
+      "trend_mib_per_hour": 0.023881263226317027,
+      "fds_median": 167,
+      "fds_range": [
+        163,
+        172
+      ]
+    },
+    {
+      "pid": "1645667",
+      "observed_load_hours": 17.873333333333335,
+      "first_warm_hour_median_rss_mib": 45.7421875,
+      "last_hour_median_rss_mib": 45.7265625,
+      "peak_rss_mib": 49.578125,
+      "trend_mib_per_hour": 0.0202098489248897,
+      "fds_median": 167,
+      "fds_range": [
+        155,
+        173
+      ]
+    }
+  ],
+  "load": {
+    "big": {
+      "windows": 288,
+      "requests_excluding_generator_deadline": 1728128,
+      "failed": 0,
+      "codes": {
+        "200": 1728128
+      },
+      "transport_errors": {},
+      "generator_deadline_cancellations": 0,
+      "median_window_p99_ms": 4.5306295,
+      "worst_window_p99_ms": 5.922893
+    },
+    "churn": {
+      "windows": 288,
+      "requests_excluding_generator_deadline": 2592048,
+      "failed": 0,
+      "codes": {
+        "200": 2592048
+      },
+      "transport_errors": {},
+      "generator_deadline_cancellations": 0,
+      "median_window_p99_ms": 2.2795135,
+      "worst_window_p99_ms": 5.516174
+    },
+    "h1": {
+      "windows": 288,
+      "requests_excluding_generator_deadline": 21596538,
+      "failed": 1,
+      "codes": {
+        "200": 21596537
+      },
+      "transport_errors": {
+        "operation was canceled": 1
+      },
+      "generator_deadline_cancellations": 0,
+      "median_window_p99_ms": 2.546576,
+      "worst_window_p99_ms": 3.492182
+    },
+    "h2": {
+      "windows": 288,
+      "requests_excluding_generator_deadline": 12958638,
+      "failed": 32,
+      "codes": {
+        "200": 12958606
+      },
+      "transport_errors": {
+        "http2 error": 1,
+        "operation was canceled": 31
+      },
+      "generator_deadline_cancellations": 2476,
+      "median_window_p99_ms": 2.728231,
+      "worst_window_p99_ms": 3.7868950000000003
+    },
+    "post": {
+      "windows": 288,
+      "requests_excluding_generator_deadline": 4319888,
+      "failed": 34,
+      "codes": {
+        "200": 4319854,
+        "502": 34
+      },
+      "transport_errors": {},
+      "generator_deadline_cancellations": 0,
+      "median_window_p99_ms": 0.9459759999999999,
+      "worst_window_p99_ms": 3.869813
+    },
+    "tls": {
+      "windows": 288,
+      "requests_excluding_generator_deadline": 12958638,
+      "failed": 1,
+      "codes": {
+        "200": 12958637
+      },
+      "transport_errors": {
+        "operation was canceled": 1
+      },
+      "generator_deadline_cancellations": 0,
+      "median_window_p99_ms": 2.36316,
+      "worst_window_p99_ms": 3.500023
+    }
+  },
+  "total_requests_excluding_generator_deadline": 56153878,
+  "total_failures_excluding_generator_deadline": 68,
+  "generator_deadline_cancellations": 2476,
+  "websocket_final": {
+    "ts": "1794332873",
+    "open": "0",
+    "msgs": "3449000",
+    "errors": "80",
+    "reconnects": "80",
+    "short_ok": "172449",
+    "short_err": "0"
+  },
+  "panics": 0,
+  "harness_report_scope": "Fault attribution from the report is event-window correlation, supported by exact access-error and WebSocket timestamps; it is not a causal proof for every client transport error.",
+  "raw_sha256": {
+    "report.txt": "80f915296d86bd1053533f3358923e605d51fe84c4b807eb62c67425f995753b",
+    "events.log": "2f66a4bafa07b03a55ccef380056b7845f2e86c162538e77e73d0e62d948c6d3",
+    "samples.csv": "5a0c3ee67465ad19e468cd2131733d91ec169c2df6d2882c350f500805162c2e",
+    "ws.csv": "95cbef9b696c8551cb6c04359c0b34491afebae3f6befce5745def419f7c7a2a",
+    "ws-events.log": "f719eb80899e2829eda8e46f455103fb08ba39186d83c34c37fed14fe0414bf9",
+    "logcount.txt": "abc9f70c65f57d39eaf84560bb2234c49ea11f19252691a36105800b363d08df",
+    "access-errors.log": "366e2b5d641d22fe7dc7368fb86a9d80c7f8344addb9b6d1bd1ed2ba724809fd",
+    "conduit-stderr.log": "de21edc5739ac5e787aa055de2a91e0431a6ca675ff308ffaa28c63343042720",
+    "oha-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "nginx.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ws-client.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ws-server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "snapshot.json": "238fcd42cd5f9c5f9d56b8d38b6a1e127c30195ab42352ebdc690b43b75949ce"
+  },
+  "verdict": "completed_stability_run_with_fault_correlated_failures",
+  "server_report_recomputed": "All metrics/failures match; final log capture includes 23 additional INFO shutdown lines.",
+  "tested_binary_sha256": "a0009745671b39d671a6e20d66f82bb6da18ede83eacf5921113b0c5057f8fbd",
+  "latest_validated_release_sha256": "474e0cbf143e0abbda86f1ff6ae42c9a2bfc13ed309f515d86dae381a7a41429"
+}

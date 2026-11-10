@@ -1,0 +1,80 @@
+Run: Tue Nov 10 01:47:50 2026 → Wed Nov 11 01:48:09 2026 (24.0 h)
+   start pid=1506672 hours=24 upgrade_at=2,6 sha256=a0009745671b39d6
+Events: access 48, certificate 24, end 1, flap 286, reload 288, start 1, upgrade 2
+   upgrade old=1506672 new=1554693 served_by=1554693 old_gone=yes quit=1794254070 exit_s=15.0
+   upgrade old=1554693 new=1645667 served_by=1645667 old_gone=yes quit=1794268471 exit_s=15.0
+
+Samples: 2861 (dead process seen in 0)
+hour         rss_kb            fds        threads upstream_conns       ws_conns   client_conns      time_wait  cpu%
+   0          45570            167             12              7             40             74           1764   14.8
+   1          45600            167             12              7             40             74           1777   14.9
+   2          46520            167             12              7             40             74           1698   14.9
+   3          47048            167             12              7             40             74           1757   14.9
+   4          46800            167             12              7             40             74           1599   15.2
+   5          46748            167             12              7             40             74           1741   15.1
+   6          47120            168             12              7             40             74           1631   15.1
+   7          46660            167             12              7             40             74           1657   15.1
+   8          46676            167             12              7             40             74           1419   15.0
+   9          46748            167             12              7             40             74           1628   14.9
+  10          46612            167             12              7             40             74           1676   14.9
+  11          45768            167             12              7             40             74           1664   15.0
+  12          46168            167             12              7             40             74           1563   15.1
+  13          46732            167             12              7             40             74           1658   14.9
+  14          46688            167             12              7             40             74           1603   15.0
+  15          46316            168             12              8             40             74           1531   15.0
+  16          47000            167             12              7             40             74           1684   14.9
+  17          47084            167             12              7             40             74           1620   15.0
+  18          46708            168             12              8             40             74           1597   15.0
+  19          47116            167             12              7             40             74           1651   15.5
+  20          46704            167             12              6             40             74           1677   14.9
+  21          46756            167             12              7             40             74           1541   14.9
+  22          47284            167             12              7             40             74           1614   15.0
+  23          46824            168             12              8             40             74           1480   14.9
+  24          46220             53             12              7              0              0           1126    0.0  (partial)
+rss_kb: hour 1 median 45600, hour 23 median 46824 (+1224)
+fds: hour 1 median 167, hour 23 median 168 (+1)
+threads: hour 1 median 12, hour 23 median 12 (+0)
+Per process:
+  pid 1506672: 2.1 h, RSS 45.6 MB at 15 min, 45.5 MB at the end, peak 47.2 MB, trend -0.35 MB/h; fds 164–170
+  pid 1554693: 4.0 h, RSS 46.1 MB at 15 min, 46.7 MB at the end, peak 48.8 MB, trend +0.02 MB/h; fds 163–172
+  pid 1645667: 17.9 h, RSS 49.6 MB at 15 min, 45.4 MB at the end, peak 49.6 MB, trend +0.02 MB/h; fds 155–173
+max RSS 49.6 MB, max fds 174
+access log lines dropped: 0, idle upstream reuse lost: 0
+
+Load (oha):
+  big      1,728,128 requests,      0 failed (0.0000%), p99 median 4.53 ms, worst 5.92 ms
+  churn    2,592,048 requests,      0 failed (0.0000%), p99 median 2.28 ms, worst 5.52 ms
+  h1      21,596,538 requests,      1 failed (0.0000%), p99 median 2.55 ms, worst 3.49 ms
+  h2      12,958,638 requests,     32 failed (0.0002%), p99 median 2.73 ms, worst 3.79 ms
+         plus 2,476 cancelled by oha at the end of its windows
+  post     4,319,888 requests,     34 failed (0.0008%), p99 median 0.95 ms, worst 3.87 ms
+  tls     12,958,638 requests,      1 failed (0.0000%), p99 median 2.36 ms, worst 3.50 ms
+  total 56,153,878 requests
+
+Failed requests by the disruption in their window:
+  h1     upgrade             1  {'operation was canceled': 1}
+  h2     upgrade            32  {'http2 error': 1, 'operation was canceled': 31}
+  post   flap               34  {'502': 34}
+  tls    upgrade             1  {'operation was canceled': 1}
+Windows with failures and no disruption: 0
+
+WebSocket: 3,449,000 echoes on long-lived connections, 80 errors (80 reconnects); short-lived 172,449 ok, 0 failed
+  WebSocket errors outside an upgrade (SIGQUIT until 30 s after the old process left): 0
+
+Access log: 56,326,413 lines over all rotations
+  114 with an error or a 4xx/5xx status (cause, site, status, error):
+       80 upgrade        ws     101  Cancelled
+       34 flap           web    502  WriteError
+
+conduit log: {'INFO': 732, 'WARN': 1295, 'ERROR': 36}; panics: 0
+      436 WARN pingora_proxy: Fail to proxy: Upstream ReadError context: Peer: addr: 127.0.0.1:9002, scheme: HTTP cause:
+      396 WARN pingora_proxy: Fail to proxy: Upstream ConnectRefused context: Fail to connect to addr: 127.0.0.1:9002, s
+      143 WARN conduit::upstream: pool web: backend 127.0.0.1:9002 ejected for 10s after 3 consecutive errors
+
+      143 WARN conduit::upstream: pool web: backend 127.0.0.1:9002 failed its health checks
+
+      143 WARN pingora_load_balancing: Backend { addr: Inet(127.0.0.1:9002), weight: 1, ext: {} } becomes unhealthy,  Co
+       34 WARN pingora_proxy::proxy_h1: send error, draining read buf: Upstream WriteError context: while writing body c
+       34 ERROR pingora_proxy: Fail to proxy: Upstream WriteError context: Peer: addr: 127.0.0.1:9002, scheme: HTTP caus
+        2 ERROR pingora_core::server::transfer_fd: No incoming socket transfer, sleep 1s and try again
+
