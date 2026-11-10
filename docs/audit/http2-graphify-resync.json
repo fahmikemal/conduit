@@ -1,0 +1,279 @@
+{
+  "status": "passed",
+  "completed_utc": "2026-11-10T11:17:01.141296+00:00",
+  "graphify_version": "0.9.105",
+  "before": {
+    "nodes": 2428,
+    "edges": 5653
+  },
+  "after": {
+    "nodes": 2521,
+    "edges": 5809,
+    "communities": 184
+  },
+  "delta": {
+    "nodes": 93,
+    "edges": 156
+  },
+  "base_commit": "a6b2bb91d8c815733145e07c0270da97f81af945",
+  "uncommitted_source_patches_included": true,
+  "pending_incremental_files": 0,
+  "pending_deletions": 0,
+  "checks": {
+    "unique_node_ids": true,
+    "all_edge_endpoints_present": true,
+    "no_self_loops": true,
+    "all_source_files_exist": true,
+    "h2_test_source_lines_verified": true,
+    "h2_tests_present_in_html": true,
+    "application_source_hashes_unchanged_since_validation": true,
+    "final_binary_hash_verified": true
+  },
+  "h2_tests": [
+    {
+      "id": "tests_support_h2_upstream_upstream_http2_cleartext_reload_and_multiplexing",
+      "name": "upstream_http2_cleartext_reload_and_multiplexing",
+      "location": "L276"
+    },
+    {
+      "id": "tests_support_h2_upstream_upstream_http2_grpc_bidirectional_stream_and_trailers",
+      "name": "upstream_http2_grpc_bidirectional_stream_and_trailers",
+      "location": "L431"
+    },
+    {
+      "id": "tests_support_h2_upstream_upstream_http2_health_cache_and_validation",
+      "name": "upstream_http2_health_cache_and_validation",
+      "location": "L381"
+    },
+    {
+      "id": "tests_support_h2_upstream_upstream_http2_load_stability",
+      "name": "upstream_http2_load_stability",
+      "location": "L619"
+    },
+    {
+      "id": "tests_support_h2_upstream_upstream_http2_stream_limit_and_reload",
+      "name": "upstream_http2_stream_limit_and_reload",
+      "location": "L559"
+    },
+    {
+      "id": "tests_support_h2_upstream_upstream_http2_tls_negotiation_strict_and_upgrade",
+      "name": "upstream_http2_tls_negotiation_strict_and_upgrade",
+      "location": "L335"
+    }
+  ],
+  "refreshed_semantic_sources": [
+    "README.md",
+    "assets/brand/README.md",
+    "docs/audit/FIX_VALIDATION.md",
+    "docs/audit/HTTP2_UPSTREAM_VALIDATION.md",
+    "docs/configuration.md",
+    "docs/technical.md",
+    "graphify-out/memory/query_20261110_081218_36e9ba3d_tolong_analisa_supermendalam_terkait_project_ini_d.md",
+    "graphify-out/memory/query_20261110_083252_422cf94f_cek_lagi___apakah_temuan_itu_bener_bener_bug_atau.md",
+    "graphify-out/memory/query_20261110_093252_3e29e02d_ok_languns_perbaiki_semua_temuan_ya___dan_setiap_t.md",
+    "graphify-out/memory/query_20261110_100719_db176087_ini_conduit_dukunga_ke_upstream_ini_hanay_di_http.md",
+    "graphify-out/memory/query_20261110_111044_154bc889_loh_kerjakan_bro___karena_ada_tool_internal_butuh.md",
+    "vendor/README.md"
+  ],
+  "graph_health": {
+    "node_count": 2521,
+    "unverified_node_count": 0,
+    "raw_edge_count": 5809,
+    "non_object_edges": 0,
+    "missing_endpoint_edges": 0,
+    "dangling_endpoint_edges": 0,
+    "external_reference_edges": 0,
+    "self_loop_edges": 0,
+    "valid_candidate_edges": 5809,
+    "exact_duplicate_edges": 0,
+    "directed_unique_endpoint_pairs": 5809,
+    "directed_same_endpoint_collapsed_edges": 0,
+    "undirected_unique_endpoint_pairs": 5809,
+    "undirected_same_endpoint_collapsed_edges": 0,
+    "same_endpoint_group_count": 0,
+    "relation_variant_groups": 0,
+    "source_file_variant_groups": 0,
+    "source_location_variant_groups": 0,
+    "context_variant_groups": 0,
+    "post_build_graph_type": "Graph",
+    "post_build_node_count": 2521,
+    "post_build_edge_count": 5809,
+    "post_build_error": "",
+    "producer_suppression": {
+      "path": "/home/tesseract/.local/share/uv/tools/graphifyy/lib/python3.12/site-packages/graphify/extract.py",
+      "total_sites": 12,
+      "sites": [
+        {
+          "line": 1887,
+          "name": "seen_ids",
+          "tuple_arity": 0,
+          "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+        },
+        {
+          "line": 2582,
+          "name": "seen_ids",
+          "tuple_arity": 0,
+          "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+        },
+        {
+          "line": 2584,
+          "name": "seen_doc_refs",
+          "tuple_arity": 0,
+          "sample": "seen_doc_refs: set[str] = set()"
+        },
+        {
+          "line": 3251,
+          "name": "seen_ids",
+          "tuple_arity": 0,
+          "sample": "seen_ids: set[str] = {n[\"id\"] for n in nodes}"
+        },
+        {
+          "line": 3398,
+          "name": "seen_ids",
+          "tuple_arity": 0,
+          "sample": "seen_ids = {n.get(\"id\") for n in nodes}"
+        },
+        {
+          "line": 4812,
+          "name": "seen_keys",
+          "tuple_arity": 0,
+          "sample": "seen_keys: set[tuple] = set()"
+        },
+        {
+          "line": 4998,
+          "name": "seen_keys",
+          "tuple_arity": 0,
+          "sample": "seen_keys: set[tuple] = set()"
+        },
+        {
+          "line": 9409,
+          "name": "seen_ids",
+          "tuple_arity": 0,
+          "sample": "seen_ids: set[str] = set()"
+        },
+        {
+          "line": 9517,
+          "name": "seen_ids",
+          "tuple_arity": 0,
+          "sample": "seen_ids: set[str] = set()"
+        },
+        {
+          "line": 9596,
+          "name": "seen_ids",
+          "tuple_arity": 0,
+          "sample": "seen_ids: set[str] = set()"
+        },
+        {
+          "line": 10121,
+          "name": "seen_ids",
+          "tuple_arity": 0,
+          "sample": "seen_ids: set[str] = set()"
+        },
+        {
+          "line": 10122,
+          "name": "seen_edges",
+          "tuple_arity": 4,
+          "sample": "seen_edges: set[tuple[str, str, str, str | None]] = set()"
+        }
+      ],
+      "error": ""
+    },
+    "examples": []
+  },
+  "source_sha256": {
+    ".graphifyignore": "845184cf4718c0fb9850e131ddc8973162867b616371732ffe0b3fea856b06da",
+    "Cargo.toml": "5c2855aa2464136558ae2faef8c125636a32e841a544bf5c10e8aafc90155588",
+    "README.md": "4cf24ee5afc456db71b1354a41728fa8fb6a368fbe9ffd74e41b2befc167cdf5",
+    "assets/brand/README.md": "9e0dda5c5c8214ce58b75fa31aca7683c7cfa33e7c464fca4c90d4917583728f",
+    "conduit.example.yaml": "20d29f5ca2a311055c1732080a2970919ec3fe786a771c8cce76bf80455ae554",
+    "deploy/crowdsec/acquis-appsec.yaml": "88da0e627de8594e148967491f7201e64ef8f51632b5213c0e4a343274d9a7d7",
+    "deploy/crowdsec/acquis-conduit.yaml": "01a085375ee77d955289aeeb659b6e93313f25acdc0a1fdd6fcb5fecbfeb604e",
+    "deploy/crowdsec/conduit-logs.yaml": "b2510b374d46311ce5ceba97fed452aa4982dc329d2a7d2ffb3a99fc8b586cc6",
+    "docs/audit/FIX_VALIDATION.md": "a6861d47643f4978e4a707a6a66a5bf4babda13780d74369ab321138a80cf5ab",
+    "docs/audit/HTTP2_UPSTREAM_VALIDATION.md": "32b09b030b27ad3d2ff21ec7e4585e92a11eb175405f3bffc7c6ea09d2dc43dd",
+    "docs/audit/build_inventory.py": "6333fb91da8a1096b2a62bc00ed72c495446f45c81027baa9513b78183e7195a",
+    "docs/audit/fix_stability.py": "13b19392ff5e58478e81cac06e970752573fd3e3e04184f4929adc54a409fc52",
+    "docs/audit/recheck_runtime.py": "812b4c615b94d017604a16dd7f6af0b13f435a745d3830e5a063b338cbbe6d6e",
+    "docs/audit/reproduce.py": "cf0ad246386a5cf5681734c505b692ca1d9671dcdad6408736af72e999f3e7aa",
+    "docs/configuration.md": "708b49f2d75046c351a5d3f41c3ac3cbe61a5fed90ece50a45adaab3b0136e89",
+    "docs/technical.md": "f1329b043c410e9563fc6be761753af577fc42c2f60ed5a52daace8ee8485f63",
+    "fuzz/Cargo.toml": "f5bae7ce92efbb0304684a8246f792ae3dff667d8c4d68070999cc1a20266e57",
+    "fuzz/fuzz_targets/access_log.rs": "a45aa281c403f68c9a932d06999a37d5cae3989024ee085c0bbb97d78910b723",
+    "fuzz/fuzz_targets/block_exploits.rs": "1970d94b62af96453f65fd1164ae6132d9028c8b66a8336ca58f16c82e441228",
+    "fuzz/fuzz_targets/body_replace.rs": "0b7036020bc0401647f84ee0e5a2e038d7d4dd27e3825d0405f289821305a421",
+    "fuzz/fuzz_targets/config.rs": "0d212bf67dc0c125c44abd6103f3b1b9f5621fc44a59ec5655a460e7f853fad0",
+    "fuzz/fuzz_targets/path.rs": "dbc468bc4fbdfdee8894548534d404f760084e44702b8c2fa0ca2f63099073a6",
+    "fuzz/fuzz_targets/request.rs": "d34c6fbce86029b2feda45bfcfa8a2e8fd51d30bc0a3e7cbc02c7d7cd1f758eb",
+    "fuzz/fuzz_targets/route.rs": "5c9fdab70f45fc8c22b9a077283f2c824d8f21268b1735fef40477fefcb6d78e",
+    "fuzz/run.sh": "83b7a122c679a434afaa2ec6b1aa9a79bd5b9ee7ef96a0d1731964e8bce76778",
+    "graphify-out/memory/query_20261110_081218_36e9ba3d_tolong_analisa_supermendalam_terkait_project_ini_d.md": "9e5a6484a9b5ecf7bc14db16d2f0d317aa98b34ffbb3ed2fff4982d7207cf704",
+    "graphify-out/memory/query_20261110_083252_422cf94f_cek_lagi___apakah_temuan_itu_bener_bener_bug_atau.md": "8f005397154091a4e969662689f9fc6d1c6dd0a3b597988b489eefc7ae603f79",
+    "graphify-out/memory/query_20261110_093252_3e29e02d_ok_languns_perbaiki_semua_temuan_ya___dan_setiap_t.md": "2663b66a131b3635aceadffa79881e45f5cccac42e351bfb3858f25a24f7d4e4",
+    "graphify-out/memory/query_20261110_100719_db176087_ini_conduit_dukunga_ke_upstream_ini_hanay_di_http.md": "9ace388670e6389636875fed481713ca273b11eef1ebb5345dcfc95ce1d482c2",
+    "graphify-out/memory/query_20261110_111044_154bc889_loh_kerjakan_bro___karena_ada_tool_internal_butuh.md": "aca5d3c731656ec1888c1bbd9eb8afbbf69c04b8b46c368ba3336ff065e66a59",
+    "scripts/ab.sh": "63a1b8ba9333daef9649f54845d882bdd58e561fc8cc946fb95a06154ef50c43",
+    "scripts/bench.sh": "7ef85b4f5e72072c56151eb4fc5dc1efbc3a830dfbbee8636ee5fe9f5dc1d6b1",
+    "scripts/build-release.sh": "a06f0d7dd9274190bb438978583d4961c67bd6e21f620be4e8a2b5bf748ba2f6",
+    "scripts/compare.py": "f2edc66b3c1453e218a84e8a6bf16e23adc8f43ceaa29cf4a7ba79a8999c930a",
+    "scripts/parity.py": "3dc297b7c48652086be9a5658426ae282d0eedad4e75b38649e1175cce3ddf4e",
+    "scripts/parity/stub.py": "873fdd46a9e08843be00931845de1a0dc2bb3ed65c2fdefebf9dd56e82d97811",
+    "scripts/pgo-train.sh": "8e59fcf4ad18385b27c8cd14fc3656e9d559d67f1a2db6aad891e501b497f94f",
+    "scripts/pgo.sh": "03a71f14cfe8ef17693266da204907c88904c8eb3a1773c63160b63ef5dd56ea",
+    "scripts/prepare-vendor.sh": "fbca0bd8f5345a9e707bc3e74039c378e11822d89c4cd535f0a95ce95cd4034e",
+    "scripts/soak/deploy.sh": "978adbc8cf8ce72a9bf2c51df86011b6a3b0404abe27fbf9c74ada61ef80ef2d",
+    "scripts/soak/report.py": "e8043ca4984c664b7dfd0119027b6cb76d1611d2148a15fb2acf45916be5b74a",
+    "scripts/soak/soak.sh": "a72e93a340f7c25a095387c3e4ac718736085f2a8d52ceafdedc9e394102967e",
+    "scripts/soak/ws.py": "20f37347cd40af9fdfa8f5e5787bb9b495123753882c3775af9d430a2bd62d59",
+    "src/accesslog.rs": "28ef2a94bd4e8e296736125b7ce5c8e54815d383255ef3720ee06c44673f7ee2",
+    "src/acme.rs": "5d9ffbf96b668dba22024181b9f251186075b95a4a3763435742e9345a420995",
+    "src/admin.rs": "df87ef0b8112bf43fc5f8dd508335930f14364401fc5953bf5e3a8c293ba4e69",
+    "src/auth.rs": "983c04830b1cef0434b8a46b04fdcd9b1146e15ef9908810273375a5271aae7c",
+    "src/cache.rs": "40ac74e6a3b14b6030891019888d52216ca8aab7c332bab573f76ec519b53ceb",
+    "src/config.rs": "05ad4cb051eba63f17dc58d1ec93ed2ee6db44dbcdb12e7b8d0279a80070a447",
+    "src/crowdsec.rs": "955de8624cc98e0fef6680a3b499eca042840d58af730844211358994be62d64",
+    "src/exploits.rs": "1dd776efcba9c108e77b2d17c77da946a45667c226f8534b4b098d861010ba38",
+    "src/files.rs": "3de75b861976c589494f827b6f6676950c7890f979ff3fb1ebb971cff90ae539",
+    "src/fuzzing.rs": "1005453ca0d149d0c08a11b4118797ad5f80e86bbbb1560c939fcebcc5fa8f70",
+    "src/httpc.rs": "6f856a7d712bf82a47a73c8960b6ff75bd60ed4fa39df0daccae7b92ce70c38b",
+    "src/lib.rs": "bb6cbdb12cc2c323fa8228a93e593fbf9b74e9ae446bec3327171ea45467f620",
+    "src/limits.rs": "75522895d8fe679d900099c7c499c515a9d9a0f6f6e631fc324e1faf6a70b1d1",
+    "src/logger.rs": "65b1ccf891a714faa541ec7bc180ba365a69720caaf7402ef3f1ad410f7386bb",
+    "src/main.rs": "c2899dc6dca1ea7300767798de6156ed8ab4b93a3a6968d51c4a109775363961",
+    "src/metrics.rs": "46b41d89c8e8337634ef1ff0fffe28cc5d5487341e701e81adf061fb1757cb96",
+    "src/pathnorm.rs": "0a6bc241b66bc81fbf36858979c7d2ecd04e8385d1eeb437178df7aec1e0ab97",
+    "src/plugin.rs": "f6953d63f645becdab2fd9afe7144a3eaf765795caec146e27a00d71d7b5ebaf",
+    "src/proxy.rs": "d3855a1761f9388bb4102c12bd980125bc7d53e549a4dc8dc6cda7441ab0caff",
+    "src/realip.rs": "8d6dd0c7171107774d731a8902967be74ec0c39c0d3b93fe0bf5f3ba54dfaf5a",
+    "src/reload.rs": "6b7e1408acaefe32a3a587932b5211b571a2553e81a77a2ec71c36bb9413b4cf",
+    "src/replace.rs": "38f811f09dc993291e5fa2829b41866b20998be821618adb8b15d7183bbfeddf",
+    "src/route.rs": "3dcb3dd1276a642913df062eb159f2c6eb633eefd2c32c2e0fb148a9319b1108",
+    "src/rules.rs": "76f19cbd1e221c01f7643ae5b158d721f5000a3f3c80927f508dd1f57702cb23",
+    "src/runtime.rs": "58194ccc3c625a96bc7ed0851e48c3b272e924a1fff0b327f8b91cd86b9ed39e",
+    "src/timefmt.rs": "65ce0e3e013a4b2f059f4e85e59a3a8d883bcef00c306b0548e8afa0ba0f86c5",
+    "src/tls.rs": "2db07c98215426005b56b98075f7d3372e6543c3c7855149bfc57c5ee0bbb919",
+    "src/units.rs": "921631774d5da99bb452e836ffbfc8296f10a60198cacc7800a217ca7e5a4bb4",
+    "src/upstream.rs": "e4fc5369e32ae56a0ecdfd9871f865e9b124be361157ef960bc360ca38d1b3cd",
+    "tests/e2e.rs": "3de72c1f24cf2e0e8e9c2ae0953b8d20b2dea4928bb3e0ce2cbb6bbb184fecfa",
+    "tests/support/h2_upstream.rs": "26da6ac0728e170c3f6cc2b85f93b741d0a59f4c26286e3e3a6ebf4369e5c1db",
+    "vendor/README.md": "80ab653f623990361c3b5762fe7927849967d43ec187de5e28c8680686aa3499",
+    "vendor/pingora-h2-reuse.patch": "d4c206924e9589ec85de15f7449f9c9b666a81e56c0a869a26b0d383110e3dc4",
+    "vendor/pingora/pingora-core/src/connectors/http/v2.rs": "3d5c4981fd22b96cbd0d853869ff3d13a22abd98b72ab9bd281f2924ab24e1bc"
+  },
+  "artifact_sha256": {
+    "graph.json": "b9c4d69bcd3966b68305e9116de45bd79576f6d0565266f84f37ec0ec121bdfc",
+    "graph.html": "7ee7aee6b96d51c05bf0655d40da600809cccada7242a1808c0461016f896322",
+    "GRAPH_REPORT.md": "12e93395f5dad66744b8c9471ff7bd95ec8af0bde8d974223571a398876ffb23"
+  },
+  "scope_exclusions": [
+    "vendor/pingora AST (documented backport and manually hashed patched file)",
+    "historical audit snapshots and generated raw results",
+    "ignored local build directories"
+  ],
+  "host_agent_semantic_token_usage": "not measured",
+  "query_check": {
+    "passed": true,
+    "log": "docs/audit/http2-graphify-query.log",
+    "sha256": "a65f0428be82a0257864ec7d4de1da09a90b850482b9d5e9712f29902e015ac9",
+    "seed": "src_upstream_target_peer"
+  }
+}

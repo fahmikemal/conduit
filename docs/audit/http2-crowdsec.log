@@ -1,0 +1,14 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
+    Finished `test` profile [unoptimized] target(s) in 0.40s
+     Running tests/e2e.rs (/tmp/conduit-audit-work/target/debug/deps/e2e-e6e7dbcaa1b7f1cb)
+
+running 1 test
+crowdsec: ban applied 1.0s after cscli
+crowdsec: prober banned 2.1s after its last probe
+test crowdsec_bouncer_and_appsec ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 33 filtered out; finished in 31.85s
+

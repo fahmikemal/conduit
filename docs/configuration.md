@@ -253,7 +253,7 @@ sites:
 | `certs` | `[]` | Certificates: `{ name, cert, key }`. `cert` is a PEM chain, leaf first; `key` must match it. Names must be unique. |
 | `default_cert` | unset | Name of the certificate served when the SNI matches no certificate (or there is none). Without it such handshakes fail. |
 | `acme_webroot` | unset | Directory served at `/.well-known/acme-challenge/` on every host, for an external ACME client (certbot `--webroot`). Only file names of letters, digits, `-` and `_` (up to 256) are served. |
-| `watch_interval` | `60s` | How often watched files are checked for changes ([section 1](#when-changes-take-effect)). Read at start only. |
+| `watch_interval` | `60s` | How often watched files are checked for changes ([section 1](#when-changes-take-effect)). Must be positive and fit the runtime clock. Read at start only. |
 | `acme` | unset | Automatic certificates for sites with `acme: true`. See [section 11](#acme). |
 
 ### `default_site`
@@ -358,7 +358,7 @@ from 1); these names appear in `/status`, metrics and logs.
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `backends` | required | A list of `http://host[:port]` or `https://host[:port]` URLs, or `{ url, weight }`. No path. The port defaults to 80 or 443. |
+| `backends` | required | A list of `http://host[:port]`, `https://host[:port]` or `h2c://host[:port]` URLs, or `{ url, weight }`. No path. The port defaults to 80 (HTTP/h2c) or 443 (HTTPS). |
 | `balance` | `round_robin` | `round_robin`, `random`, `least_conn` or `hash`. |
 | `hash_key` | `client_ip` with `hash` | What `balance: hash` hashes; only allowed with `hash`. |
 | `retries` | `1` | Further backends tried when connecting fails. |
@@ -366,6 +366,8 @@ from 1); these names appear in `/status`, metrics and logs.
 | `health_check` | unset (off) | Active probes. |
 | `verify_tls` | `true` | Verify the certificates (chain and name) of `https://` backends. |
 | `sni` | the URL's host | SNI and expected certificate name for `https://` backends. |
+| `http_version` | `"1.1"` | `"1.1"`, `"2"`, or `auto`. HTTP/2 is required with `"2"`; `auto` negotiates HTTP/2 or HTTP/1.1 on TLS and uses HTTP/1.1 on plain HTTP. `h2c://` implies `"2"` when this key is omitted. |
+| `http2_max_streams` | `128` | Maximum concurrent streams per HTTP/2 connection, further bounded by the upstream's SETTINGS. Range: 1 to 4294967295. |
 
 ### Backends and DNS
 
@@ -373,13 +375,50 @@ Host names are resolved when the configuration loads (at start and on each reloa
 request. Every address a name resolves to becomes a backend of its own, with the weight of
 the entry. Validation:
 
-- the URL must start with `http://` or `https://` and have no path (a trailing `/` is
+- the URL must start with `http://`, `https://` or `h2c://` and have no path (a trailing `/` is
   allowed);
 - `weight` must be at least 1;
 - the same address must not appear twice in a pool (also when two names resolve to it);
 - a name that does not resolve is an error, and the reload keeps the running configuration.
 
-Upstream requests use HTTP/1.1 over pooled keep-alive connections.
+Upstream requests use HTTP/1.1 over pooled keep-alive connections by default. HTTP/2 can be
+selected per named or inline pool, independently of the protocol the client uses:
+
+```yaml
+upstreams:
+  internal_grpc:
+    backends: [h2c://127.0.0.1:50051]
+    http2_max_streams: 128
+  secure_service:
+    backends: [https://api.internal:443]
+    http_version: "2"             # require HTTP/2, including when ALPN is absent
+  ordinary_web:
+    backends: [https://web.internal:443]
+    http_version: auto            # TLS ALPN: HTTP/2 preferred, HTTP/1.1 allowed
+sites:
+  - id: grpc
+    hosts: [grpc.example.com]
+    upstream: internal_grpc
+```
+
+`http_version: "2"` with an `http://` backend also uses cleartext HTTP/2 prior knowledge.
+`h2c://` is the shorthand, including in `upstream: h2c://127.0.0.1:50051`. There is no HTTP/1
+`Upgrade: h2c` negotiation, and cleartext HTTP/2 does not fall back to HTTP/1.1. An explicit
+`http_version: "1.1"` or `auto` conflicts with an `h2c://` backend and is rejected.
+
+HTTP health checks use the selected upstream protocol too; TCP checks inspect only the
+transport connection. Protocol/stream-limit changes take
+effect on reload; incompatible pooled connections are isolated. `/status` exposes each
+backend's configured `http_version` (`auto` reports the policy, not the negotiated result).
+
+gRPC request/response streaming and response trailers pass through HTTP/2. Clients must
+also connect to conduit using HTTP/2 over TLS for native gRPC; cleartext HTTP/2 on the
+client-facing listener is not implemented. Ordinary HTTP/1 clients can still use HTTP/2
+backends for regular HTTP requests.
+
+HTTP/1 upgrades such as WebSocket require an HTTP/1 upstream connection. `auto` chooses
+HTTP/1.1 for these requests; required `"2"` rejects a forwarded upgrade with 400. HTTP/2
+extended CONNECT (RFC 8441) is not implemented.
 
 ### Balancing
 
@@ -966,6 +1005,9 @@ number of clients). A sketch can overestimate under heavy load (an unlucky clien
 a counter with another), never underestimate. Counts survive reloads while the plugin's
 site, position and settings are unchanged.
 
+Admission for the same key is serialized across workers with a fixed set of small locks,
+so concurrent requests cannot all spend the same remaining allowance.
+
 ### `concurrency`
 
 ```yaml
@@ -1209,6 +1251,9 @@ The lookup uses the normalized path (decoded, `..` resolved). `strip_prefix` mus
 segment boundary: with `/static`, `/static` and `/static/x` are looked up as `/` and `/x`, and
 `/staticx` is not found.
 
+Percent escapes are decoded once before plugin checks and file lookup. Expanded
+`try_files` candidates preserve literal percent bytes; they are not decoded again.
+
 Without `try_files`, the path itself is looked up:
 
 - a file is served;
@@ -1255,8 +1300,9 @@ files:
 - Anything outside `root`. Every file is opened with `openat2(RESOLVE_BENEATH)` relative to
   the root, so `..`, absolute symlinks and symlinks leading out of the root fail in the
   kernel, even when a link is planted inside the root. On kernels without `openat2` (or
-  where seccomp blocks it), conduit falls back to resolving the real path and checking that
-  it stays inside the root.
+  where seccomp blocks it), conduit walks pinned directory descriptors with `O_NOFOLLOW`.
+  This fallback rejects all symlinks, including links that stay inside the root. Directory
+  listings use the verified directory descriptor through `/proc/self/fd` and omit symlinks.
 - Dotfiles and dot-directories at any depth, except `.well-known`.
 - Names listed in `hide`, at any depth.
 
@@ -1397,7 +1443,8 @@ entries of sites that no longer have `cache:`.
 The certificate is chosen per handshake from the SNI, across all certificates:
 
 1. the certificate a site names with `cert:` for that exact host, or the ACME certificate
-   of a site with `acme: true`;
+   of a site with `acme: true`; then an explicit `cert:` override for a matching wildcard
+   site (one label only, as for wildcard SANs);
 2. a certificate whose SAN lists the name exactly;
 3. a certificate with a wildcard SAN covering it: `*.example.com` covers exactly one label
    (`a.example.com`, not `a.b.example.com` and not `example.com`);
@@ -1552,7 +1599,7 @@ Once the upstream answers `101 Switching Protocols`:
 - the access log line is written when the connection closes, with the total duration and
   bytes. A connection still open when the process stops or is replaced is logged too.
 
-WebSockets are upgrades of HTTP/1.1 requests; the upstream connection is HTTP/1.1 either way.
+WebSockets are upgrades of HTTP/1.1 requests; upgraded upstream connections use HTTP/1.1.
 
 ## 14. Compression
 
@@ -1733,7 +1780,7 @@ Metrics:
   | read / send timeouts | 60s | 90s |
   | `Host` to upstream | `$proxy_host` (the upstream's name) | the client's `Host` |
   | `X-Forwarded-*`, `X-Real-IP` | not sent unless configured | always sent |
-  | upstream protocol | HTTP/1.0, no keep-alive | HTTP/1.1 with pooled keep-alive |
+  | upstream protocol | HTTP/1.0 before 1.29.7; HTTP/1.1 since 1.29.7 | HTTP/1.1 by default; optional HTTP/2 and h2c |
   | WebSocket | needs explicit headers | on |
   | compression | off | on, level 1, text types |
   | `add_header` | 2xx and 3xx unless `always` | every response |
@@ -1745,5 +1792,5 @@ Metrics:
   case-insensitively; values are compared exactly.
 - **No equivalent** for: variables and `map`, `if`, `error_page` and
   `proxy_intercept_errors` (conduit's error pages are fixed), `return 444`, `satisfy any`
-  (plugins all have to pass), per-location certificates, cleartext HTTP/2, streams (TCP and
+  (plugins all have to pass), per-location certificates, client-facing cleartext HTTP/2, streams (TCP and
   UDP proxying), and Lua or njs scripting.

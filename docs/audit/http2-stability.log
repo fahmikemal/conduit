@@ -1,0 +1,11 @@
+   Compiling conduit v0.1.0 (/home/tesseract/Mandiri/conduit)
+    Finished `test` profile [unoptimized] target(s) in 1.86s
+     Running tests/e2e.rs (/tmp/conduit-audit-work/target/debug/deps/e2e-e6e7dbcaa1b7f1cb)
+
+running 1 test
+test h2_upstream::upstream_http2_load_stability has been running for over 60 seconds
+H2 stability: 179999 requests, 23 reloads, FDs 40 -> 39, RSS 41576 -> 44072 KiB
+test h2_upstream::upstream_http2_load_stability ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 33 filtered out; finished in 123.21s
+

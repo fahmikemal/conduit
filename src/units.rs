@@ -12,7 +12,7 @@ enum Raw {
     Str(String),
 }
 
-/// A duration written as `<number><unit>` with unit `ms`, `s`, `m` or `h`, or a bare number of seconds.
+/// A duration written as `<number><unit>` with unit `ms`, `s`, `m`, `h` or `d`, or bare seconds.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 #[serde(try_from = "Raw")]
 pub struct Dur(pub Duration);
@@ -38,9 +38,17 @@ pub fn parse_duration(s: &str) -> Result<Duration, String> {
     let d = match unit.trim() {
         "" | "s" => Duration::from_secs(n),
         "ms" => Duration::from_millis(n),
-        "m" => Duration::from_secs(n * 60),
-        "h" => Duration::from_secs(n * 3600),
-        "d" => Duration::from_secs(n * 86_400),
+        "m" | "h" | "d" => {
+            let factor = match unit.trim() {
+                "m" => 60,
+                "h" => 3600,
+                _ => 86_400,
+            };
+            Duration::from_secs(
+                n.checked_mul(factor)
+                    .ok_or_else(|| format!("duration {s:?} is too large"))?,
+            )
+        }
         other => return Err(format!("invalid duration unit {other:?} in {s:?}")),
     };
     Ok(d)

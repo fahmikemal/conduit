@@ -1,0 +1,29 @@
+5 rounds, N=100000 C=64 body=2048B, proxy CPUs 0,2, scenarios: http rate
+  round 1 before       http           74357 req/s  p99   1.46 ms  cpu   21.7 ms/1k  errors 0
+  round 1 before       rate           19995 req/s  p99   1.16 ms  cpu   27.1 ms/1k  errors 0
+  round 1 after        http           77070 req/s  p99   1.38 ms  cpu   21.0 ms/1k  errors 0
+  round 1 after        rate           19997 req/s  p99   1.14 ms  cpu   27.5 ms/1k  errors 0
+  round 2 after        http           76897 req/s  p99   1.43 ms  cpu   20.9 ms/1k  errors 0
+  round 2 after        rate           19996 req/s  p99   1.20 ms  cpu   27.1 ms/1k  errors 0
+  round 2 before       http           78064 req/s  p99   1.35 ms  cpu   20.7 ms/1k  errors 0
+  round 2 before       rate           19998 req/s  p99   1.14 ms  cpu   26.8 ms/1k  errors 0
+  round 3 before       http           76324 req/s  p99   1.36 ms  cpu   21.1 ms/1k  errors 0
+  round 3 before       rate           19996 req/s  p99   1.24 ms  cpu   27.8 ms/1k  errors 0
+  round 3 after        http           74817 req/s  p99   1.45 ms  cpu   21.6 ms/1k  errors 0
+  round 3 after        rate           19997 req/s  p99   1.24 ms  cpu   28.0 ms/1k  errors 0
+  round 4 after        http           74362 req/s  p99   1.54 ms  cpu   21.6 ms/1k  errors 0
+  round 4 after        rate           19997 req/s  p99   1.21 ms  cpu   27.1 ms/1k  errors 0
+  round 4 before       http           74035 req/s  p99   1.55 ms  cpu   21.7 ms/1k  errors 0
+  round 4 before       rate           19994 req/s  p99   1.33 ms  cpu   28.7 ms/1k  errors 0
+  round 5 before       http           77125 req/s  p99   1.63 ms  cpu   20.8 ms/1k  errors 0
+  round 5 before       rate           19998 req/s  p99   1.29 ms  cpu   27.6 ms/1k  errors 0
+  round 5 after        http           65151 req/s  p99   2.06 ms  cpu   24.7 ms/1k  errors 0
+  round 5 after        rate           19995 req/s  p99   1.64 ms  cpu   29.0 ms/1k  errors 0
+
+medians over 5 rounds; change against before
+scenario   variant          req/s          p99 ms         cpu ms/1k        
+http       before           76324            1.46             21.10        
+http       after            74817   -2.0%    1.45   -0.7%     21.60   +2.4%
+rate       before           19996            1.24             27.56        
+rate       after            19997   +0.0%    1.21   -1.9%     27.48   -0.3%
+errors: 0

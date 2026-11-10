@@ -438,6 +438,7 @@ dependencies = [
  "foldhash",
  "foreign-types",
  "futures",
+ "h2",
  "http",
  "http-body",
  "httpdate",
@@ -458,6 +459,7 @@ dependencies = [
  "serde-saphyr",
  "serde_json",
  "tokio",
+ "tokio-openssl",
  "zstd",
 ]
 

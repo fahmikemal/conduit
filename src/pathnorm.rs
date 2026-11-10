@@ -50,6 +50,15 @@ fn percent_decode(raw: &[u8]) -> Result<Vec<u8>, PathError> {
 /// Normalize the path part of a request target (no query string).
 pub fn normalize(raw_path: &[u8]) -> Result<Vec<u8>, PathError> {
     let decoded = percent_decode(raw_path)?;
+    normalize_decoded(&decoded)
+}
+
+/// Resolve segments in an already decoded path without interpreting literal percent bytes.
+/// Used after composing file candidates from the path plugins already inspected.
+pub(crate) fn normalize_decoded(decoded: &[u8]) -> Result<Vec<u8>, PathError> {
+    if decoded.contains(&0) {
+        return Err(PathError::Invalid);
+    }
     let mut segments: Vec<&[u8]> = Vec::new();
     let mut trailing_slash = decoded.ends_with(b"/");
     for seg in decoded.split(|b| *b == b'/') {

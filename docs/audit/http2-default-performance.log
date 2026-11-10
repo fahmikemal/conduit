@@ -1,0 +1,41 @@
+5 rounds, N=200000 C=64 body=2048B, proxy CPUs 0,2, scenarios: http https h2
+  round 1 before       http           76013 req/s  p99   1.55 ms  cpu   21.1 ms/1k  errors 0
+  round 1 before       https          61114 req/s  p99   1.72 ms  cpu   26.9 ms/1k  errors 0
+  round 1 before       h2             49177 req/s  p99   2.44 ms  cpu   33.6 ms/1k  errors 0
+  round 1 after        http           74815 req/s  p99   1.53 ms  cpu   21.3 ms/1k  errors 0
+  round 1 after        https          62548 req/s  p99   1.74 ms  cpu   26.3 ms/1k  errors 0
+  round 1 after        h2             48436 req/s  p99   2.50 ms  cpu   33.5 ms/1k  errors 0
+  round 2 after        http           77197 req/s  p99   1.47 ms  cpu   20.6 ms/1k  errors 0
+  round 2 after        https          61658 req/s  p99   1.73 ms  cpu   26.7 ms/1k  errors 0
+  round 2 after        h2             49868 req/s  p99   2.37 ms  cpu   32.6 ms/1k  errors 0
+  round 2 before       http           73343 req/s  p99   1.81 ms  cpu   21.8 ms/1k  errors 0
+  round 2 before       https          55412 req/s  p99   2.12 ms  cpu   29.6 ms/1k  errors 0
+  round 2 before       h2             47267 req/s  p99   2.57 ms  cpu   33.8 ms/1k  errors 0
+  round 3 before       http           76879 req/s  p99   1.46 ms  cpu   20.8 ms/1k  errors 0
+  round 3 before       https          60288 req/s  p99   1.81 ms  cpu   27.3 ms/1k  errors 0
+  round 3 before       h2             49983 req/s  p99   2.52 ms  cpu   32.9 ms/1k  errors 0
+  round 3 after        http           76912 req/s  p99   1.39 ms  cpu   20.8 ms/1k  errors 0
+  round 3 after        https          59539 req/s  p99   1.77 ms  cpu   27.3 ms/1k  errors 0
+  round 3 after        h2             48507 req/s  p99   2.47 ms  cpu   33.8 ms/1k  errors 0
+  round 4 after        http           76858 req/s  p99   1.44 ms  cpu   20.8 ms/1k  errors 0
+  round 4 after        https          60584 req/s  p99   1.79 ms  cpu   27.1 ms/1k  errors 0
+  round 4 after        h2             48456 req/s  p99   2.48 ms  cpu   34.0 ms/1k  errors 0
+  round 4 before       http           75706 req/s  p99   1.46 ms  cpu   21.1 ms/1k  errors 0
+  round 4 before       https          55031 req/s  p99   2.19 ms  cpu   29.9 ms/1k  errors 0
+  round 4 before       h2             42304 req/s  p99   3.26 ms  cpu   38.8 ms/1k  errors 0
+  round 5 before       http           66688 req/s  p99   2.04 ms  cpu   24.0 ms/1k  errors 0
+  round 5 before       https          52582 req/s  p99   2.44 ms  cpu   31.2 ms/1k  errors 0
+  round 5 before       h2             45836 req/s  p99   2.86 ms  cpu   35.7 ms/1k  errors 0
+  round 5 after        http           65163 req/s  p99   1.77 ms  cpu   24.4 ms/1k  errors 0
+  round 5 after        https          50911 req/s  p99   2.91 ms  cpu   32.3 ms/1k  errors 0
+  round 5 after        h2             41480 req/s  p99   3.31 ms  cpu   39.4 ms/1k  errors 0
+
+medians over 5 rounds; change against before
+scenario   variant          req/s          p99 ms         cpu ms/1k        
+http       before           75706            1.55             21.05        
+http       after            76858   +1.5%    1.47   -4.9%     20.80   -1.2%
+https      before           55412            2.12             29.65        
+https      after            60584   +9.3%    1.77  -16.9%     27.10   -8.6%
+h2         before           47267            2.57             33.80        
+h2         after            48456   +2.5%    2.48   -3.7%     33.75   -0.1%
+errors: 0

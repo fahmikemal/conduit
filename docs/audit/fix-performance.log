@@ -1,0 +1,77 @@
+5 rounds, N=50000 C=64 body=2048B, proxy CPUs 0,2, scenarios: http https h2 handshake gzip rate
+  round 1 before       http           81017 req/s  p99   1.45 ms  cpu   20.0 ms/1k  errors 0
+  round 1 before       https          49085 req/s  p99   2.10 ms  cpu   32.6 ms/1k  errors 0
+  round 1 before       h2             42084 req/s  p99   2.85 ms  cpu   38.8 ms/1k  errors 0
+  round 1 before       handshake       4500 req/s  p99  26.85 ms  cpu  383.0 ms/1k  errors 0
+  round 1 before       gzip           55185 req/s  p99   2.44 ms  cpu   30.0 ms/1k  errors 0
+  round 1 before       rate            9998 req/s  p99   0.70 ms  cpu   31.7 ms/1k  errors 0
+  round 1 after        http           83403 req/s  p99   1.28 ms  cpu   19.2 ms/1k  errors 0
+  round 1 after        https          54293 req/s  p99   2.77 ms  cpu   29.4 ms/1k  errors 0
+  round 1 after        h2             43616 req/s  p99   2.74 ms  cpu   36.6 ms/1k  errors 0
+  round 1 after        handshake       4362 req/s  p99  34.22 ms  cpu  390.0 ms/1k  errors 0
+  round 1 after        gzip           54114 req/s  p99   1.98 ms  cpu   30.6 ms/1k  errors 0
+  round 1 after        rate            9998 req/s  p99   0.68 ms  cpu   30.2 ms/1k  errors 0
+  round 2 after        http           77198 req/s  p99   1.36 ms  cpu   20.8 ms/1k  errors 0
+  round 2 after        https          51655 req/s  p99   2.31 ms  cpu   30.2 ms/1k  errors 0
+  round 2 after        h2             42974 req/s  p99   2.67 ms  cpu   38.0 ms/1k  errors 0
+  round 2 after        handshake       4554 req/s  p99  25.45 ms  cpu  373.0 ms/1k  errors 0
+  round 2 after        gzip           54623 req/s  p99   2.08 ms  cpu   30.8 ms/1k  errors 0
+  round 2 after        rate            9999 req/s  p99   0.75 ms  cpu   31.1 ms/1k  errors 0
+  round 2 before       http           84601 req/s  p99   1.27 ms  cpu   19.0 ms/1k  errors 0
+  round 2 before       https          55864 req/s  p99   1.77 ms  cpu   28.6 ms/1k  errors 0
+  round 2 before       h2             42754 req/s  p99   2.64 ms  cpu   37.4 ms/1k  errors 0
+  round 2 before       handshake       4536 req/s  p99  27.21 ms  cpu  395.0 ms/1k  errors 0
+  round 2 before       gzip           55836 req/s  p99   2.16 ms  cpu   29.6 ms/1k  errors 0
+  round 2 before       rate            9998 req/s  p99   0.66 ms  cpu   29.4 ms/1k  errors 0
+  round 3 before       http           82246 req/s  p99   1.60 ms  cpu   19.4 ms/1k  errors 0
+  round 3 before       https          50453 req/s  p99   2.17 ms  cpu   31.0 ms/1k  errors 0
+  round 3 before       h2             43446 req/s  p99   2.68 ms  cpu   37.2 ms/1k  errors 0
+  round 3 before       handshake       4491 req/s  p99  27.21 ms  cpu  396.0 ms/1k  errors 0
+  round 3 before       gzip           48004 req/s  p99   2.54 ms  cpu   34.4 ms/1k  errors 0
+  round 3 before       rate            9999 req/s  p99   1.04 ms  cpu   34.7 ms/1k  errors 0
+  round 3 after        http           72214 req/s  p99   1.62 ms  cpu   21.0 ms/1k  errors 0
+  round 3 after        https          48906 req/s  p99   2.67 ms  cpu   33.2 ms/1k  errors 0
+  round 3 after        h2             30165 req/s  p99   4.53 ms  cpu   51.6 ms/1k  errors 0
+  round 3 after        handshake       4305 req/s  p99  30.51 ms  cpu  411.0 ms/1k  errors 0
+  round 3 after        gzip           53066 req/s  p99   2.46 ms  cpu   31.2 ms/1k  errors 0
+  round 3 after        rate            9999 req/s  p99   0.80 ms  cpu   33.3 ms/1k  errors 0
+  round 4 after        http           57686 req/s  p99   2.49 ms  cpu   27.4 ms/1k  errors 0
+  round 4 after        https          41720 req/s  p99   3.20 ms  cpu   37.4 ms/1k  errors 0
+  round 4 after        h2             37796 req/s  p99   3.37 ms  cpu   43.0 ms/1k  errors 0
+  round 4 after        handshake       3919 req/s  p99  41.49 ms  cpu  431.0 ms/1k  errors 0
+  round 4 after        gzip           40987 req/s  p99   3.23 ms  cpu   39.8 ms/1k  errors 0
+  round 4 after        rate            9996 req/s  p99   0.88 ms  cpu   34.3 ms/1k  errors 0
+  round 4 before       http           56925 req/s  p99   2.15 ms  cpu   27.8 ms/1k  errors 0
+  round 4 before       https          52070 req/s  p99   2.16 ms  cpu   31.2 ms/1k  errors 0
+  round 4 before       h2             36510 req/s  p99   3.64 ms  cpu   43.8 ms/1k  errors 0
+  round 4 before       handshake       3932 req/s  p99  33.33 ms  cpu  432.0 ms/1k  errors 0
+  round 4 before       gzip           58489 req/s  p99   2.11 ms  cpu   28.2 ms/1k  errors 0
+  round 4 before       rate            9998 req/s  p99   0.82 ms  cpu   33.6 ms/1k  errors 0
+  round 5 before       http           74187 req/s  p99   1.60 ms  cpu   21.8 ms/1k  errors 0
+  round 5 before       https          60271 req/s  p99   1.88 ms  cpu   26.8 ms/1k  errors 0
+  round 5 before       h2             47136 req/s  p99   2.45 ms  cpu   34.4 ms/1k  errors 0
+  round 5 before       handshake       4833 req/s  p99  24.20 ms  cpu  369.0 ms/1k  errors 0
+  round 5 before       gzip           63259 req/s  p99   1.72 ms  cpu   26.4 ms/1k  errors 0
+  round 5 before       rate            9999 req/s  p99   0.72 ms  cpu   33.0 ms/1k  errors 0
+  round 5 after        http           76491 req/s  p99   1.60 ms  cpu   21.0 ms/1k  errors 0
+  round 5 after        https          54785 req/s  p99   2.31 ms  cpu   29.8 ms/1k  errors 0
+  round 5 after        h2             46924 req/s  p99   2.58 ms  cpu   34.8 ms/1k  errors 0
+  round 5 after        handshake       4106 req/s  p99  31.55 ms  cpu  411.0 ms/1k  errors 0
+  round 5 after        gzip           53823 req/s  p99   2.19 ms  cpu   30.8 ms/1k  errors 0
+  round 5 after        rate            9998 req/s  p99   1.04 ms  cpu   35.1 ms/1k  errors 0
+
+medians over 5 rounds; change against before
+scenario   variant          req/s          p99 ms         cpu ms/1k        
+http       before           81017            1.60             20.00        
+http       after            76491   -5.6%    1.60   +0.1%     21.00   +5.0%
+https      before           52070            2.10             31.00        
+https      after            51655   -0.8%    2.67  +27.2%     30.20   -2.6%
+h2         before           42754            2.68             37.40        
+h2         after            42974   +0.5%    2.74   +2.4%     38.00   +1.6%
+handshake  before            4500           27.21            395.00        
+handshake  after             4305   -4.3%   31.55  +15.9%    411.00   +4.1%
+gzip       before           55836            2.16             29.60        
+gzip       after            53823   -3.6%    2.19   +1.1%     30.80   +4.1%
+rate       before            9998            0.72             32.96        
+rate       after             9998   +0.0%    0.80  +11.1%     33.28   +1.0%
+errors: 0

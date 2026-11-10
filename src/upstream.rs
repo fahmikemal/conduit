@@ -27,7 +27,7 @@ use pingora::upstreams::peer::HttpPeer;
 use pingora::{Error, ErrorType, Result};
 use prometheus::IntCounter;
 
-use crate::config::{Balance, HealthCheckConfig, PoolConfig, ProbeType};
+use crate::config::{Balance, HealthCheckConfig, PoolConfig, ProbeType, UpstreamHttpVersion};
 use crate::metrics;
 use crate::proxy::Shared;
 
@@ -48,6 +48,8 @@ pub struct Target {
     /// SNI and certificate name for TLS backends; empty otherwise.
     pub sni: String,
     pub verify: bool,
+    pub http_version: UpstreamHttpVersion,
+    pub http2_max_streams: usize,
     pub weight: usize,
     /// `ip:port`, as logged and used as the metrics label.
     pub label: Arc<str>,
@@ -61,6 +63,26 @@ pub struct Target {
 }
 
 impl Target {
+    /// Protocol preferences are part of the pool group: Pingora's reuse hash does not
+    /// include ALPN, so strict H2 must not borrow a previously pooled H1 connection.
+    pub fn peer(&self) -> HttpPeer {
+        let mut peer = HttpPeer::new(self.addr, self.tls, self.sni.clone());
+        let (max, min, group) = match self.http_version {
+            UpstreamHttpVersion::Http1 => (1, 1, 0),
+            UpstreamHttpVersion::Http2 => (2, 2, 2),
+            UpstreamHttpVersion::Auto if self.tls => (2, 1, 1),
+            UpstreamHttpVersion::Auto => (1, 1, 1),
+        };
+        peer.group_key = group;
+        peer.options.set_http_version(max, min);
+        if max == 2 {
+            peer.options.max_h2_streams = self.http2_max_streams;
+        }
+        peer.options.verify_cert = self.verify;
+        peer.options.verify_hostname = self.verify;
+        peer
+    }
+
     fn ejected(&self, now: u64) -> bool {
         self.ejected_until.load(Relaxed) > now
     }
@@ -159,6 +181,7 @@ pub struct MemberStatus<'a> {
     pub healthy: bool,
     pub ejected: bool,
     pub in_flight: usize,
+    pub http_version: &'static str,
 }
 
 pub struct Pool {
@@ -188,6 +211,7 @@ struct Resolved {
     tls: bool,
     host: String,
     sni: String,
+    http_version: UpstreamHttpVersion,
 }
 
 fn resolve(cfg: &PoolConfig) -> Result<Vec<Resolved>, String> {
@@ -200,14 +224,28 @@ fn resolve(cfg: &PoolConfig) -> Result<Vec<Resolved>, String> {
         if b.weight == 0 {
             return Err(format!("backend {url:?}: weight must be at least 1"));
         }
-        let (tls, rest) = if let Some(r) = url.strip_prefix("http://") {
-            (false, r)
+        let (tls, h2c, rest) = if let Some(r) = url.strip_prefix("http://") {
+            (false, false, r)
         } else if let Some(r) = url.strip_prefix("https://") {
-            (true, r)
+            (true, false, r)
+        } else if let Some(r) = url.strip_prefix("h2c://") {
+            (false, true, r)
         } else {
             return Err(format!(
-                "backend {url:?} must start with http:// or https://"
+                "backend {url:?} must start with http://, https:// or h2c://"
             ));
+        };
+        if h2c
+            && cfg
+                .http_version
+                .is_some_and(|v| v != UpstreamHttpVersion::Http2)
+        {
+            return Err("h2c:// requires http_version: 2 or an unset http_version".into());
+        }
+        let http_version = if h2c {
+            UpstreamHttpVersion::Http2
+        } else {
+            cfg.http_version.unwrap_or_default()
         };
         let authority = rest.trim_end_matches('/');
         if authority.is_empty() || authority.contains('/') {
@@ -251,6 +289,7 @@ fn resolve(cfg: &PoolConfig) -> Result<Vec<Resolved>, String> {
                 tls,
                 host: host.clone(),
                 sni: sni.clone(),
+                http_version,
             });
         }
     }
@@ -266,6 +305,9 @@ impl Pool {
         cfg: &PoolConfig,
         prev: Option<&Arc<Pool>>,
     ) -> Result<Arc<Pool>, String> {
+        if cfg.http2_max_streams == 0 || cfg.http2_max_streams > u32::MAX as usize {
+            return Err("http2_max_streams must be between 1 and 4294967295".into());
+        }
         let resolved = resolve(cfg)?;
         let hash_key = HashKey::parse(cfg.hash_key.as_deref(), cfg.balance)?;
         if let Some(hc) = &cfg.health_check {
@@ -280,8 +322,13 @@ impl Pool {
             }
         }
         let signature = format!(
-            "{resolved:?}|{:?}|{hash_key:?}|{:?}|{:?}|{}|{}",
-            cfg.balance, cfg.health_check, cfg.passive, cfg.retries, cfg.verify_tls
+            "{resolved:?}|{:?}|{hash_key:?}|{:?}|{:?}|{}|{}|{}",
+            cfg.balance,
+            cfg.health_check,
+            cfg.passive,
+            cfg.retries,
+            cfg.verify_tls,
+            cfg.http2_max_streams
         );
         if let Some(p) = prev
             && p.signature == signature
@@ -298,6 +345,8 @@ impl Pool {
                 tls: r.tls,
                 sni: r.sni.clone(),
                 verify: cfg.verify_tls,
+                http_version: r.http_version,
+                http2_max_streams: cfg.http2_max_streams,
                 weight: r.weight,
                 host: r.host.clone(),
                 in_flight: AtomicUsize::new(0),
@@ -474,6 +523,7 @@ impl Pool {
             healthy: self.lb.backends().ready(&m.backend),
             ejected: m.target.ejected(now),
             in_flight: m.target.in_flight.load(Relaxed),
+            http_version: m.target.http_version.as_str(),
         })
     }
 
@@ -555,26 +605,56 @@ impl Probe {
     }
 
     async fn run(&self, t: &Target) -> Result<()> {
-        let mut peer = HttpPeer::new(t.addr, t.tls, t.sni.clone());
+        let mut peer = t.peer();
         let o = &mut peer.options;
         o.connection_timeout = Some(self.timeout);
         o.total_connection_timeout = Some(self.timeout);
         o.read_timeout = Some(self.timeout);
         o.write_timeout = Some(self.timeout);
+        // A cancelled probe must own the last client reference to its connection. With
+        // multiple streams Pingora inserts it into InUsePool before the probe finishes,
+        // which could retain a connection when the outer probe timeout drops this future.
+        o.max_h2_streams = 1;
         o.verify_cert = t.verify;
         o.verify_hostname = t.verify;
         if self.kind == ProbeType::Tcp {
             return PROBE_TCP.get_stream(&peer).await.map(|_| ());
         }
         let (mut session, _) = PROBE_HTTP.get_http_session(&peer).await?;
+        if t.http_version == UpstreamHttpVersion::Http2 && session.as_http2().is_none() {
+            return Error::e_explain(ErrorType::ConnectError, "upstream did not negotiate HTTP/2");
+        }
         let mut req = RequestHeader::build("GET", self.path.as_bytes(), None)?;
         req.insert_header(header::HOST, self.host.as_deref().unwrap_or(&t.host))?;
+        if session.as_http2().is_some() {
+            let host = self.host.as_deref().unwrap_or(&t.host);
+            let authority = if host.parse::<std::net::Ipv6Addr>().is_ok() {
+                format!("[{host}]")
+            } else {
+                host.to_string()
+            };
+            req.insert_header(header::HOST, authority.as_str())?;
+            let uri = http::Uri::builder()
+                .scheme(if t.tls { "https" } else { "http" })
+                .authority(authority)
+                .path_and_query(self.path.as_str())
+                .build()
+                .map_err(|e| Error::because(ErrorType::InvalidHTTPHeader, "health check URI", e))?;
+            req.set_uri(uri);
+        }
         req.insert_header(header::USER_AGENT, "conduit-health-check")?;
-        req.insert_header(header::CONNECTION, "close")?;
+        if session.as_http2().is_none() {
+            req.insert_header(header::CONNECTION, "close")?;
+        }
         session.write_request_header(Box::new(req)).await?;
         session.finish_request_body().await?;
         session.read_response_header().await?;
         let status = session.response_header().map_or(0, |r| r.status.as_u16());
+        // Probes inspect only the response header. Cancel any unread stream and expire
+        // its connection rather than leaving an active H2 entry in the shared connector.
+        PROBE_HTTP
+            .release_http_session(session, &peer, Some(Duration::ZERO))
+            .await;
         let ok = if self.expect.is_empty() {
             (200..400).contains(&status)
         } else {

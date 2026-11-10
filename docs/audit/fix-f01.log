@@ -1,0 +1,24 @@
+   Compiling pingora-error v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-error)
+   Compiling pingora-timeout v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-timeout)
+   Compiling pingora-openssl v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-openssl)
+   Compiling pingora-http v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-http)
+   Compiling pingora-pool v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-pool)
+   Compiling pingora-runtime v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-runtime)
+   Compiling pingora-lru v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-lru)
+   Compiling pingora-core v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-core)
+   Compiling pingora-header-serde v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-header-serde)
+   Compiling pingora-ketama v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-ketama)
+   Compiling pingora-limits v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-limits)
+   Compiling pingora-cache v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-cache)
+   Compiling pingora-load-balancing v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-load-balancing)
+   Compiling pingora-proxy v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-proxy)
+   Compiling pingora v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora)
+   Compiling conduit v0.1.0 (/home/tesseract/Mandiri/conduit)
+    Finished `test` profile [unoptimized] target(s) in 2m 19s
+     Running tests/e2e.rs (/tmp/conduit-audit-work/target/debug/deps/e2e-0c5467a05406c084)
+
+running 1 test
+test security_file_path_decoded_once ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.06s
+

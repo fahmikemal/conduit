@@ -1,0 +1,62 @@
+{
+  "warning": "Models and one filesystem demonstration; Rust not executed",
+  "demonstrations": [
+    {
+      "finding": "F01",
+      "kind": "algorithm model",
+      "raw": "/%2561dmin/secret.txt",
+      "plugin_path": "/%61dmin/secret.txt",
+      "file_path": "/admin/secret.txt"
+    },
+    {
+      "finding": "F02",
+      "kind": "real filesystem interleaving",
+      "result": "outside-marker",
+      "scope": "temporary directories only"
+    },
+    {
+      "finding": "F03",
+      "kind": "key-input model",
+      "upstream_hosts": [
+        "app.test:8080",
+        "app.test:9090"
+      ],
+      "cache_hosts": [
+        "app.test",
+        "app.test"
+      ]
+    },
+    {
+      "finding": "F05",
+      "kind": "unsigned arithmetic model",
+      "input": "9223372036854775808m",
+      "release_wrapped_seconds": 0,
+      "debug": "overflow panic with overflow checks enabled"
+    },
+    {
+      "finding": "F07",
+      "kind": "concurrent interleaving model",
+      "limit": 1,
+      "admitted": 2
+    },
+    {
+      "finding": "F08",
+      "kind": "certificate selection model",
+      "selected": "first-configured-cert",
+      "configured_override": "preferred-cert"
+    },
+    {
+      "finding": "F09",
+      "kind": "variance-input model",
+      "requests": [
+        "deflate",
+        "identity"
+      ],
+      "bits": [
+        0,
+        0
+      ],
+      "condition": "upstream Vary: Accept-Encoding takes the listed branch"
+    }
+  ]
+}

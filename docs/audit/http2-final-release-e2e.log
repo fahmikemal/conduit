@@ -1,0 +1,13 @@
+    Finished `test` profile [unoptimized] target(s) in 0.10s
+     Running tests/e2e.rs (/tmp/conduit-audit-work/target/debug/deps/e2e-e6e7dbcaa1b7f1cb)
+
+running 6 tests
+test h2_upstream::upstream_http2_load_stability ... ignored, two-minute HTTP/2 load/reload/idle-connection stability run; needs oha
+test h2_upstream::upstream_http2_tls_negotiation_strict_and_upgrade ... ok
+test h2_upstream::upstream_http2_health_cache_and_validation ... ok
+test h2_upstream::upstream_http2_cleartext_reload_and_multiplexing ... ok
+test h2_upstream::upstream_http2_stream_limit_and_reload ... ok
+test h2_upstream::upstream_http2_grpc_bidirectional_stream_and_trailers ... ok
+
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 28 filtered out; finished in 1.46s
+

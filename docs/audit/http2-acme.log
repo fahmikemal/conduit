@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized] target(s) in 0.10s
+     Running tests/e2e.rs (/tmp/conduit-audit-work/target/debug/deps/e2e-e6e7dbcaa1b7f1cb)
+
+running 1 test
+acme: issued by "Pebble Intermediate CA 2f776c" in 1.1s
+acme: renewed under load, 274 HTTPS requests, 0 failures, 3 certificates seen
+acme: refused order reported as "new order: API error: Order included an identifier for which issuance is forbidden by policy: \"blocked-domain.example\" (urn:ietf:params:acme:error:rejectedIdentifier): 1 subproblems: for \"blocked-domain.example\": blocked-domain.example is a forbidden domain (urn:ietf:params:acme:error:rejectedIdentifier)"
+test acme_with_pebble ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 33 filtered out; finished in 7.65s
+

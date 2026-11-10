@@ -1,0 +1,127 @@
+{
+  "status": "passed",
+  "base_commit": "a6b2bb91d8c815733145e07c0270da97f81af945",
+  "pingora_commit": "5c765c66590bdb7829ad32e00abc6f9a4e0410af",
+  "source_sha256": {
+    "src/accesslog.rs": "28ef2a94bd4e8e296736125b7ce5c8e54815d383255ef3720ee06c44673f7ee2",
+    "src/acme.rs": "5d9ffbf96b668dba22024181b9f251186075b95a4a3763435742e9345a420995",
+    "src/admin.rs": "21fa368f04212eb89cef412c05068636cf7e1c0eadc90de1222b169ff9e64929",
+    "src/auth.rs": "983c04830b1cef0434b8a46b04fdcd9b1146e15ef9908810273375a5271aae7c",
+    "src/cache.rs": "40ac74e6a3b14b6030891019888d52216ca8aab7c332bab573f76ec519b53ceb",
+    "src/config.rs": "aacd9293af725a170429b2fa3453971a7efc910ac1883bbb78aa9fc7e37a30b7",
+    "src/crowdsec.rs": "955de8624cc98e0fef6680a3b499eca042840d58af730844211358994be62d64",
+    "src/exploits.rs": "1dd776efcba9c108e77b2d17c77da946a45667c226f8534b4b098d861010ba38",
+    "src/files.rs": "3de75b861976c589494f827b6f6676950c7890f979ff3fb1ebb971cff90ae539",
+    "src/fuzzing.rs": "1005453ca0d149d0c08a11b4118797ad5f80e86bbbb1560c939fcebcc5fa8f70",
+    "src/httpc.rs": "6f856a7d712bf82a47a73c8960b6ff75bd60ed4fa39df0daccae7b92ce70c38b",
+    "src/lib.rs": "bb6cbdb12cc2c323fa8228a93e593fbf9b74e9ae446bec3327171ea45467f620",
+    "src/limits.rs": "75522895d8fe679d900099c7c499c515a9d9a0f6f6e631fc324e1faf6a70b1d1",
+    "src/logger.rs": "65b1ccf891a714faa541ec7bc180ba365a69720caaf7402ef3f1ad410f7386bb",
+    "src/main.rs": "c2899dc6dca1ea7300767798de6156ed8ab4b93a3a6968d51c4a109775363961",
+    "src/metrics.rs": "46b41d89c8e8337634ef1ff0fffe28cc5d5487341e701e81adf061fb1757cb96",
+    "src/pathnorm.rs": "0a6bc241b66bc81fbf36858979c7d2ecd04e8385d1eeb437178df7aec1e0ab97",
+    "src/plugin.rs": "f6953d63f645becdab2fd9afe7144a3eaf765795caec146e27a00d71d7b5ebaf",
+    "src/proxy.rs": "84249f8cbe9f764cf1dd667a78313fffaf35ccbf735d3a9fd6168b9bf3e9d98e",
+    "src/realip.rs": "8d6dd0c7171107774d731a8902967be74ec0c39c0d3b93fe0bf5f3ba54dfaf5a",
+    "src/reload.rs": "6b7e1408acaefe32a3a587932b5211b571a2553e81a77a2ec71c36bb9413b4cf",
+    "src/replace.rs": "38f811f09dc993291e5fa2829b41866b20998be821618adb8b15d7183bbfeddf",
+    "src/route.rs": "3dcb3dd1276a642913df062eb159f2c6eb633eefd2c32c2e0fb148a9319b1108",
+    "src/rules.rs": "76f19cbd1e221c01f7643ae5b158d721f5000a3f3c80927f508dd1f57702cb23",
+    "src/runtime.rs": "58194ccc3c625a96bc7ed0851e48c3b272e924a1fff0b327f8b91cd86b9ed39e",
+    "src/timefmt.rs": "65ce0e3e013a4b2f059f4e85e59a3a8d883bcef00c306b0548e8afa0ba0f86c5",
+    "src/tls.rs": "2db07c98215426005b56b98075f7d3372e6543c3c7855149bfc57c5ee0bbb919",
+    "src/units.rs": "921631774d5da99bb452e836ffbfc8296f10a60198cacc7800a217ca7e5a4bb4",
+    "src/upstream.rs": "b1fb225171b0794c14280b864ed952c0c971411f5839c34978fc2a7cffc41413",
+    "tests/e2e.rs": "7d536ec3f592ed8a468f46a3dd2645df48e5be9d86702c291b65a0019c0e7247",
+    "Cargo.toml": "b40875f6513d9d054a4bd3e56fa4c3a81bf3635bc3790ad7b9b9c9b8fba5805e",
+    "Cargo.lock": "fa97cab129f9130a03460bbaf928531b5ad7657b5c9594ae57bd8b0e67d12543"
+  },
+  "build_copy_source_matches": true,
+  "binaries": {
+    "before_release": {
+      "sha256": "32b67fea05c475af23973ea7b683655bed9fe41661cc27de615d6631bd0f345a",
+      "bytes": 18727888
+    },
+    "after_release": {
+      "sha256": "9ddff7ca95a284e5aade957d6fb3353ac93ceabbefc4dc0ef0ef454b4247b18d",
+      "bytes": 18728848
+    },
+    "after_dev": {
+      "sha256": "ff5998e35e2f94ff9640dffdbf4c77229926bafac8d3af7bf41001e8e0451cf8",
+      "bytes": 54245512
+    }
+  },
+  "toolchain": "rustc 1.99.1",
+  "tests": {
+    "unit_default_passed": 109,
+    "unit_ignored_explicit_passed": 2,
+    "e2e_default_passed": 25,
+    "e2e_ignored_explicit_passed": 3,
+    "e2e_unexecuted": 0,
+    "clippy_warnings_as_errors": "passed",
+    "fmt": "passed"
+  },
+  "performance": {
+    "measured_requests": 8350000,
+    "measured_samples": 90,
+    "rounds_per_cell": 5,
+    "errors": 0,
+    "proxy_allowed_cpus": "0,2",
+    "load_allowed_cpus": "6-11",
+    "nginx_actual_allowed_cpus": "0-11",
+    "upstream_cpuset_enforced": false
+  },
+  "compatibility_changes": [
+    "fallback rejects all symlinks",
+    "directory listings require /proc/self/fd",
+    "explicit Vary keeps conservative raw-header distinctions",
+    "wildcard certificate override precedence documented"
+  ],
+  "not_claimed": [
+    "24-hour production soak",
+    "new fuzz campaign",
+    "MSRV validation",
+    "dependency advisory audit",
+    "complete vendor patch audit"
+  ],
+  "completed_utc": "2026-11-10T09:32:52.631106+00:00",
+  "stability": {
+    "binary_sha256": "9ddff7ca95a284e5aade957d6fb3353ac93ceabbefc4dc0ef0ef454b4247b18d",
+    "planned_seconds": 600,
+    "passed": true,
+    "elapsed_seconds": 617.79,
+    "http_requests": 432000,
+    "websocket": {
+      "ts": 1794303065,
+      "open": 40,
+      "msgs": 23960,
+      "errors": 0,
+      "reconnects": 0,
+      "short_ok": 1198,
+      "short_err": 0
+    },
+    "reloads_sent": 59,
+    "reloads_succeeded": 79,
+    "certificate_rotations_observed": 19,
+    "warmed_initial_rss_kib": 43032,
+    "warmed_final_rss_kib": 47560,
+    "max_rss_kib": 47728,
+    "max_fds": 212,
+    "max_threads": 22
+  },
+  "final_security_e2e_passed": 8,
+  "final_release_poc_closure_passed": true,
+  "findings": {
+    "F01": "fixed_and_verified",
+    "F02": "fixed_and_verified",
+    "F03": "fixed_and_verified",
+    "F04": "documented_behavior_preserved",
+    "F05": "fixed_and_verified",
+    "F06": "fixed_and_verified",
+    "F07": "fixed_and_verified",
+    "F08": "fixed_and_verified",
+    "F09": "fixed_and_verified",
+    "F10": "documentation_fixed"
+  },
+  "tracked_diff_sha256": "ed710ef8971f6b74996c4b14d2c34cff99aa153b4081377d8c1dfaa3379a6625"
+}

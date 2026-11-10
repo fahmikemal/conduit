@@ -1,0 +1,234 @@
+{
+  "binary": "/tmp/conduit-audit-work/target/debug/conduit",
+  "binary_sha256": "ff5998e35e2f94ff9640dffdbf4c77229926bafac8d3af7bf41001e8e0451cf8",
+  "version": "conduit 0.1.0",
+  "tests": {
+    "F01": {
+      "responses": [
+        {
+          "status": 403,
+          "headers": {
+            "content-type": "text/html",
+            "content-length": "148",
+            "x-request-id": "06b72b930000000000000000",
+            "date": "Tue, 10 Nov 2026 09:11:21 GMT",
+            "connection": "close"
+          },
+          "body_hex": "3c68746d6c3e0d0a3c686561643e3c7469746c653e34303320466f7262696464656e3c2f7469746c653e3c2f686561643e0d0a3c626f64793e0d0a3c63656e7465723e3c68313e34303320466f7262696464656e3c2f68313e3c2f63656e7465723e0d0a3c68723e3c63656e7465723e636f6e647569743c2f63656e7465723e0d0a3c2f626f64793e0d0a3c2f68746d6c3e0d0a",
+          "body_text": "<html>\r\n<head><title>403 Forbidden</title></head>\r\n<body>\r\n<center><h1>403 Forbidden</h1></center>\r\n<hr><center>conduit</center>\r\n</body>\r\n</html>\r\n"
+        },
+        {
+          "status": 403,
+          "headers": {
+            "content-type": "text/html",
+            "content-length": "148",
+            "x-request-id": "06b72b930000000000001000",
+            "date": "Tue, 10 Nov 2026 09:11:21 GMT",
+            "connection": "close"
+          },
+          "body_hex": "3c68746d6c3e0d0a3c686561643e3c7469746c653e34303320466f7262696464656e3c2f7469746c653e3c2f686561643e0d0a3c626f64793e0d0a3c63656e7465723e3c68313e34303320466f7262696464656e3c2f68313e3c2f63656e7465723e0d0a3c68723e3c63656e7465723e636f6e647569743c2f63656e7465723e0d0a3c2f626f64793e0d0a3c2f68746d6c3e0d0a",
+          "body_text": "<html>\r\n<head><title>403 Forbidden</title></head>\r\n<body>\r\n<center><h1>403 Forbidden</h1></center>\r\n<hr><center>conduit</center>\r\n</body>\r\n</html>\r\n"
+        },
+        {
+          "status": 404,
+          "headers": {
+            "content-type": "text/html",
+            "content-length": "148",
+            "x-request-id": "06b72b930000000000000001",
+            "date": "Tue, 10 Nov 2026 09:11:21 GMT",
+            "connection": "close"
+          },
+          "body_hex": "3c68746d6c3e0d0a3c686561643e3c7469746c653e343034204e6f7420466f756e643c2f7469746c653e3c2f686561643e0d0a3c626f64793e0d0a3c63656e7465723e3c68313e343034204e6f7420466f756e643c2f68313e3c2f63656e7465723e0d0a3c68723e3c63656e7465723e636f6e647569743c2f63656e7465723e0d0a3c2f626f64793e0d0a3c2f68746d6c3e0d0a",
+          "body_text": "<html>\r\n<head><title>404 Not Found</title></head>\r\n<body>\r\n<center><h1>404 Not Found</h1></center>\r\n<hr><center>conduit</center>\r\n</body>\r\n</html>\r\n"
+        }
+      ],
+      "passed": true,
+      "classification": "closed"
+    },
+    "F03": {
+      "first": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "53",
+          "cache-control": "public, max-age=600",
+          "accept-ranges": "bytes",
+          "x-request-id": "06b72b930000000000000002",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 09:11:21 GMT",
+          "connection": "close"
+        },
+        "body_hex": "7b22686f7374223a202263616368652e746573743a38303830222c2022786668223a202263616368652e746573743a38303830227d",
+        "body_text": "{\"host\": \"cache.test:8080\", \"xfh\": \"cache.test:8080\"}"
+      },
+      "second": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "53",
+          "cache-control": "public, max-age=600",
+          "accept-ranges": "bytes",
+          "x-request-id": "06b72b930000000000001001",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 09:11:21 GMT",
+          "connection": "close"
+        },
+        "body_hex": "7b22686f7374223a202263616368652e746573743a39303930222c2022786668223a202263616368652e746573743a39303930227d",
+        "body_text": "{\"host\": \"cache.test:9090\", \"xfh\": \"cache.test:9090\"}"
+      },
+      "uncached_control": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "53",
+          "cache-control": "public, max-age=600",
+          "accept-ranges": "bytes",
+          "x-request-id": "06b72b930000000000002000",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 09:11:21 GMT",
+          "connection": "close"
+        },
+        "body_hex": "7b22686f7374223a202263616368652e746573743a39303930222c2022786668223a202263616368652e746573743a39303930227d",
+        "body_text": "{\"host\": \"cache.test:9090\", \"xfh\": \"cache.test:9090\"}"
+      },
+      "passed": true,
+      "classification": "closed"
+    },
+    "F09": {
+      "first": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "22",
+          "cache-control": "public, max-age=600",
+          "vary": "Accept-Encoding",
+          "content-encoding": "deflate",
+          "accept-ranges": "bytes",
+          "x-request-id": "06b72b930000000000003000",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 09:11:21 GMT",
+          "connection": "close"
+        },
+        "body_hex": "789c4b494dcb492c49d5cd2fca4ccfcc03002941058b",
+        "body_text": "x\ufffdKIM\ufffdI,I\ufffd\ufffd/\ufffdL\ufffd\ufffd\u0003\u0000)A\u0005\ufffd"
+      },
+      "second": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "15",
+          "cache-control": "public, max-age=600",
+          "vary": "Accept-Encoding",
+          "accept-ranges": "bytes",
+          "x-request-id": "06b72b930000000000002001",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 09:11:21 GMT",
+          "connection": "close"
+        },
+        "body_hex": "6964656e746974792d6f726967696e",
+        "body_text": "identity-origin"
+      },
+      "uncached_control": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "15",
+          "cache-control": "public, max-age=600",
+          "vary": "Accept-Encoding",
+          "accept-ranges": "bytes",
+          "x-request-id": "06b72b930000000000000003",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 09:11:21 GMT",
+          "connection": "close"
+        },
+        "body_hex": "6964656e746974792d6f726967696e",
+        "body_text": "identity-origin"
+      },
+      "passed": true,
+      "classification": "closed"
+    },
+    "F08": {
+      "wildcard_selected": "chosen",
+      "exact_control_selected": "chosen",
+      "configured_cert": "chosen",
+      "passed": true,
+      "classification": "closed"
+    },
+    "F10": {
+      "kind": "documented pass-through, README mismatch only",
+      "server_header_off_observed": "origin-marker",
+      "passed": true,
+      "classification": "documented_behavior_preserved"
+    },
+    "F04": {
+      "kind": "documented cache retention, not sufficient evidence of bug",
+      "before": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "8",
+          "cache-control": "public, max-age=600",
+          "accept-ranges": "bytes",
+          "x-request-id": "06b72b930000000000001002",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 09:11:21 GMT",
+          "connection": "close"
+        },
+        "body_hex": "6f726967696e2d41",
+        "body_text": "origin-A"
+      },
+      "after_reload": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "8",
+          "cache-control": "public, max-age=600",
+          "age": "0",
+          "accept-ranges": "bytes",
+          "x-request-id": "06b72b930000000000001003",
+          "cache-status": "conduit; hit",
+          "date": "Tue, 10 Nov 2026 09:11:21 GMT",
+          "connection": "close"
+        },
+        "body_hex": "6f726967696e2d41",
+        "body_text": "origin-A"
+      },
+      "after_purge": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "8",
+          "cache-control": "public, max-age=600",
+          "accept-ranges": "bytes",
+          "x-request-id": "06b72b930000000000001004",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 09:11:21 GMT",
+          "connection": "close"
+        },
+        "body_hex": "6f726967696e2d42",
+        "body_text": "origin-B"
+      },
+      "passed": true,
+      "classification": "documented_behavior_preserved"
+    },
+    "F06": {
+      "closed": true,
+      "check_returncode": 1,
+      "error": "conduit: tls.watch_interval must be positive and fit the runtime clock\n",
+      "passed": true,
+      "classification": "closed"
+    }
+  },
+  "initial_config_check": "config ok: 4 sites, 4 host names, 3 upstream pools\n  upstream site:cached (RoundRobin): 127.0.0.1:41897\n  upstream site:exact (RoundRobin): 127.0.0.1:41897\n  upstream site:wild (RoundRobin): 127.0.0.1:41897\n  cert chosen [*.example.test] expires Nov 11 09:11:21 2026 GMT\n  cert old [*.example.test] expires Nov 11 09:11:21 2026 GMT\n",
+  "main_log": "2026-11-10T09:11:21Z INFO  conduit: conduit 0.1.0: 4 host names, 3 upstream pools, 2 certificates\n2026-11-10T09:11:21Z INFO  pingora_core::server: Server starting\n2026-11-10T09:11:21Z INFO  pingora_core::server: Starting services in dependency order: [\"BG reload\", \"BG crowdsec\", \"BG acme\", \"BG health\", \"BG Bootstrap Service\", \"conduit\", \"admin\"]\n2026-11-10T09:11:21Z INFO  pingora_core::server: Starting service: BG reload\n2026-11-10T09:11:21Z INFO  pingora_core::server: Starting service: BG crowdsec\n2026-11-10T09:11:21Z INFO  pingora_core::server: Starting service: BG acme\n2026-11-10T09:11:21Z INFO  pingora_core::server: Starting service: BG health\n2026-11-10T09:11:21Z INFO  pingora_core::server: Starting service: BG Bootstrap Service\n2026-11-10T09:11:21Z INFO  pingora_core::server: Service 'conduit' will wait for dependencies: [\"BG Bootstrap Service\"]\n2026-11-10T09:11:21Z INFO  pingora_core::server: Service 'admin' will wait for dependencies: [\"BG Bootstrap Service\"]\n2026-11-10T09:11:21Z INFO  pingora_core::server::bootstrap_services: Bootstrap starting\n2026-11-10T09:11:21Z INFO  pingora_core::server::bootstrap_services: Bootstrap done\n2026-11-10T09:11:21Z INFO  pingora_core::server: service 'BG Bootstrap Service' exited.\n2026-11-10T09:11:21Z INFO  pingora_core::services: Service conduit spent 0ms waiting on dependencies\n2026-11-10T09:11:21Z INFO  pingora_core::services: Service admin spent 0ms waiting on dependencies\n2026-11-10T09:11:21Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (0 kept their state)\n2026-11-10T09:11:21Z INFO  pingora_core::server: SIGTERM received, gracefully exiting\n2026-11-10T09:11:21Z INFO  pingora_core::server: Broadcasting graceful shutdown\n2026-11-10T09:11:21Z INFO  pingora_core::server: Graceful shutdown started!\n2026-11-10T09:11:21Z INFO  pingora_core::server: Broadcast graceful shutdown complete\n2026-11-10T09:11:21Z INFO  pingora_core::server: Graceful shutdown: grace period 0s starts\n2026-11-10T09:11:21Z INFO  pingora_core::server: Graceful shutdown: grace period ends\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for runtimes to exit!\n2026-11-10T09:11:21Z INFO  pingora_core::server: service 'BG reload' exited.\n2026-11-10T09:11:21Z INFO  pingora_core::server: service 'BG health' exited.\n2026-11-10T09:11:21Z INFO  pingora_core::server: service 'BG crowdsec' exited.\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for runtimes to exit!\n2026-11-10T09:11:21Z INFO  pingora_core::services::listening: Shutting down 127.0.0.1:39811\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for runtimes to exit!\n2026-11-10T09:11:21Z INFO  pingora_core::services::listening: Shutting down 127.0.0.1:43539\n2026-11-10T09:11:21Z INFO  pingora_core::server: service 'BG acme' exited.\n2026-11-10T09:11:21Z INFO  pingora_core::services::listening: Shutting down 127.0.0.1:41177\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for runtimes to exit!\n2026-11-10T09:11:21Z INFO  pingora_core::server: service 'admin' exited.\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for runtimes to exit!\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for runtimes to exit!\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for runtimes to exit!\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for service runtime BG reload to exit\n2026-11-10T09:11:21Z INFO  pingora_core::server: Service runtime BG reload exited after 418.475\u00b5s\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for service runtime BG crowdsec to exit\n2026-11-10T09:11:21Z INFO  pingora_core::server: Service runtime BG crowdsec exited after 283.17\u00b5s\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for service runtime BG acme to exit\n2026-11-10T09:11:21Z INFO  pingora_core::server: Service runtime BG acme exited after 293.362\u00b5s\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for service runtime BG health to exit\n2026-11-10T09:11:21Z INFO  pingora_core::server: Service runtime BG health exited after 133.963\u00b5s\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for service runtime BG Bootstrap Service to exit\n2026-11-10T09:11:21Z INFO  pingora_core::server: Service runtime BG Bootstrap Service exited after 209.365\u00b5s\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for service runtime conduit to exit\n2026-11-10T09:11:21Z INFO  pingora_core::server: service 'conduit' exited.\n2026-11-10T09:11:21Z INFO  pingora_core::server: Service runtime conduit exited after 1.277135ms\n2026-11-10T09:11:21Z INFO  pingora_core::server: Waiting for service runtime admin to exit\n2026-11-10T09:11:21Z INFO  pingora_core::server: Service runtime admin exited after 394.577\u00b5s\n2026-11-10T09:11:21Z INFO  pingora_core::server: All runtimes exited, exiting now\n",
+  "mode": "closure"
+}

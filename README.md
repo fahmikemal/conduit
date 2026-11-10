@@ -28,8 +28,9 @@ rather than imitating nginx.
 - WebSocket and other protocol upgrades (`upgrade: websocket | any | off`). `any` covers
   non-WebSocket upgrades such as headscale/Tailscale.
 - Compression of text responses the upstream left uncompressed.
-- A `Server: conduit` header without a version, on by default. With `server_header: off` no
-  `Server` header is sent at all, not even Pingora's own.
+- A `Server: conduit` header without a version, on by default. With `server_header: off`,
+  conduit and Pingora add none; an upstream's own `Server` header passes through. Use the
+  `headers` plugin to remove it too.
 
 **Upstreams**
 - Named pools with weighted backends; DNS names resolve to several backends.
@@ -37,6 +38,8 @@ rather than imitating nginx.
   cookie).
 - Active HTTP/TCP health checks and passive ejection. Retries go to other backends.
 - Pools and their health state survive reloads.
+- HTTP/1.1 upstreams by default; optional HTTP/2 over TLS or cleartext (`h2c://`),
+  TLS negotiation with HTTP/1.1 fallback, and concurrent HTTP/2 streams for gRPC.
 
 **Per-site plugins**, run in order
 - `rules`: match method, path, query, header or scheme. Actions: deny, redirect, respond, serve
@@ -84,12 +87,13 @@ are in the [technical documentation](docs/technical.md#benchmark).
 
 ## Getting started
 
-Requirements: Linux, Rust 1.88 or newer (developed on current stable), a C toolchain, `cmake`, `perl` and `make`. OpenSSL
+Requirements: Linux, Rust 1.88 or newer (developed on current stable), a C toolchain, `cmake`, `perl`, `patch` and `make`. OpenSSL
 and zlib-ng are built from source and linked statically.
 
 ```sh
 git clone --recurse-submodules https://github.com/fahmikemal/conduit.git
 cd conduit
+bash scripts/prepare-vendor.sh
 cargo build --release
 ./target/release/conduit --help
 ```

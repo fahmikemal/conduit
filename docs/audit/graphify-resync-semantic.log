@@ -1,0 +1,27 @@
+[graphify] Replaced 92 node(s) from re-extracted source file(s).
+[graphify] note: node 'docs_audit_fix_validation' was extracted twice from 'docs/audit/FIX_VALIDATION.md' under different labels — keeping 'FIX_VALIDATION.md', dropping 'Perbaikan dan validasi penutupan temuan'.
+NEW COMMUNITY 43 ['FIX_VALIDATION.md', 'F01: Single percent decoding policy and file lookup', 'F03: Cache authority includes the original port', 'F06: Zero or unrepresentable watcher interval rejected', 'F08: Wildcard certificate override and coverage corrected', 'F09: Explicit Vary preserves unknown content codings', 'F10: README Server header contract aligned', 'Graph provenance and runtime-proof boundary']
+NEW COMMUNITY 45 ['query_20261110_083252_422cf94f_cek_lagi___apakah_temuan_itu_bener_bener_bug_atau.md', 'Answer', 'Artefak reproduksi', 'Bukti per temuan', 'F01: ada kontrol yang membedakan bug dari konfigurasi terbuka', 'F02: fallback rentan race, tetapi symlink biasa bukan bypass', 'F03: miss pertama, hit salah authority, dan control baru', 'F04: perilaku nyata, tetapi klasifikasi bug ditarik']
+NEW COMMUNITY 70 ['query_20261110_081218_36e9ba3d_tolong_analisa_supermendalam_terkait_project_ini_d.md', 'Answer', 'Arsitektur yang terbentuk', 'Audit mendalam Conduit', 'Cakupan dan batas kejujuran', 'Cara membaca paket audit', 'Invarian yang benar-benar penting', 'Outcome']
+NEW COMMUNITY 123 ['query_20261110_093252_3e29e02d_ok_languns_perbaiki_semua_temuan_ya___dan_setiap_t.md', 'Answer', 'Outcome', 'Q: ok languns perbaiki semua temuan ya,, dan setiap temuan fix languns di uji e2e ya,, dan kalo udah semua uji e2e semunaya dan uji stabilitas dan performasnya dan uji sekali algi apakah sduah tertutup', 'Source Nodes']
+NEW COMMUNITY 128 ['Origin', '.do_GET()', '.log_message()', 'BaseHTTPRequestHandler']
+{
+  "nodes": 2428,
+  "edges": 5653,
+  "communities": 145,
+  "refreshed_semantic_sources": [
+    "README.md",
+    "docs/audit/FIX_VALIDATION.md",
+    "docs/configuration.md",
+    "graphify-out/memory/query_20261110_081218_36e9ba3d_tolong_analisa_supermendalam_terkait_project_ini_d.md",
+    "graphify-out/memory/query_20261110_083252_422cf94f_cek_lagi___apakah_temuan_itu_bener_bener_bug_atau.md",
+    "graphify-out/memory/query_20261110_093252_3e29e02d_ok_languns_perbaiki_semua_temuan_ya___dan_setiap_t.md"
+  ],
+  "unchanged_semantic_sources": [
+    "docs/technical.md",
+    "vendor/README.md",
+    "assets/brand/README.md"
+  ],
+  "semantic_cache_files_written": 6
+}
+HEALTH {"node_count": 2428, "unverified_node_count": 0, "raw_edge_count": 5653, "non_object_edges": 0, "missing_endpoint_edges": 0, "dangling_endpoint_edges": 0, "external_reference_edges": 0, "self_loop_edges": 0, "valid_candidate_edges": 5653, "exact_duplicate_edges": 0, "directed_unique_endpoint_pairs": 5653, "directed_same_endpoint_collapsed_edges": 0, "undirected_unique_endpoint_pairs": 5653, "undirected_same_endpoint_collapsed_edges": 0, "same_endpoint_group_count": 0, "relation_variant_groups": 0, "source_file_variant_groups": 0, "source_location_variant_groups": 0, "context_variant_groups": 0, "post_build_graph_type": "Graph", "post_build_node_count": 2428, "post_build_edge_count": 5653, "post_build_error": "", "producer_suppression": {"path": "/home/tesseract/.local/share/uv/tools/graphifyy/lib/python3.12/site-packages/graphify/extract.py", "total_sites": 12, "sites": [{"line": 1887, "name": "seen_ids", "tuple_arity": 0, "sample": "seen_ids = {n[\"id\"] for n in nodes}"}, {"line": 2582, "name": "seen_ids", "tuple_arity": 0, "sample": "seen_ids = {n[\"id\"] for n in nodes}"}, {"line": 2584, "name": "seen_doc_refs", "tuple_arity": 0, "sample": "seen_doc_refs: set[str] = set()"}, {"line": 3251, "name": "seen_ids", "tuple_arity": 0, "sample": "seen_ids: set[str] = {n[\"id\"] for n in nodes}"}, {"line": 3398, "name": "seen_ids", "tuple_arity": 0, "sample": "seen_ids = {n.get(\"id\") for n in nodes}"}, {"line": 4812, "name": "seen_keys", "tuple_arity": 0, "sample": "seen_keys: set[tuple] = set()"}, {"line": 4998, "name": "seen_keys", "tuple_arity": 0, "sample": "seen_keys: set[tuple] = set()"}, {"line": 9409, "name": "seen_ids", "tuple_arity": 0, "sample": "seen_ids: set[str] = set()"}, {"line": 9517, "name": "seen_ids", "tuple_arity": 0, "sample": "seen_ids: set[str] = set()"}, {"line": 9596, "name": "seen_ids", "tuple_arity": 0, "sample": "seen_ids: set[str] = set()"}, {"line": 10121, "name": "seen_ids", "tuple_arity": 0, "sample": "seen_ids: set[str] = set()"}, {"line": 10122, "name": "seen_edges", "tuple_arity": 4, "sample": "seen_edges: set[tuple[str, str, str, str | None]] = set()"}], "error": ""}, "examples": []}

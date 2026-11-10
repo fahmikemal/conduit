@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-10",
+  "results": {
+    "build": {
+      "status": "ok"
+    },
+    "native": {
+      "status": "ok",
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    },
+    "unit": {
+      "status": "ok",
+      "passed": 109,
+      "failed": 0,
+      "ignored": 2
+    },
+    "e2e-files": {
+      "status": "ok",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    "e2e-cache": {
+      "status": "ok",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "fallback": {
+    "status": "ok",
+    "passed": 1,
+    "function": "production open_beneath extracted without changes",
+    "forced_fallback": true,
+    "observed_attempt": 71
+  },
+  "runtime_scenarios": [
+    "F01",
+    "F03",
+    "F09",
+    "F08",
+    "F10",
+    "F04",
+    "F06"
+  ],
+  "native_test_code": "recheck_native.rs",
+  "production_snapshot_changes": [],
+  "relative_markdown_link_errors": [],
+  "verdicts": {
+    "F01": "confirmed_bug",
+    "F02": "confirmed_conditional_bug",
+    "F03": "confirmed_bug",
+    "F04": "withdrawn_as_bug_documented_behavior",
+    "F05": "confirmed_bug",
+    "F06": "confirmed_bug_reload_task_panic_only",
+    "F07": "confirmed_admission_race",
+    "F08": "partial_ambiguous_override_contract_and_confirmed_false_warning",
+    "F09": "confirmed_bug",
+    "F10": "documentation_only"
+  },
+  "not_run": [
+    "full e2e suite",
+    "ignored measurement tests",
+    "Docker ACME/CrowdSec",
+    "fuzz/soak/benchmark",
+    "clippy",
+    "MSRV build"
+  ]
+}

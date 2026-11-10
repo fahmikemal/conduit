@@ -151,27 +151,22 @@ pub fn variance(meta: &CacheMeta, req: &RequestHeader) -> Option<HashBinary> {
     names.dedup();
     let mut vb = VarianceBuilder::new();
     for name in names {
-        let value = if name == "accept-encoding" {
-            let accepted = Accepted::from_request(req);
-            match coding.and_then(|c| c.to_str().ok()) {
-                // Only the body's encoding matters here: does the client take it.
-                Some(c) if !listed => match accepted.accepts_coding(c) {
-                    Some(yes) => vec![b'=', u8::from(yes)],
-                    None => req
-                        .headers
-                        .get(header::ACCEPT_ENCODING)
-                        .map_or(Vec::new(), |v| v.as_bytes().to_vec()),
-                },
-                // The upstream chose from the client's whole list: the same encodings, in
-                // any spelling, share a variant.
-                _ => vec![accepted.bits()],
-            }
+        let encoding_acceptance = (name == "accept-encoding" && !listed)
+            .then(|| {
+                coding
+                    .and_then(|c| c.to_str().ok())
+                    .and_then(|c| Accepted::from_request(req).accepts_coding(c))
+            })
+            .flatten();
+        let value = if let Some(yes) = encoding_acceptance {
+            // Without an explicit Vary, only acceptance of the stored coding matters.
+            vec![b'=', u8::from(yes)]
         } else {
+            // Explicit Vary must preserve unknown codings, q values, field order, and
+            // absent vs empty. A three-bit encoding set cannot represent those inputs.
             let mut v = Vec::new();
-            for (i, h) in req.headers.get_all(name.as_str()).iter().enumerate() {
-                if i > 0 {
-                    v.extend_from_slice(b", ");
-                }
+            for h in req.headers.get_all(name.as_str()).iter() {
+                v.extend_from_slice(&(h.as_bytes().len() as u64).to_le_bytes());
                 v.extend_from_slice(h.as_bytes());
             }
             v
@@ -787,7 +782,9 @@ mod tests {
             variance(&listed, &req(&[("accept-encoding", "gzip, br")])),
             gzip_only
         );
-        assert_eq!(
+        // Conservative raw-header variance can create extra entries for equivalent
+        // spellings, but must never merge representations the origin can distinguish.
+        assert_ne!(
             variance(&listed, &req(&[("accept-encoding", "GZIP")])),
             gzip_only
         );

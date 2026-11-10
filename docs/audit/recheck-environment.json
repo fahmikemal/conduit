@@ -1,0 +1,89 @@
+{
+  "scope": "Recheck on isolated unmodified production source; test fixtures added only to disposable copy",
+  "toolchain": {
+    "argv": [
+      "/tmp/conduit-audit-rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/rustc",
+      "-vV"
+    ],
+    "exit_code": 0,
+    "stdout": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+    "stderr": ""
+  },
+  "fork_commit": {
+    "argv": [
+      "git",
+      "-C",
+      "/tmp/conduit-audit-pingora",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit_code": 0,
+    "stdout": "5c765c66590bdb7829ad32e00abc6f9a4e0410af\n",
+    "stderr": ""
+  },
+  "production_sources_match_disposable_copy": true,
+  "source_sha256": {
+    "Cargo.toml": "b40875f6513d9d054a4bd3e56fa4c3a81bf3635bc3790ad7b9b9c9b8fba5805e",
+    "Cargo.lock": "fa97cab129f9130a03460bbaf928531b5ad7657b5c9594ae57bd8b0e67d12543",
+    "src/accesslog.rs": "28ef2a94bd4e8e296736125b7ce5c8e54815d383255ef3720ee06c44673f7ee2",
+    "src/acme.rs": "5d9ffbf96b668dba22024181b9f251186075b95a4a3763435742e9345a420995",
+    "src/admin.rs": "21fa368f04212eb89cef412c05068636cf7e1c0eadc90de1222b169ff9e64929",
+    "src/auth.rs": "983c04830b1cef0434b8a46b04fdcd9b1146e15ef9908810273375a5271aae7c",
+    "src/cache.rs": "302537b5049c137dd7689237e01312ecfeed9eddf4f2656b18ddf6751fa91e91",
+    "src/config.rs": "aacd9293af725a170429b2fa3453971a7efc910ac1883bbb78aa9fc7e37a30b7",
+    "src/crowdsec.rs": "955de8624cc98e0fef6680a3b499eca042840d58af730844211358994be62d64",
+    "src/exploits.rs": "1dd776efcba9c108e77b2d17c77da946a45667c226f8534b4b098d861010ba38",
+    "src/files.rs": "16030f6cfcf55b3ae2abb296bbc4647b30b302e9d42e064b56c94209866d2125",
+    "src/fuzzing.rs": "1005453ca0d149d0c08a11b4118797ad5f80e86bbbb1560c939fcebcc5fa8f70",
+    "src/httpc.rs": "6f856a7d712bf82a47a73c8960b6ff75bd60ed4fa39df0daccae7b92ce70c38b",
+    "src/lib.rs": "bb6cbdb12cc2c323fa8228a93e593fbf9b74e9ae446bec3327171ea45467f620",
+    "src/limits.rs": "90a9a992721f19d9a8bcb42f5c4836b1a6ffde608d1de5f6be0e36d1246e2de6",
+    "src/logger.rs": "65b1ccf891a714faa541ec7bc180ba365a69720caaf7402ef3f1ad410f7386bb",
+    "src/main.rs": "c2899dc6dca1ea7300767798de6156ed8ab4b93a3a6968d51c4a109775363961",
+    "src/metrics.rs": "46b41d89c8e8337634ef1ff0fffe28cc5d5487341e701e81adf061fb1757cb96",
+    "src/pathnorm.rs": "0c9851b9b5e54fedbae149a4f87f42f8edd696e2369052c60f045c616379e2ab",
+    "src/plugin.rs": "f6953d63f645becdab2fd9afe7144a3eaf765795caec146e27a00d71d7b5ebaf",
+    "src/proxy.rs": "a49fa82812f6e9d01536bb8559060ee8f85a16e70ceea9fd45b7d1ef09031f0a",
+    "src/realip.rs": "8d6dd0c7171107774d731a8902967be74ec0c39c0d3b93fe0bf5f3ba54dfaf5a",
+    "src/reload.rs": "6b7e1408acaefe32a3a587932b5211b571a2553e81a77a2ec71c36bb9413b4cf",
+    "src/replace.rs": "38f811f09dc993291e5fa2829b41866b20998be821618adb8b15d7183bbfeddf",
+    "src/route.rs": "3dcb3dd1276a642913df062eb159f2c6eb633eefd2c32c2e0fb148a9319b1108",
+    "src/rules.rs": "76f19cbd1e221c01f7643ae5b158d721f5000a3f3c80927f508dd1f57702cb23",
+    "src/runtime.rs": "fda7b076d6fd37ea740b72b2850fe62bd80df82135edc78882579b0205734fb1",
+    "src/timefmt.rs": "65ce0e3e013a4b2f059f4e85e59a3a8d883bcef00c306b0548e8afa0ba0f86c5",
+    "src/tls.rs": "ae904d3b2c58ca255e4d79052e30f7e97dc76786fa61bec483a8ed0e5a21a111",
+    "src/units.rs": "e9f14bbd596eac89c32e3a5d42ed2a4ed9557e361caf6b2549db1d8a8a4b6e27",
+    "src/upstream.rs": "b1fb225171b0794c14280b864ed952c0c971411f5839c34978fc2a7cffc41413"
+  },
+  "f05_extracted_debug": {
+    "argv": [
+      "/tmp/conduit-audit-overflow-debug"
+    ],
+    "exit_code": 0,
+    "stdout": "panic=true\n",
+    "stderr": "\nthread 'main' (55249) panicked at /tmp/conduit-audit-overflow.rs:12:36:\nattempt to multiply with overflow\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+  },
+  "f05_extracted_optimized": {
+    "argv": [
+      "/tmp/conduit-audit-overflow-release"
+    ],
+    "exit_code": 0,
+    "stdout": "returned_seconds=0\n",
+    "stderr": ""
+  },
+  "build_profile": {
+    "profile": "dev",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_BUILD_JOBS": "3",
+    "default_features": true,
+    "lockfile": "--locked",
+    "openssl": "vendored, default project configuration"
+  },
+  "build_location": "/tmp/conduit-audit-work",
+  "system_packages_installed": false,
+  "notes": [
+    "Rustup and missing build dependencies prepared temporarily; repository vendor checkout remains unchanged.",
+    "F02 compiles unchanged extracted open_beneath with the same built libc/log crates; forces NO_OPENAT2=true to exercise fallback.",
+    "Native race test has no hook, inserted sleep or barrier inside RateLimit::request."
+  ]
+}

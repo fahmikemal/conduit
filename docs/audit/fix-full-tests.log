@@ -1,0 +1,159 @@
+   Compiling conduit v0.1.0 (/home/tesseract/Mandiri/conduit)
+    Finished `test` profile [unoptimized] target(s) in 7.47s
+     Running unittests src/lib.rs (/tmp/conduit-audit-work/target/debug/deps/conduit-a56c1f4b081a0d1e)
+
+running 111 tests
+test acme::tests::challenge_tokens_are_withdrawn ... ok
+test acme::tests::backoff_grows_and_caps ... ok
+test acme::tests::storage_lock_is_exclusive ... ok
+test accesslog::tests::hostile_values_stay_one_line ... ok
+test acme::tests::renewal_from_lifetime ... ok
+test auth::tests::credentials_parsing ... ok
+test accesslog::tests::json_line ... ok
+test cache::tests::eligibility ... ok
+test cache::tests::keys_and_variants ... ok
+test cache::tests::storage_round_trip ... ok
+test config::tests::acme_section ... ok
+test config::tests::minimal_config ... ok
+test config::tests::typos_are_rejected ... ok
+test cache::tests::what_is_stored ... ok
+test config::tests::plugins_parse ... ok
+test config::tests::upstream_forms ... ok
+test crowdsec::tests::go_durations ... ok
+test crowdsec::tests::lookup_cost ... ignored, measurement
+test crowdsec::tests::nets ... ok
+test acme::tests::csr_names_every_host ... ok
+test acme::tests::stored_bundle_loads_and_identifies ... ok
+test crowdsec::tests::slot_stays_small ... ok
+test auth::tests::basic_auth_settings ... ok
+test crowdsec::tests::stream_full_then_delta ... ok
+test crowdsec::tests::table_lookups_and_priority ... ok
+test config::tests::yaml_rules ... ok
+test exploits::tests::cost ... ignored
+test exploits::tests::decoding ... ok
+test accesslog::tests::full_shard_drops_and_counts ... ok
+test auth::tests::basic_auth_flow ... ok
+test auth::tests::forward_auth_request ... ok
+test crowdsec::tests::appsec_request_shape ... ok
+test exploits::tests::every_rule_has_an_attack ... ok
+test files::tests::conditionals_and_ranges ... ok
+test files::tests::content_types ... ok
+test exploits::tests::block_and_log_modes ... ok
+test exploits::tests::tautologies ... ok
+test files::tests::precompressed_try_files_browse_prefix ... ok
+test files::tests::serving_and_confinement ... ok
+test files::tests::settings_are_checked ... ok
+test limits::tests::bad_settings ... ok
+test limits::tests::rate_limit_by_header ... ok
+test logger::tests::only_the_pool_race_is_benign ... ok
+test limits::tests::concurrency_holds_until_dropped ... ok
+test pathnorm::tests::rejects_bad_input ... ok
+test pathnorm::tests::resolves_like_nginx ... ok
+test metrics::tests::status_classes ... ok
+test plugin::tests::ip_filter ... ok
+test limits::tests::rate_limit_per_client_and_match ... ok
+test plugin::tests::order_and_headers ... ok
+test exploits::tests::settings ... ok
+test exploits::tests::ordinary_requests_pass ... ok
+test proxy::tests::compressible_types ... ok
+test proxy::tests::each_worker_thread_has_its_own_pool_group ... ok
+test proxy::tests::host_parsing ... ok
+test proxy::tests::acme_challenge_from_memory ... ok
+test proxy::tests::acme_challenge ... ok
+test proxy::tests::body_limit_and_default_site ... ok
+test proxy::tests::ip_text_matches_display ... ok
+test proxy::tests::https_redirect_runs_before_plugins ... ok
+test proxy::tests::routed_requests_skip_files_and_change_target ... ok
+test proxy::tests::client_certificates ... ok
+test proxy::tests::upstream_timeouts_are_504 ... ok
+test realip::tests::cidr_contains ... ok
+test realip::tests::recursive_skips_trusted_hops ... ok
+test realip::tests::trusted_peer_header_used ... ok
+test realip::tests::untrusted_peer_header_ignored ... ok
+test replace::tests::bad_configs ... ok
+test proxy::tests::plugins_see_normalized_path_and_client ... ok
+test replace::tests::holds_back_no_more_than_needed ... ok
+test replace::tests::replaces_every_occurrence_first_pattern_wins ... ok
+test route::tests::bad_configs ... ok
+test replace::tests::which_responses ... ok
+test route::tests::decoded_bytes_are_encoded_again ... ok
+test route::tests::strip_and_add_prefix ... ok
+test rules::tests::bad_rules_are_rejected ... ok
+test replace::tests::chunk_boundaries_do_not_matter ... ok
+test proxy::tests::target_without_path_is_400 ... ok
+test route::tests::regex_rewrite ... ok
+test rules::tests::header_presence ... ok
+test runtime::tests::acme_storage_per_directory ... ok
+test runtime::tests::duplicate_hosts_rejected ... ok
+test rules::tests::forgejo_browser_redirect ... ok
+test rules::tests::path_regex_on_normalized_path ... ok
+test runtime::tests::pools_and_references ... ok
+test runtime::tests::routing ... ok
+test runtime::tests::server_header_setting ... ok
+test timefmt::tests::known_instants ... ok
+test tls::tests::client_trust_from_file ... ok
+test runtime::tests::proxy_rule_pools ... ok
+test tls::tests::sni_extension ... ok
+test runtime::tests::acme_sites ... ok
+test tls::tests::subject_as_rfc4514 ... ok
+test tls::tests::mismatched_key_rejected ... ok
+test units::tests::durations ... ok
+test units::tests::sizes ... ok
+test upstream::tests::least_conn_prefers_idle_backends ... ok
+test upstream::tests::passive_ejection_and_panic_mode ... ok
+test exploits::tests::attacks_are_caught_by_their_rule ... ok
+test tls::tests::selection_order ... ok
+test upstream::tests::unchanged_pool_is_reused ... ok
+test upstream::tests::round_robin_spreads_and_skips_excluded ... ok
+test upstream::tests::hashing_is_sticky ... ok
+test upstream::tests::urls ... ok
+test proxy::tests::request_ids ... ok
+test crowdsec::tests::site_plugin_refuses_held_decisions ... ok
+test config::tests::example_config_builds ... ok
+test crowdsec::tests::plan_from_config ... ok
+test exploits::tests::needles_never_hide_a_match ... ok
+test accesslog::tests::write_json_matches_serde_json ... ok
+test accesslog::tests::writer_appends_and_follows_rotation ... ok
+
+test result: ok. 109 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 6.21s
+
+     Running unittests src/main.rs (/tmp/conduit-audit-work/target/debug/deps/conduit-b62065149df907e0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/e2e.rs (/tmp/conduit-audit-work/target/debug/deps/e2e-0c5467a05406c084)
+
+running 28 tests
+test acme_with_pebble ... ignored, needs docker; run with `mise run test-acme`
+test crowdsec_bouncer_and_appsec ... ignored, needs docker; run with `mise run test-crowdsec`
+test file_server ... ok
+test request_and_response_bodies ... ok
+test auth_plugins ... ok
+test mutual_tls ... ok
+test block_exploits ... ok
+test security_cache_authority ... ok
+test security_cache_unknown_encoding ... ok
+test security_file_path_decoded_once ... ok
+test routes_and_body_replace ... ok
+test security_tls_wildcard_override_and_coverage ... ok
+test security_rate_limit_concurrent_admission ... ok
+test security_file_fallback_containment ... ok
+test slow_request_head_is_cut_off ... ignored
+test security_zero_watch_interval_rejected ... ok
+test server_header ... ok
+test end_to_end ... ok
+test security_duration_overflow_rejected ... ok
+test rate_and_concurrency_limits ... ok
+test idle_and_malformed_clients ... ok
+test rotation_and_reload_under_load ... ok
+test file_descriptors_run_out ... ok
+test response_cache ... ok
+test graceful_upgrade ... ok
+test protocol_upgrades ... ok
+test upgrade_with_open_websockets ... ok
+test upstream_flapping ... ok
+
+test result: ok. 25 passed; 0 failed; 3 ignored; 0 measured; 0 filtered out; finished in 23.88s
+

@@ -96,6 +96,8 @@ pub struct CertStore {
     by_name: HashMap<String, Arc<CertKey>>,
     /// Host -> certificate from a site's `cert:` override.
     overrides: HashMap<String, Arc<CertKey>>,
+    /// Parent domain -> explicit site override for one-label wildcard SNI names.
+    wildcard_overrides: HashMap<String, Arc<CertKey>>,
     exact: HashMap<String, Arc<CertKey>>,
     /// Parent domain (`example.com` for `*.example.com`) -> certificate.
     wildcard: HashMap<String, Arc<CertKey>>,
@@ -142,7 +144,12 @@ impl CertStore {
             .get(cert)
             .cloned()
             .ok_or_else(|| format!("host {host:?} uses unknown certificate {cert:?}"))?;
-        self.overrides.insert(host.to_ascii_lowercase(), ck);
+        let host = host.to_ascii_lowercase();
+        if let Some(parent) = host.strip_prefix("*.") {
+            self.wildcard_overrides.insert(parent.to_owned(), ck);
+        } else {
+            self.overrides.insert(host, ck);
+        }
         Ok(())
     }
 
@@ -171,13 +178,24 @@ impl CertStore {
     }
 
     fn select_specific(&self, host: &str) -> Option<&CertKey> {
-        if let Some(c) = self.overrides.get(host).or_else(|| self.exact.get(host)) {
+        // Configured wildcard patterns already name their parent; do not discard a label.
+        if let Some(parent) = host.strip_prefix("*.") {
+            return self
+                .wildcard_overrides
+                .get(parent)
+                .or_else(|| self.wildcard.get(parent))
+                .map(|c| &**c);
+        }
+        if let Some(c) = self.overrides.get(host) {
             return Some(c);
         }
-        let host = host.strip_prefix("*.").unwrap_or(host);
         // A wildcard covers exactly one label.
-        let (_, parent) = host.split_once('.')?;
-        self.wildcard.get(parent).map(|c| &**c)
+        let parent = host.split_once('.').map(|(_, parent)| parent);
+        parent
+            .and_then(|p| self.wildcard_overrides.get(p))
+            .or_else(|| self.exact.get(host))
+            .or_else(|| parent.and_then(|p| self.wildcard.get(p)))
+            .map(|c| &**c)
     }
 
     pub fn select(&self, sni: Option<&str>) -> Option<&CertKey> {

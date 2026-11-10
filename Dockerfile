@@ -8,7 +8,7 @@ FROM ubuntu:22.04 AS build
 ARG RUST_VERSION=1.99.1
 RUN apt-get update \
  && apt-get install -y --no-install-recommends build-essential cmake perl curl ca-certificates \
-    openssl \
+    openssl patch \
  && rm -rf /var/lib/apt/lists/*
 RUN curl -sSf https://sh.rustup.rs \
     | sh -s -- -y --profile minimal --default-toolchain "$RUST_VERSION" \
@@ -16,10 +16,11 @@ RUN curl -sSf https://sh.rustup.rs \
 ENV PATH=/root/.cargo/bin:$PATH
 WORKDIR /src
 COPY Cargo.toml Cargo.lock ./
-COPY scripts/pgo.sh scripts/pgo-train.sh scripts/
+COPY scripts/pgo.sh scripts/pgo-train.sh scripts/prepare-vendor.sh scripts/
 COPY src src
 # Pingora with conduit's patches, wired in through [patch.crates-io] in Cargo.toml.
 COPY vendor vendor
+RUN bash scripts/prepare-vendor.sh
 ARG PGO=1
 RUN --mount=type=cache,target=/root/.cargo/registry \
     --mount=type=cache,target=/src/target \

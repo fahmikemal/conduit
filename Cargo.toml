@@ -66,6 +66,8 @@ base64 = "0.22"
 
 # Decoders for the end-to-end tests, with the features Pingora already builds them with.
 [dev-dependencies]
+h2 = "0.4"
+tokio-openssl = "0.6"
 brotli = "3"
 flate2 = { version = "1", features = ["zlib-ng"], default-features = false }
 zstd = "0.14.3"

@@ -1,0 +1,726 @@
+{
+  "baseline_fds": 40,
+  "elapsed_seconds": 123.105315421,
+  "final_fds": 39,
+  "final_rss_kib": 28984,
+  "initial_rss_kib": 27704,
+  "load": {
+    "details": {
+      "DNSDialup": {
+        "average": 9.428103124999998e-05,
+        "fastest": 2.5938e-05,
+        "slowest": 0.000227473
+      },
+      "DNSLookup": {
+        "average": 5.929312500000001e-06,
+        "fastest": 7.88e-07,
+        "slowest": 2.6313e-05
+      },
+      "firstByte": {
+        "average": 0.0009140903161628904,
+        "fastest": 0.000117874,
+        "slowest": 0.041324454
+      }
+    },
+    "errorDistribution": {},
+    "firstByteHistogram": {
+      "0.000117874": 1,
+      "0.004238532": 179463,
+      "0.00835919": 518,
+      "0.012479848000000002": 11,
+      "0.016600506": 1,
+      "0.020721164": 0,
+      "0.024841822000000003": 0,
+      "0.028962480000000002": 0,
+      "0.033083138": 0,
+      "0.037203796": 0,
+      "0.041324454": 5
+    },
+    "firstBytePercentiles": {
+      "p10": 0.000252201,
+      "p25": 0.000359197,
+      "p50": 0.000514339,
+      "p75": 0.00108134,
+      "p90": 0.002690414,
+      "p95": 0.002971144,
+      "p99": 0.003494736,
+      "p99.9": 0.004465244,
+      "p99.99": 0.007971391
+    },
+    "latencyPercentiles": {
+      "p10": 0.000268736,
+      "p25": 0.000375774,
+      "p50": 0.000542252,
+      "p75": 0.001111152,
+      "p90": 0.002698976,
+      "p95": 0.002998994,
+      "p99": 0.003524088,
+      "p99.9": 0.004500892,
+      "p99.99": 0.007976337
+    },
+    "metrics": {
+      "latency_ms": {
+        "max": 41.34,
+        "mean": 0.936,
+        "min": 0.119,
+        "p50": 0.542,
+        "p95": 2.999,
+        "p99": 3.524
+      },
+      "requests_per_sec": 1499.9827230071808,
+      "success_rate": 1.0
+    },
+    "responseTimeHistogram": {
+      "0.00011855": 1,
+      "0.0042407404": 179416,
+      "0.0083629308": 565,
+      "0.0124851212": 11,
+      "0.016607311599999997": 1,
+      "0.020729501999999997": 0,
+      "0.024851692399999997": 0,
+      "0.028973882799999996": 0,
+      "0.0330960732": 0,
+      "0.0372182636": 0,
+      "0.041340454": 5
+    },
+    "rps": {
+      "max": 3577.7542815195948,
+      "mean": 1500.4296122758603,
+      "min": 85.39546297321041,
+      "percentiles": {
+        "p10": 1386.2594390939755,
+        "p25": 1442.6185702071996,
+        "p50": 1510.8817773360713,
+        "p75": 1553.456295268118,
+        "p90": 1599.800856789481,
+        "p95": 1629.8709712644682,
+        "p99": 1723.7625843541375,
+        "p99.9": 1842.5378031870068,
+        "p99.99": 1959.7416046110277
+      },
+      "stddev": 90.98787125634266
+    },
+    "statusCodeDistribution": {
+      "200": 179999
+    },
+    "summary": {
+      "average": 0.0009361079910166182,
+      "fastest": 0.00011855,
+      "requestsPerSec": 1499.9827230071808,
+      "sizePerRequest": 4,
+      "sizePerSec": 5999.930892028723,
+      "slowest": 0.041340454,
+      "successRate": 1.0,
+      "total": 120.000715501,
+      "totalData": 719996
+    }
+  },
+  "passed": true,
+  "reloads_sent": 23,
+  "requests": 179999,
+  "samples": [
+    {
+      "fds": 40,
+      "rss_kib": 24860,
+      "seconds": 0
+    },
+    {
+      "fds": 76,
+      "rss_kib": 27284,
+      "seconds": 1
+    },
+    {
+      "fds": 76,
+      "rss_kib": 27312,
+      "seconds": 2
+    },
+    {
+      "fds": 75,
+      "rss_kib": 27332,
+      "seconds": 3
+    },
+    {
+      "fds": 75,
+      "rss_kib": 27364,
+      "seconds": 4
+    },
+    {
+      "fds": 76,
+      "rss_kib": 27400,
+      "seconds": 5
+    },
+    {
+      "fds": 77,
+      "rss_kib": 27608,
+      "seconds": 6
+    },
+    {
+      "fds": 74,
+      "rss_kib": 27620,
+      "seconds": 7
+    },
+    {
+      "fds": 74,
+      "rss_kib": 27656,
+      "seconds": 8
+    },
+    {
+      "fds": 74,
+      "rss_kib": 27680,
+      "seconds": 9
+    },
+    {
+      "fds": 74,
+      "rss_kib": 27704,
+      "seconds": 10
+    },
+    {
+      "fds": 79,
+      "rss_kib": 27888,
+      "seconds": 11
+    },
+    {
+      "fds": 76,
+      "rss_kib": 27896,
+      "seconds": 12
+    },
+    {
+      "fds": 75,
+      "rss_kib": 27928,
+      "seconds": 13
+    },
+    {
+      "fds": 76,
+      "rss_kib": 27956,
+      "seconds": 14
+    },
+    {
+      "fds": 76,
+      "rss_kib": 27984,
+      "seconds": 15
+    },
+    {
+      "fds": 79,
+      "rss_kib": 28036,
+      "seconds": 16
+    },
+    {
+      "fds": 74,
+      "rss_kib": 27992,
+      "seconds": 17
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28024,
+      "seconds": 18
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28048,
+      "seconds": 19
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28064,
+      "seconds": 20
+    },
+    {
+      "fds": 80,
+      "rss_kib": 28256,
+      "seconds": 21
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28260,
+      "seconds": 22
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28252,
+      "seconds": 23
+    },
+    {
+      "fds": 76,
+      "rss_kib": 28272,
+      "seconds": 24
+    },
+    {
+      "fds": 76,
+      "rss_kib": 28284,
+      "seconds": 25
+    },
+    {
+      "fds": 78,
+      "rss_kib": 28356,
+      "seconds": 26
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28296,
+      "seconds": 27
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28304,
+      "seconds": 28
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28320,
+      "seconds": 29
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28332,
+      "seconds": 30
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28360,
+      "seconds": 31
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28300,
+      "seconds": 32
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28312,
+      "seconds": 33
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28316,
+      "seconds": 34
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28328,
+      "seconds": 35
+    },
+    {
+      "fds": 77,
+      "rss_kib": 28392,
+      "seconds": 36
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28404,
+      "seconds": 37
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28400,
+      "seconds": 38
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28404,
+      "seconds": 39
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28428,
+      "seconds": 40
+    },
+    {
+      "fds": 77,
+      "rss_kib": 28460,
+      "seconds": 41
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28468,
+      "seconds": 42
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28488,
+      "seconds": 43
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28520,
+      "seconds": 44
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28536,
+      "seconds": 45
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28568,
+      "seconds": 46
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28548,
+      "seconds": 47
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28560,
+      "seconds": 48
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28572,
+      "seconds": 49
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28584,
+      "seconds": 50
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28596,
+      "seconds": 51
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28608,
+      "seconds": 52
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28628,
+      "seconds": 53
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28652,
+      "seconds": 54
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28672,
+      "seconds": 55
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28692,
+      "seconds": 56
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28700,
+      "seconds": 57
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28704,
+      "seconds": 58
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28712,
+      "seconds": 59
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28728,
+      "seconds": 60
+    },
+    {
+      "fds": 76,
+      "rss_kib": 28788,
+      "seconds": 61
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28780,
+      "seconds": 62
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28792,
+      "seconds": 63
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28800,
+      "seconds": 64
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28820,
+      "seconds": 65
+    },
+    {
+      "fds": 77,
+      "rss_kib": 28884,
+      "seconds": 66
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28888,
+      "seconds": 67
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28904,
+      "seconds": 68
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28916,
+      "seconds": 69
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28932,
+      "seconds": 70
+    },
+    {
+      "fds": 78,
+      "rss_kib": 28984,
+      "seconds": 71
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28984,
+      "seconds": 72
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29000,
+      "seconds": 73
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29000,
+      "seconds": 74
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29004,
+      "seconds": 75
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29008,
+      "seconds": 76
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28948,
+      "seconds": 77
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28956,
+      "seconds": 78
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28960,
+      "seconds": 79
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28968,
+      "seconds": 80
+    },
+    {
+      "fds": 75,
+      "rss_kib": 29012,
+      "seconds": 81
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29012,
+      "seconds": 82
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29016,
+      "seconds": 83
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29024,
+      "seconds": 84
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29028,
+      "seconds": 85
+    },
+    {
+      "fds": 77,
+      "rss_kib": 29068,
+      "seconds": 86
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28996,
+      "seconds": 87
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28996,
+      "seconds": 88
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29000,
+      "seconds": 89
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29000,
+      "seconds": 90
+    },
+    {
+      "fds": 77,
+      "rss_kib": 29012,
+      "seconds": 91
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29000,
+      "seconds": 92
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29000,
+      "seconds": 93
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29000,
+      "seconds": 94
+    },
+    {
+      "fds": 74,
+      "rss_kib": 29000,
+      "seconds": 95
+    },
+    {
+      "fds": 75,
+      "rss_kib": 29004,
+      "seconds": 96
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28980,
+      "seconds": 97
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28980,
+      "seconds": 98
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28984,
+      "seconds": 99
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28984,
+      "seconds": 100
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28988,
+      "seconds": 101
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28984,
+      "seconds": 102
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28980,
+      "seconds": 103
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28980,
+      "seconds": 104
+    },
+    {
+      "fds": 72,
+      "rss_kib": 28980,
+      "seconds": 105
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28988,
+      "seconds": 106
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28980,
+      "seconds": 107
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28980,
+      "seconds": 108
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28980,
+      "seconds": 109
+    },
+    {
+      "fds": 74,
+      "rss_kib": 28980,
+      "seconds": 110
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28996,
+      "seconds": 111
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28988,
+      "seconds": 112
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28988,
+      "seconds": 113
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28988,
+      "seconds": 114
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28988,
+      "seconds": 115
+    },
+    {
+      "fds": 75,
+      "rss_kib": 28992,
+      "seconds": 116
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28988,
+      "seconds": 117
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28988,
+      "seconds": 118
+    },
+    {
+      "fds": 73,
+      "rss_kib": 28984,
+      "seconds": 119
+    }
+  ],
+  "target_seconds": 120,
+  "tested_binary_sha256": "aaf26f15c767c15c821872b9e0bc462e7ff0049a7d79958efa958c860b11fdd9",
+  "scope_note": "Release soak preceded the final IPv6 health Host/:authority canonicalization; final IPv6 regression and release E2E checks are recorded separately."
+}

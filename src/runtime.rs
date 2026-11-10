@@ -373,6 +373,13 @@ pub fn build(
     config_path: Option<PathBuf>,
     prev: Option<&Runtime>,
 ) -> Result<Built, String> {
+    if cfg.tls.watch_interval.0.is_zero()
+        || std::time::Instant::now()
+            .checked_add(cfg.tls.watch_interval.0)
+            .is_none()
+    {
+        return Err("tls.watch_interval must be positive and fit the runtime clock".into());
+    }
     let mut warnings = Vec::new();
     let mut watched: Vec<PathBuf> = config_path.into_iter().collect();
 

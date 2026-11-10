@@ -1,0 +1,17 @@
+5 rounds, N=150000 C=64 body=2048B, proxy CPUs 0,2, scenarios: https
+  round 1 before       https          53178 req/s  p99   2.62 ms  cpu   30.9 ms/1k  errors 0
+  round 1 after        https          59437 req/s  p99   1.88 ms  cpu   27.7 ms/1k  errors 0
+  round 2 after        https          60238 req/s  p99   1.78 ms  cpu   27.5 ms/1k  errors 0
+  round 2 before       https          59906 req/s  p99   1.95 ms  cpu   27.5 ms/1k  errors 0
+  round 3 before       https          56689 req/s  p99   2.02 ms  cpu   29.2 ms/1k  errors 0
+  round 3 after        https          62468 req/s  p99   2.10 ms  cpu   26.3 ms/1k  errors 0
+  round 4 after        https          59142 req/s  p99   1.95 ms  cpu   27.9 ms/1k  errors 0
+  round 4 before       https          53304 req/s  p99   2.45 ms  cpu   30.9 ms/1k  errors 0
+  round 5 before       https          56600 req/s  p99   2.13 ms  cpu   28.9 ms/1k  errors 0
+  round 5 after        https          61210 req/s  p99   1.77 ms  cpu   27.0 ms/1k  errors 0
+
+medians over 5 rounds; change against before
+scenario   variant          req/s          p99 ms         cpu ms/1k        
+https      before           56600            2.13             29.20        
+https      after            60238   +6.4%    1.88  -11.7%     27.47   -5.9%
+errors: 0

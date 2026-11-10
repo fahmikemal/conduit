@@ -101,6 +101,9 @@ fn carried<T: Send + Sync + 'static>(id: String, new: impl FnOnce() -> T) -> Arc
 struct Window {
     rate: Rate,
     hasher: Hasher,
+    /// The same key always holds the same lock across the read-and-observe decision.
+    /// Independent keys can proceed on other shards; the fixed-size sketch stays bounded.
+    admission: [Mutex<()>; 64],
 }
 
 /// `rate_limit`: at most `requests` per `per`, over a sliding window (the previous window's
@@ -128,6 +131,7 @@ impl RateLimit {
         let window = carried(format!("rate\n{site}\n{index}\n{c:?}"), || Window {
             rate: Rate::new(per),
             hasher: Hasher::default(),
+            admission: std::array::from_fn(|_| Mutex::new(())),
         });
         Ok(RateLimit {
             window,
@@ -156,10 +160,21 @@ impl Plugin for RateLimit {
         }
         let w = &self.window;
         let key = self.key.of(req, &w.hasher);
-        let used = w.rate.rate_with(&key, |c| {
-            c.prev_samples as f64 * (1.0 - c.current_interval_fraction) + c.curr_samples as f64
-        });
-        if used + 1.0 > self.limit {
+        let admitted = {
+            let _guard = w.admission[key as usize % w.admission.len()]
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            let used = w.rate.rate_with(&key, |c| {
+                c.prev_samples as f64 * (1.0 - c.current_interval_fraction) + c.curr_samples as f64
+            });
+            if used + 1.0 <= self.limit {
+                w.rate.observe(&key, 1);
+                true
+            } else {
+                false
+            }
+        };
+        if !admitted {
             self.refused.inc();
             let mut l = Local::status(self.status);
             l.headers
@@ -167,7 +182,6 @@ impl Plugin for RateLimit {
             l.blocked_by = Some("rate_limit");
             return Some(l);
         }
-        w.rate.observe(&key, 1);
         None
     }
 }

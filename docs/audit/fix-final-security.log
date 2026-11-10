@@ -1,0 +1,15 @@
+    Finished `test` profile [unoptimized] target(s) in 0.09s
+     Running tests/e2e.rs (/tmp/conduit-audit-work/target/debug/deps/e2e-0c5467a05406c084)
+
+running 8 tests
+test security_file_path_decoded_once ... ok
+test security_cache_authority ... ok
+test security_cache_unknown_encoding ... ok
+test security_tls_wildcard_override_and_coverage ... ok
+test security_rate_limit_concurrent_admission ... ok
+test security_zero_watch_interval_rejected ... ok
+test security_file_fallback_containment ... ok
+test security_duration_overflow_rejected ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.80s
+

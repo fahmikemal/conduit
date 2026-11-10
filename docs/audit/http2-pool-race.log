@@ -1,0 +1,35 @@
+   Compiling reqwest v0.12.28
+   Compiling tikv-jemallocator v0.6.1
+   Compiling pingora-core v0.9.1 (/home/tesseract/Mandiri/conduit/vendor/pingora/pingora-core)
+    Finished `test` profile [unoptimized] target(s) in 17.01s
+     Running unittests src/lib.rs (/tmp/conduit-audit-work/target/debug/deps/pingora_core-2705bb8c64138dfe)
+
+running 1 test
+test connectors::http::v2::tests::test_reused_http_session_no_duplicate_in_use_entry ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 634 filtered out; finished in 0.51s
+
+     Running tests/bootstrap_as_a_service.rs (/tmp/conduit-audit-work/target/debug/deps/bootstrap_as_a_service-385bd050b06adb8a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/server_phase_fastshutdown.rs (/tmp/conduit-audit-work/target/debug/deps/server_phase_fastshutdown-e2c78bde1f1d7ad0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/server_phase_gracefulshutdown.rs (/tmp/conduit-audit-work/target/debug/deps/server_phase_gracefulshutdown-d4ea1cc5cc9d3f87)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/test_basic.rs (/tmp/conduit-audit-work/target/debug/deps/test_basic-6472e6867e506f33)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+

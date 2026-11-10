@@ -1,5 +1,8 @@
 //! Runs the real binary against local upstreams and checks behavior over the wire.
 
+#[path = "support/h2_upstream.rs"]
+mod h2_upstream;
+
 use std::collections::{BTreeSet, HashMap};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{TcpListener, TcpStream};
@@ -5157,4 +5160,546 @@ sites:
     let r = get("app.test");
     assert_eq!(r.header("server"), Some("echo-upstream"));
     assert!(r.header("x-evil").is_none());
+}
+
+/// Policy and disk lookup must interpret percent escapes exactly once.
+#[test]
+fn security_file_path_decoded_once() {
+    let dir = test_dir("security-path");
+    let root = dir.join("www");
+    std::fs::create_dir_all(root.join("admin")).unwrap();
+    std::fs::write(root.join("admin/secret.txt"), "protected-marker").unwrap();
+    let port = free_port();
+    let cfg = dir.join("conduit.yaml");
+    std::fs::write(
+        &cfg,
+        format!(
+            r#"
+server: {{ pid_file: {d}/pid, upgrade_sock: {d}/sock, shutdown_grace: 0s }}
+listen: {{ http: ["127.0.0.1:{port}"] }}
+sites:
+  - id: files
+    hosts: [files.test]
+    files: {{ root: {root} }}
+    plugins:
+      - rules:
+          - match: {{ path: {{ prefix: /admin }} }}
+            action: {{ deny: 403 }}
+"#,
+            d = dir.display(),
+            root = root.display()
+        ),
+    )
+    .unwrap();
+    let _proxy = Proxy {
+        child: spawn(&cfg, &[], "stderr"),
+        dir: dir.clone(),
+    };
+    wait_for_port(port);
+    for path in ["/admin/secret.txt", "/%61dmin/secret.txt"] {
+        assert_eq!(http(port, "files.test", path, &[]).status, 403);
+    }
+    assert_eq!(
+        http(port, "files.test", "/%2561dmin/secret.txt", &[]).status,
+        404
+    );
+    // A literal percent in a legitimate file name must survive the composed candidate.
+    std::fs::create_dir(root.join("%61dmin")).unwrap();
+    std::fs::write(root.join("%61dmin/secret.txt"), "literal-percent-marker").unwrap();
+    assert_eq!(
+        http(port, "files.test", "/%2561dmin/secret.txt", &[]).body,
+        "literal-percent-marker"
+    );
+    assert_eq!(
+        http(port, "files.test", "/%252e%252e/admin/secret.txt", &[]).status,
+        404
+    );
+}
+
+/// Exercise the actual syscall fallback, including replacement races, over HTTP.
+#[test]
+fn security_file_fallback_containment() {
+    use std::os::unix::{fs::symlink, process::CommandExt};
+    let dir = test_dir("security-fallback");
+    let root = dir.join("www");
+    let outside = dir.join("private");
+    std::fs::create_dir_all(root.join("browse")).unwrap();
+    std::fs::create_dir(&outside).unwrap();
+    std::fs::write(outside.join("OUTSIDE-MARKER"), "OUTSIDE-MARKER").unwrap();
+    std::fs::write(root.join("browse/allowed"), "inside").unwrap();
+    std::fs::write(root.join("entry"), "inside").unwrap();
+    symlink(outside.join("OUTSIDE-MARKER"), root.join("escape")).unwrap();
+    symlink(&outside, root.join("escape-dir")).unwrap();
+    let port = free_port();
+    let cfg = dir.join("conduit.yaml");
+    std::fs::write(
+        &cfg,
+        format!(
+            r#"
+server: {{ pid_file: {d}/pid, upgrade_sock: {d}/sock, shutdown_grace: 0s }}
+listen: {{ http: ["127.0.0.1:{port}"] }}
+sites:
+  - id: files
+    hosts: [files.test]
+    files: {{ root: {root}, browse: true, index: [] }}
+"#,
+            d = dir.display(),
+            root = root.display()
+        ),
+    )
+    .unwrap();
+    let mut command = Command::new(env!("CARGO_BIN_EXE_conduit"));
+    command
+        .args(["run", "-c"])
+        .arg(&cfg)
+        .stderr(std::fs::File::create(dir.join("stderr")).unwrap());
+    // SAFETY: the child callback only uses stack data and async-signal-safe syscalls.
+    unsafe {
+        command.pre_exec(|| {
+            let filter = [
+                libc::sock_filter {
+                    code: (libc::BPF_LD | libc::BPF_W | libc::BPF_ABS) as u16,
+                    jt: 0,
+                    jf: 0,
+                    k: 0,
+                },
+                libc::sock_filter {
+                    code: (libc::BPF_JMP | libc::BPF_JEQ | libc::BPF_K) as u16,
+                    jt: 0,
+                    jf: 1,
+                    k: libc::SYS_openat2 as u32,
+                },
+                libc::sock_filter {
+                    code: (libc::BPF_RET | libc::BPF_K) as u16,
+                    jt: 0,
+                    jf: 0,
+                    k: libc::SECCOMP_RET_ERRNO | libc::ENOSYS as u32,
+                },
+                libc::sock_filter {
+                    code: (libc::BPF_RET | libc::BPF_K) as u16,
+                    jt: 0,
+                    jf: 0,
+                    k: libc::SECCOMP_RET_ALLOW,
+                },
+            ];
+            let program = libc::sock_fprog {
+                len: filter.len() as u16,
+                filter: filter.as_ptr() as *mut _,
+            };
+            if libc::prctl(libc::PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) != 0
+                || libc::prctl(libc::PR_SET_SECCOMP, libc::SECCOMP_MODE_FILTER, &program) != 0
+            {
+                return Err(std::io::Error::last_os_error());
+            }
+            Ok(())
+        });
+    }
+    let _proxy = Proxy {
+        child: command.spawn().unwrap(),
+        dir: dir.clone(),
+    };
+    wait_for_port(port);
+    assert_eq!(http(port, "files.test", "/entry", &[]).body, "inside");
+    for path in ["/escape", "/escape-dir/OUTSIDE-MARKER"] {
+        assert_eq!(http(port, "files.test", path, &[]).status, 404);
+    }
+    let stop = Arc::new(AtomicBool::new(false));
+    let actor_stop = stop.clone();
+    let actor_root = root.clone();
+    let actor_outside = outside.clone();
+    let actor = thread::spawn(move || {
+        while !actor_stop.load(Ordering::Relaxed) {
+            std::fs::write(actor_root.join("swap"), "inside").unwrap();
+            std::fs::rename(actor_root.join("swap"), actor_root.join("entry")).unwrap();
+            symlink(
+                actor_outside.join("OUTSIDE-MARKER"),
+                actor_root.join("swap"),
+            )
+            .unwrap();
+            std::fs::rename(actor_root.join("swap"), actor_root.join("entry")).unwrap();
+            std::fs::rename(actor_root.join("browse"), actor_root.join("parked")).unwrap();
+            symlink(&actor_outside, actor_root.join("browse")).unwrap();
+            std::fs::remove_file(actor_root.join("browse")).unwrap();
+            std::fs::rename(actor_root.join("parked"), actor_root.join("browse")).unwrap();
+        }
+    });
+    // Stop and join the writer even if an assertion fails.
+    let result = std::panic::catch_unwind(|| {
+        for _ in 0..300 {
+            for path in ["/entry", "/browse/"] {
+                let r = http(port, "files.test", path, &[]);
+                assert!(!r.body.contains("OUTSIDE-MARKER"), "{path}: {r:?}");
+                assert!(matches!(r.status, 200 | 404), "{r:?}");
+            }
+        }
+    });
+    stop.store(true, Ordering::Relaxed);
+    actor.join().unwrap();
+    result.unwrap();
+    assert!(
+        std::fs::read_to_string(dir.join("stderr"))
+            .unwrap()
+            .contains("descriptor traversal")
+    );
+}
+
+/// Cacheable origin whose representation actually depends on authority or encoding.
+fn security_cache_origin() -> u16 {
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let port = listener.local_addr().unwrap().port();
+    thread::spawn(move || {
+        for mut stream in listener.incoming().flatten() {
+            let head = read_head(&mut stream);
+            let target = head.split_whitespace().nth(1).unwrap_or("/");
+            let deflate = target.starts_with("/encoding")
+                && head_value(&head, "accept-encoding").is_some_and(|v| v.contains("deflate"));
+            let plain = if target.starts_with("/encoding") {
+                if deflate {
+                    "deflate-marker".to_string()
+                } else {
+                    "identity-marker".to_string()
+                }
+            } else {
+                format!(
+                    "host={} xfh={}",
+                    head_value(&head, "host").unwrap_or_default(),
+                    head_value(&head, "x-forwarded-host").unwrap_or_default()
+                )
+            };
+            let body = if deflate {
+                let mut encoder =
+                    flate2::write::ZlibEncoder::new(Vec::new(), flate2::Compression::fast());
+                encoder.write_all(plain.as_bytes()).unwrap();
+                encoder.finish().unwrap()
+            } else {
+                plain.into_bytes()
+            };
+            let vary = if target.starts_with("/encoding") {
+                "Vary: Accept-Encoding\r\n"
+            } else {
+                ""
+            };
+            let coding = if deflate {
+                "Content-Encoding: deflate\r\n"
+            } else {
+                ""
+            };
+            let response = format!(
+                "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: application/octet-stream\r\nCache-Control: public, max-age=600\r\n{vary}{coding}Connection: close\r\n\r\n",
+                body.len()
+            );
+            stream.write_all(response.as_bytes()).ok();
+            stream.write_all(&body).ok();
+        }
+    });
+    port
+}
+
+fn security_cached_proxy(tag: &str) -> (Proxy, u16) {
+    let dir = test_dir(tag);
+    let port = free_port();
+    let upstream = security_cache_origin();
+    let cfg = dir.join("conduit.yaml");
+    std::fs::write(
+        &cfg,
+        format!(
+            r#"
+server: {{ threads: 4, pid_file: {d}/pid, upgrade_sock: {d}/sock, shutdown_grace: 0s }}
+listen: {{ http: ["127.0.0.1:{port}"] }}
+defaults: {{ compression: false }}
+sites:
+  - {{ id: cache, hosts: [cache.test], upstream: "http://127.0.0.1:{upstream}", cache: true }}
+"#,
+            d = dir.display()
+        ),
+    )
+    .unwrap();
+    let proxy = Proxy {
+        child: spawn(&cfg, &[], "stderr"),
+        dir,
+    };
+    wait_for_port(port);
+    (proxy, port)
+}
+
+#[test]
+fn security_cache_authority() {
+    let (_proxy, port) = security_cached_proxy("security-authority");
+    let a = http(port, "cache.test:8080", "/authority", &[]);
+    let b = http(port, "cache.test:9090", "/authority", &[]);
+    assert_eq!((a.status, b.status), (200, 200));
+    assert!(a.body.contains("cache.test:8080"));
+    assert!(b.body.contains("cache.test:9090"), "{b:?}");
+    assert_ne!(a.body, b.body);
+    assert_eq!(
+        http(port, "cache.test:9090", "/authority", &[]).header("cache-status"),
+        Some("conduit; hit")
+    );
+    assert_eq!(
+        http(port, "cache.test:8080", "/authority", &[]).body,
+        a.body
+    );
+}
+
+/// Invalid configuration must fail check/reload without losing the running service.
+fn security_reject_config(tag: &str, bad_section: &str, expected_error: &str) {
+    let dir = test_dir(tag);
+    let (port, admin) = (free_port(), free_port());
+    let (upstream, _) = echo_upstream();
+    let cfg = dir.join("conduit.yaml");
+    let valid = format!(
+        r#"
+server: {{ pid_file: {d}/pid, upgrade_sock: {d}/sock, shutdown_grace: 0s }}
+listen: {{ http: ["127.0.0.1:{port}"] }}
+admin: {{ listen: "127.0.0.1:{admin}" }}
+sites: [{{ id: app, hosts: [app.test], upstream: "http://127.0.0.1:{upstream}" }}]
+"#,
+        d = dir.display()
+    );
+    std::fs::write(&cfg, &valid).unwrap();
+    let proxy = Proxy {
+        child: spawn(&cfg, &[], "stderr"),
+        dir: dir.clone(),
+    };
+    wait_for_port(admin);
+    std::fs::write(&cfg, format!("{valid}\n{bad_section}\n")).unwrap();
+    let check = Command::new(env!("CARGO_BIN_EXE_conduit"))
+        .args(["check", "-c"])
+        .arg(&cfg)
+        .output()
+        .unwrap();
+    assert!(!check.status.success());
+    let error = String::from_utf8_lossy(&check.stderr);
+    assert!(error.contains(expected_error), "{error}");
+    assert!(!error.contains("panicked"), "{error}");
+    signal(proxy.child.id(), "-HUP");
+    wait_until("invalid config refused", Duration::from_secs(5), || {
+        status_json(admin)["config"]["last_reload"]["ok"] == false
+    });
+    assert_eq!(http(port, "app.test", "/", &[]).status, 200);
+    std::fs::write(&cfg, valid).unwrap();
+    signal(proxy.child.id(), "-HUP");
+    wait_until("reload recovers", Duration::from_secs(5), || {
+        status_json(admin)["config"]["last_reload"]["ok"] == true
+    });
+    assert!(
+        !std::fs::read_to_string(dir.join("stderr"))
+            .unwrap()
+            .contains("panicked")
+    );
+}
+
+#[test]
+fn security_duration_overflow_rejected() {
+    for (i, duration) in [
+        "9223372036854775808m",
+        "18446744073709551615h",
+        "18446744073709551615d",
+    ]
+    .iter()
+    .enumerate()
+    {
+        security_reject_config(
+            &format!("security-duration-{i}"),
+            &format!("defaults: {{ read_timeout: {duration} }}"),
+            "too large",
+        );
+    }
+}
+
+#[test]
+fn security_zero_watch_interval_rejected() {
+    security_reject_config(
+        "security-zero-watch",
+        "tls: { watch_interval: 0s }",
+        "tls.watch_interval",
+    );
+}
+
+#[test]
+fn security_rate_limit_concurrent_admission() {
+    let dir = test_dir("security-admission");
+    let (port, admin) = (free_port(), free_port());
+    let cfg = dir.join("conduit.yaml");
+    std::fs::write(
+        &cfg,
+        format!(
+            r#"
+server: {{ threads: 8, pid_file: {d}/pid, upgrade_sock: {d}/sock, shutdown_grace: 0s }}
+listen: {{ http: ["127.0.0.1:{port}"] }}
+admin: {{ listen: "127.0.0.1:{admin}" }}
+sites:
+  - id: limited
+    hosts: [limit.test]
+    upstream: http://127.0.0.1:1
+    plugins:
+      - rate_limit: {{ requests: 1, per: 1h, key: 'header:X-Bucket' }}
+      - rules:
+          - action: {{ respond: {{ status: 200, body: ok }} }}
+"#,
+            d = dir.display()
+        ),
+    )
+    .unwrap();
+    let proxy = Proxy {
+        child: spawn(&cfg, &[], "stderr"),
+        dir,
+    };
+    wait_for_port(admin);
+    for round in 0..12 {
+        let barrier = Arc::new(std::sync::Barrier::new(32));
+        let bucket = format!("round-{round}");
+        let workers: Vec<_> = (0..32)
+            .map(|_| {
+                let barrier = barrier.clone();
+                let bucket = bucket.clone();
+                thread::spawn(move || {
+                    let mut stream = TcpStream::connect(("127.0.0.1", port)).unwrap();
+                    stream
+                        .set_read_timeout(Some(Duration::from_secs(5)))
+                        .unwrap();
+                    let req = request("/", "limit.test", &[("X-Bucket", &bucket)]);
+                    barrier.wait();
+                    stream.write_all(req.as_bytes()).unwrap();
+                    parse(&read_all(&mut stream)).status
+                })
+            })
+            .collect();
+        let statuses: Vec<_> = workers.into_iter().map(|w| w.join().unwrap()).collect();
+        assert_eq!(
+            statuses.iter().filter(|&&s| s == 200).count(),
+            1,
+            "{statuses:?}"
+        );
+        assert_eq!(
+            statuses.iter().filter(|&&s| s == 429).count(),
+            31,
+            "{statuses:?}"
+        );
+        if round == 0 {
+            let successful = || {
+                metric(
+                    &http(admin, "localhost", "/metrics", &[]).body,
+                    "conduit_config_reloads_total",
+                    &["result=\"success\""],
+                )
+                .unwrap()
+            };
+            let before = successful();
+            signal(proxy.child.id(), "-HUP");
+            wait_until("admission reload", Duration::from_secs(5), || {
+                successful() > before
+            });
+            assert_eq!(
+                http(port, "limit.test", "/", &[("X-Bucket", &bucket)]).status,
+                429
+            );
+        }
+    }
+}
+
+#[test]
+fn security_tls_wildcard_override_and_coverage() {
+    let dir = test_dir("security-wildcard");
+    let (old_cert, old_key) = self_signed(&dir, "old", &["*.example.test"]);
+    let (chosen_cert, chosen_key) = self_signed(&dir, "chosen", &["*.example.test"]);
+    let serial = |p: &Path| {
+        X509::from_pem(&std::fs::read(p).unwrap())
+            .unwrap()
+            .serial_number()
+            .to_bn()
+            .unwrap()
+            .to_hex_str()
+            .unwrap()
+            .to_string()
+    };
+    let (old_serial, chosen_serial) = (serial(&old_cert), serial(&chosen_cert));
+    let port = free_port();
+    let cfg = dir.join("conduit.yaml");
+    let text = format!(
+        r#"
+server: {{ pid_file: {d}/pid, upgrade_sock: {d}/sock, shutdown_grace: 0s }}
+listen: {{ https: ["127.0.0.1:{port}"] }}
+tls:
+  certs:
+    - {{ name: old, cert: {oc}, key: {ok} }}
+    - {{ name: chosen, cert: {cc}, key: {ck} }}
+sites:
+  - {{ id: wild, hosts: ["*.example.test"], upstream: "http://127.0.0.1:1", cert: chosen }}
+  - {{ id: exact, hosts: [exact.example.test], upstream: "http://127.0.0.1:1", cert: old }}
+"#,
+        d = dir.display(),
+        oc = old_cert.display(),
+        ok = old_key.display(),
+        cc = chosen_cert.display(),
+        ck = chosen_key.display()
+    );
+    // Without an override, the valid wildcard SAN must not produce a false warning.
+    std::fs::write(&cfg, text.replace("cert: chosen }", "force_https: true }")).unwrap();
+    let check = Command::new(env!("CARGO_BIN_EXE_conduit"))
+        .args(["check", "-c"])
+        .arg(&cfg)
+        .output()
+        .unwrap();
+    assert!(
+        check.status.success(),
+        "{}",
+        String::from_utf8_lossy(&check.stderr)
+    );
+    assert!(!String::from_utf8_lossy(&check.stdout).contains("no certificate covers"));
+    std::fs::write(&cfg, text).unwrap();
+    let _proxy = Proxy {
+        child: spawn(&cfg, &[], "stderr"),
+        dir,
+    };
+    wait_for_port(port);
+    assert_eq!(served(port, "app.example.test").unwrap().1, chosen_serial);
+    assert_eq!(served(port, "exact.example.test").unwrap().1, old_serial);
+    assert!(served(port, "a.b.example.test").is_err());
+}
+
+#[test]
+fn security_cache_unknown_encoding() {
+    let (_proxy, port) = security_cached_proxy("security-encoding");
+    let deflate = http(
+        port,
+        "cache.test",
+        "/encoding",
+        &[("Accept-Encoding", "deflate")],
+    );
+    assert_eq!(deflate.header("content-encoding"), Some("deflate"));
+    let identity = http(
+        port,
+        "cache.test",
+        "/encoding",
+        &[("Accept-Encoding", "identity")],
+    );
+    assert_eq!(identity.status, 200);
+    assert_eq!(identity.header("content-encoding"), None, "{identity:?}");
+    assert_eq!(identity.body, "identity-marker");
+    assert_eq!(
+        http(
+            port,
+            "cache.test",
+            "/encoding",
+            &[("Accept-Encoding", "identity")]
+        )
+        .header("cache-status"),
+        Some("conduit; hit")
+    );
+    let mut stream = TcpStream::connect(("127.0.0.1", port)).unwrap();
+    stream
+        .set_read_timeout(Some(Duration::from_secs(5)))
+        .unwrap();
+    stream
+        .write_all(request("/encoding", "cache.test", &[("Accept-Encoding", "deflate")]).as_bytes())
+        .unwrap();
+    let raw = read_all(&mut stream);
+    let split = raw.windows(4).position(|w| w == b"\r\n\r\n").unwrap() + 4;
+    let mut decoded = String::new();
+    flate2::read::ZlibDecoder::new(&raw[split..])
+        .read_to_string(&mut decoded)
+        .unwrap();
+    assert_eq!(decoded, "deflate-marker");
+    assert_eq!(parse(&raw).header("cache-status"), Some("conduit; hit"));
 }

@@ -1,0 +1,169 @@
+   Compiling openssl-sys v0.9.118
+   Compiling rustversion v1.0.23
+   Compiling serde v1.0.229
+   Compiling ahash v0.8.12
+   Compiling getrandom v0.3.4
+   Compiling const-random v0.1.18
+   Compiling futures-channel v0.3.34
+   Compiling rand_core v0.6.4
+   Compiling ppv-lite86 v0.2.21
+   Compiling generic-array v0.14.7
+   Compiling cmake v0.1.58
+   Compiling futures-macro v0.3.34
+   Compiling thread_local v1.1.10
+   Compiling futures-task v0.3.34
+   Compiling zstd-safe v8.2.0
+   Compiling foreign-types-shared v0.1.1
+   Compiling utf8parse v0.2.2
+   Compiling crc32fast v1.5.4
+   Compiling base64 v0.22.1
+   Compiling futures-io v0.3.34
+   Compiling heck v0.5.0
+   Compiling openssl v0.10.82
+   Compiling futures-util v0.3.34
+   Compiling anstyle-parse v1.0.0
+   Compiling foreign-types v0.3.2
+   Compiling libz-ng-sys v1.1.31
+   Compiling rand_chacha v0.3.1
+   Compiling zstd-sys v2.1.2+zstd.1.5.7
+   Compiling openssl-macros v0.1.1
+   Compiling aho-corasick v1.1.5
+   Compiling memoffset v0.9.1
+   Compiling anstyle-query v1.1.5
+   Compiling alloc-no-stdlib v2.0.4
+   Compiling log v0.4.35
+   Compiling syn v1.0.109
+   Compiling regex-syntax v0.8.11
+   Compiling rust_decimal v1.43.0
+   Compiling arrayvec v0.7.8
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling httparse v1.10.1
+   Compiling cfg_aliases v0.2.2
+   Compiling colorchoice v1.0.5
+   Compiling tokio-openssl v0.6.5
+   Compiling anstream v1.0.0
+   Compiling nix v0.31.3
+   Compiling alloc-stdlib v0.2.4
+   Compiling futures-executor v0.3.34
+   Compiling regex-automata v0.4.18
+   Compiling rand v0.8.8
+   Compiling tracing-core v0.1.36
+   Compiling num_cpus v1.17.0
+   Compiling clap_lex v1.1.1
+   Compiling fixedbitset v0.5.7
+   Compiling fnv v1.0.7
+   Compiling parking v2.2.1
+   Compiling strsim v0.11.1
+   Compiling pingora-error v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-error)
+   Compiling hashbrown v0.14.5
+   Compiling seize v0.3.3
+   Compiling flurry v0.5.2
+   Compiling dashmap v5.5.3
+   Compiling pingora-http v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-http)
+   Compiling clap_builder v4.6.7
+   Compiling event-listener v5.4.2
+   Compiling petgraph v0.7.1
+   Compiling tracing v0.1.44
+   Compiling zstd v0.14.3
+   Compiling futures v0.3.34
+   Compiling brotli-decompressor v2.5.1
+   Compiling strum_macros v0.26.4
+   Compiling clap_derive v4.6.7
+   Compiling pingora-timeout v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-timeout)
+   Compiling crossbeam-queue v0.3.14
+   Compiling tokio-util v0.7.20
+   Compiling lru v0.18.5
+   Compiling tokio-stream v0.1.19
+   Compiling async-trait v0.1.92
+   Compiling ryu v1.0.23
+   Compiling atomic-waker v1.1.2
+   Compiling subtle v2.6.1
+   Compiling unsafe-libyaml v0.2.11
+   Compiling hex v0.4.3
+   Compiling httpdate v1.0.3
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling h2 v0.4.20
+   Compiling tokio-test v0.4.6
+   Compiling pingora-pool v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-pool)
+   Compiling clap v4.6.7
+   Compiling strum v0.26.3
+   Compiling flate2 v1.1.11
+   Compiling sfv v0.10.4
+   Compiling derivative v2.2.0
+   Compiling brotli v3.5.0
+   Compiling daggy v0.8.1
+   Compiling event-listener-strategy v0.5.4
+   Compiling regex v1.13.1
+   Compiling bstr v1.13.1
+   Compiling pingora-runtime v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-runtime)
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling concurrent-queue v2.5.0
+   Compiling chrono v0.4.45
+   Compiling hybrid-array v0.4.15
+   Compiling indexmap v1.9.3
+   Compiling daemonix v0.1.0
+   Compiling powerfmt v0.2.1
+   Compiling percent-encoding v2.3.2
+   Compiling unicase v2.10.0
+   Compiling openssl-probe v0.1.6
+   Compiling deranged v0.5.9
+   Compiling async-channel v2.5.0
+   Compiling digest v0.10.7
+   Compiling rmp v0.8.15
+   Compiling ring v0.17.14
+   Compiling num-conv v0.1.0
+   Compiling zmij v1.0.23
+   Compiling thiserror v2.0.21
+   Compiling rustix v0.38.44
+   Compiling hashbrown v0.12.3
+   Compiling zeroize v1.9.1
+   Compiling time-core v0.1.7
+   Compiling time v0.3.45
+   Compiling rmp-serde v1.3.1
+   Compiling blake2 v0.10.6
+   Compiling pingora-lru v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-lru)
+   Compiling inout v0.2.6
+   Compiling crypto-common v0.2.2
+   Compiling pingora-header-serde v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-header-serde)
+   Compiling thiserror-impl v2.0.21
+   Compiling libmimalloc-sys v0.1.49
+   Compiling procfs v0.17.0
+   Compiling linux-raw-sys v0.4.15
+   Compiling getrandom v0.4.3
+   Compiling serde_json v1.0.154
+   Compiling untrusted v0.9.0
+   Compiling cipher v0.5.2
+   Compiling yasna v0.5.2
+   Compiling rustls-pki-types v1.15.1
+   Compiling procfs-core v0.17.0
+   Compiling pingora-ketama v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-ketama)
+   Compiling arc-swap v1.9.3
+   Compiling pem v3.0.6
+   Compiling http-body v1.1.0
+   Compiling encoding_rs v0.8.35
+   Compiling arraydeque v0.5.1
+   Compiling prometheus v0.14.0
+   Compiling byteorder v1.5.0
+   Compiling unicode-width v0.2.3
+   Compiling annotate-snippets v0.12.16
+   Compiling blowfish v0.10.0
+   Compiling granit-parser v2.1.0
+   Compiling encoding_rs_io v0.1.8
+   Compiling http-body-util v0.1.5
+   Compiling rcgen v0.14.7
+   Compiling base64 v0.23.1
+   Compiling lazy_static v1.5.1
+   Compiling bcrypt v0.19.3
+   Compiling instant-acme v0.8.5
+   Compiling mimalloc v0.1.52
+   Compiling serde-saphyr v2.1.1
+   Compiling pingora-limits v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-limits)
+   Compiling pingora-openssl v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-openssl)
+   Compiling pingora-core v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-core)
+   Compiling pingora-cache v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-cache)
+   Compiling pingora-load-balancing v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-load-balancing)
+   Compiling pingora-proxy v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora-proxy)
+   Compiling pingora v0.9.1 (/tmp/conduit-audit-work/vendor/pingora/pingora)
+   Compiling conduit v0.1.0 (/tmp/conduit-audit-work)
+    Finished `dev` profile [unoptimized] target(s) in 2m 20s

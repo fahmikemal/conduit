@@ -1,0 +1,130 @@
+2026-11-10T09:21:04Z INFO  conduit: conduit 0.1.0: 4 host names, 3 upstream pools, 1 certificates
+2026-11-10T09:21:04Z INFO  pingora_core::server: Server starting
+2026-11-10T09:21:04Z INFO  pingora_core::server: Starting services in dependency order: ["BG reload", "BG crowdsec", "BG acme", "BG health", "BG Bootstrap Service", "conduit", "admin"]
+2026-11-10T09:21:04Z INFO  pingora_core::server: Starting service: BG reload
+2026-11-10T09:21:04Z INFO  pingora_core::server: Starting service: BG crowdsec
+2026-11-10T09:21:04Z INFO  pingora_core::server: Starting service: BG acme
+2026-11-10T09:21:04Z INFO  pingora_core::server: Starting service: BG health
+2026-11-10T09:21:04Z INFO  pingora_core::server: Starting service: BG Bootstrap Service
+2026-11-10T09:21:04Z INFO  pingora_core::server: Service 'conduit' will wait for dependencies: ["BG Bootstrap Service"]
+2026-11-10T09:21:04Z INFO  pingora_core::server::bootstrap_services: Bootstrap starting
+2026-11-10T09:21:04Z INFO  pingora_core::server::bootstrap_services: Bootstrap done
+2026-11-10T09:21:04Z INFO  pingora_core::server: service 'BG Bootstrap Service' exited.
+2026-11-10T09:21:04Z INFO  pingora_core::server: Service 'admin' will wait for dependencies: ["BG Bootstrap Service"]
+2026-11-10T09:21:04Z INFO  pingora_core::services: Service conduit spent 0ms waiting on dependencies
+2026-11-10T09:21:04Z INFO  pingora_core::services: Service admin spent 0ms waiting on dependencies
+2026-11-10T09:21:14Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:21:24Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:21:35Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:21:35Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:21:45Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:21:55Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:22:06Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:22:06Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:22:14Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:22:24Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:22:35Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:22:35Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:22:45Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:22:55Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:23:06Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:23:06Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:23:16Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:23:24Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:23:35Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:23:35Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:23:45Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:23:55Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:24:06Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:24:06Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:24:14Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:24:24Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:24:35Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:24:35Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:24:45Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:24:55Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:25:06Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:25:06Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:25:14Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:25:24Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:25:35Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:25:35Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:25:45Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:25:55Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:26:06Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:26:06Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:26:16Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:26:26Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:26:35Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:26:35Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:26:45Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:26:55Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:27:06Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:27:06Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:27:14Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:27:24Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:27:35Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:27:35Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:27:45Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:27:55Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:28:06Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:28:06Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:28:14Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:28:24Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:28:35Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:28:35Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:28:45Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:28:55Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:29:06Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:29:06Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:29:15Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:29:25Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:29:35Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:29:35Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:29:45Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:29:55Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:30:06Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:30:06Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:30:16Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:30:26Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:30:37Z INFO  conduit::reload: reloaded after a file change: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:30:37Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:30:45Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:30:55Z INFO  conduit::reload: reloaded after SIGHUP: 4 host names, 3 upstream pools (3 kept their state)
+2026-11-10T09:31:22Z INFO  pingora_core::server: SIGTERM received, gracefully exiting
+2026-11-10T09:31:22Z INFO  pingora_core::server: Broadcasting graceful shutdown
+2026-11-10T09:31:22Z INFO  pingora_core::server: Graceful shutdown started!
+2026-11-10T09:31:22Z INFO  pingora_core::server: Broadcast graceful shutdown complete
+2026-11-10T09:31:22Z INFO  pingora_core::services::listening: Shutting down 127.0.0.1:56499
+2026-11-10T09:31:22Z INFO  pingora_core::server: Graceful shutdown: grace period 0s starts
+2026-11-10T09:31:22Z INFO  pingora_core::server: service 'BG health' exited.
+2026-11-10T09:31:22Z INFO  pingora_core::server: service 'BG acme' exited.
+2026-11-10T09:31:22Z INFO  pingora_core::server: service 'admin' exited.
+2026-11-10T09:31:22Z INFO  pingora_core::services::listening: Shutting down 127.0.0.1:47775
+2026-11-10T09:31:22Z INFO  pingora_core::server: Graceful shutdown: grace period ends
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for runtimes to exit!
+2026-11-10T09:31:22Z INFO  pingora_core::server: service 'BG crowdsec' exited.
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for runtimes to exit!
+2026-11-10T09:31:22Z INFO  pingora_core::services::listening: Shutting down 127.0.0.1:50827
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for runtimes to exit!
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for runtimes to exit!
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for runtimes to exit!
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for runtimes to exit!
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for runtimes to exit!
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for service runtime BG reload to exit
+2026-11-10T09:31:22Z INFO  pingora_core::server: service 'conduit' exited.
+2026-11-10T09:31:22Z INFO  pingora_core::server: service 'BG reload' exited.
+2026-11-10T09:31:22Z INFO  pingora_core::server: Service runtime BG reload exited after 12.053546ms
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for service runtime BG crowdsec to exit
+2026-11-10T09:31:22Z INFO  pingora_core::server: Service runtime BG crowdsec exited after 288.85µs
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for service runtime BG acme to exit
+2026-11-10T09:31:22Z INFO  pingora_core::server: Service runtime BG acme exited after 295.21µs
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for service runtime BG health to exit
+2026-11-10T09:31:22Z INFO  pingora_core::server: Service runtime BG health exited after 221.175µs
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for service runtime BG Bootstrap Service to exit
+2026-11-10T09:31:22Z INFO  pingora_core::server: Service runtime BG Bootstrap Service exited after 75.913µs
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for service runtime conduit to exit
+2026-11-10T09:31:22Z INFO  pingora_core::server: Service runtime conduit exited after 1.603866ms
+2026-11-10T09:31:22Z INFO  pingora_core::server: Waiting for service runtime admin to exit
+2026-11-10T09:31:22Z INFO  pingora_core::server: Service runtime admin exited after 161.054µs
+2026-11-10T09:31:22Z INFO  pingora_core::server: All runtimes exited, exiting now

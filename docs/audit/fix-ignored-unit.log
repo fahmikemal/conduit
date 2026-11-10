@@ -1,0 +1,19 @@
+    Finished `test` profile [unoptimized] target(s) in 0.10s
+     Running unittests src/lib.rs (/tmp/conduit-audit-work/target/debug/deps/conduit-a56c1f4b081a0d1e)
+
+running 2 tests
+100008 decisions, 6 range prefixes: 508 ns per lookup (302 hits)
+test crowdsec::tests::lookup_cost ... ok
+  no query (  21 B):   3368 ns
+   typical (  65 B):   8123 ns
+     oauth ( 140 B):   8123 ns
+    attack (  35 B):   3569 ns
+test exploits::tests::cost has been running for over 60 seconds
+  long 4KB (4988 B): 281369 ns
+   ua scan:   1556 ns
+ path scan:    425 ns
+query scan:   3468 ns
+test exploits::tests::cost ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 109 filtered out; finished in 62.06s
+

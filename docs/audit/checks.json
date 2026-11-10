@@ -1,0 +1,238 @@
+{
+  "scope": "static syntax and offline models only; no Rust test executed",
+  "python": [
+    {
+      "path": "scripts/compare.py",
+      "status": "parsed"
+    },
+    {
+      "path": "scripts/parity.py",
+      "status": "parsed"
+    },
+    {
+      "path": "scripts/parity/stub.py",
+      "status": "parsed"
+    },
+    {
+      "path": "scripts/soak/report.py",
+      "status": "parsed"
+    },
+    {
+      "path": "scripts/soak/ws.py",
+      "status": "parsed"
+    }
+  ],
+  "shell": [
+    {
+      "command": [
+        "bash",
+        "-n",
+        "fuzz/run.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/ab.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/bench.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/build-release.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/pgo-train.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/pgo.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/soak/deploy.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "scripts/soak/soak.sh"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "toml": [
+    {
+      "path": "Cargo.toml",
+      "status": "parsed"
+    },
+    {
+      "path": "fuzz/Cargo.toml",
+      "status": "parsed"
+    },
+    {
+      "path": "mise.toml",
+      "status": "parsed"
+    }
+  ],
+  "svg": [
+    {
+      "path": "assets/brand/conduit-app-icon.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-logo-horizontal-ember.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-logo-horizontal-mono.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-logo-horizontal-reverse.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-logo-horizontal.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-logo-stacked-ember.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-logo-stacked-mono.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-logo-stacked-reverse.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-logo-stacked.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-mark-ember.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-mark-mono.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-mark-reverse.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-mark-small-reverse.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-mark-small.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/conduit-mark.svg",
+      "status": "parsed XML"
+    },
+    {
+      "path": "assets/brand/favicon.svg",
+      "status": "parsed XML"
+    }
+  ],
+  "embedded_python": [
+    {
+      "path": "scripts/ab.sh",
+      "start_line": 141,
+      "status": "parsed"
+    },
+    {
+      "path": "scripts/ab.sh",
+      "start_line": 168,
+      "status": "parsed"
+    },
+    {
+      "path": "scripts/bench.sh",
+      "start_line": 198,
+      "status": "parsed"
+    },
+    {
+      "path": "scripts/bench.sh",
+      "start_line": 271,
+      "status": "parsed"
+    }
+  ],
+  "environment": {
+    "cargo": null,
+    "rustc": null,
+    "vendor_manifest_exists": false,
+    "submodule": {
+      "command": [
+        "git",
+        "submodule",
+        "status"
+      ],
+      "exit_code": 0,
+      "stdout": "-5c765c66590bdb7829ad32e00abc6f9a4e0410af vendor/pingora\n",
+      "stderr": ""
+    }
+  },
+  "graph": {
+    "dangling_edges": 0,
+    "duplicate_ids": 0,
+    "empty_source_file_nodes": 444,
+    "confidence": {
+      "EXTRACTED": 5186,
+      "INFERRED": 38
+    }
+  },
+  "offline_demonstrations": {
+    "exit_code": 0,
+    "count": 7,
+    "rust_binary_executed": false
+  }
+}

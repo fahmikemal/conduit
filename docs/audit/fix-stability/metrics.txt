@@ -1,0 +1,345 @@
+# HELP conduit_access_log_dropped_total Access log lines dropped because the writer fell behind
+# TYPE conduit_access_log_dropped_total counter
+conduit_access_log_dropped_total 0
+# HELP conduit_acme_orders_total Certificate orders to the ACME CA by result
+# TYPE conduit_acme_orders_total counter
+conduit_acme_orders_total{result="failure"} 0
+conduit_acme_orders_total{result="success"} 0
+# HELP conduit_backend_ejected 1 while a backend is skipped after consecutive errors on live traffic
+# TYPE conduit_backend_ejected gauge
+conduit_backend_ejected{backend="127.0.0.1:40111",pool="site:websocket"} 0
+conduit_backend_ejected{backend="127.0.0.1:40145",pool="site:cache"} 0
+conduit_backend_ejected{backend="127.0.0.1:40145",pool="site:proxy"} 0
+# HELP conduit_backend_failures_total Connect failures and upstream errors per backend
+# TYPE conduit_backend_failures_total counter
+conduit_backend_failures_total{backend="127.0.0.1:40111",pool="site:websocket"} 0
+conduit_backend_failures_total{backend="127.0.0.1:40145",pool="site:cache"} 0
+conduit_backend_failures_total{backend="127.0.0.1:40145",pool="site:proxy"} 0
+# HELP conduit_backend_requests_in_flight Requests currently using a backend
+# TYPE conduit_backend_requests_in_flight gauge
+conduit_backend_requests_in_flight{backend="127.0.0.1:40111",pool="site:websocket"} 0
+conduit_backend_requests_in_flight{backend="127.0.0.1:40145",pool="site:cache"} 0
+conduit_backend_requests_in_flight{backend="127.0.0.1:40145",pool="site:proxy"} 0
+# HELP conduit_backend_requests_total Requests sent to a backend, retries included
+# TYPE conduit_backend_requests_total counter
+conduit_backend_requests_total{backend="127.0.0.1:40111",pool="site:websocket"} 1238
+conduit_backend_requests_total{backend="127.0.0.1:40145",pool="site:cache"} 1
+conduit_backend_requests_total{backend="127.0.0.1:40145",pool="site:proxy"} 240001
+# HELP conduit_backend_up 1 when a backend passes its active health checks (always 1 without checks)
+# TYPE conduit_backend_up gauge
+conduit_backend_up{backend="127.0.0.1:40111",pool="site:websocket"} 1
+conduit_backend_up{backend="127.0.0.1:40145",pool="site:cache"} 1
+conduit_backend_up{backend="127.0.0.1:40145",pool="site:proxy"} 1
+# HELP conduit_build_info Always 1; the version label tells which build runs
+# TYPE conduit_build_info gauge
+conduit_build_info{version="0.1.0"} 1
+# HELP conduit_cache_evicted_objects Responses dropped to stay within cache.max_size since start (a running total)
+# TYPE conduit_cache_evicted_objects gauge
+conduit_cache_evicted_objects 0
+# HELP conduit_cache_objects Responses held by the response cache
+# TYPE conduit_cache_objects gauge
+conduit_cache_objects 1
+# HELP conduit_cache_requests_total Requests of sites with cache: by result (hit, stale, revalidated, miss, uncacheable, bypass)
+# TYPE conduit_cache_requests_total counter
+conduit_cache_requests_total{result="bypass",site="cache"} 0
+conduit_cache_requests_total{result="hit",site="cache"} 119999
+conduit_cache_requests_total{result="miss",site="cache"} 1
+conduit_cache_requests_total{result="revalidated",site="cache"} 0
+conduit_cache_requests_total{result="stale",site="cache"} 0
+conduit_cache_requests_total{result="uncacheable",site="cache"} 0
+# HELP conduit_cache_size_bytes Bytes held by the response cache, bodies and headers
+# TYPE conduit_cache_size_bytes gauge
+conduit_cache_size_bytes 2835
+# HELP conduit_config_last_reload_success_timestamp_seconds When the running configuration was loaded
+# TYPE conduit_config_last_reload_success_timestamp_seconds gauge
+conduit_config_last_reload_success_timestamp_seconds 1794303055
+# HELP conduit_config_reloads_total Configuration reloads by result
+# TYPE conduit_config_reloads_total counter
+conduit_config_reloads_total{result="success"} 79
+# HELP conduit_crowdsec_appsec_requests_total Requests inspected by CrowdSec AppSec by verdict (error: no verdict)
+# TYPE conduit_crowdsec_appsec_requests_total counter
+conduit_crowdsec_appsec_requests_total{result="allow"} 0
+conduit_crowdsec_appsec_requests_total{result="block"} 0
+conduit_crowdsec_appsec_requests_total{result="error"} 0
+# HELP conduit_crowdsec_blocked_total Requests refused because of a decision (crowdsec) or an AppSec verdict (appsec)
+# TYPE conduit_crowdsec_blocked_total counter
+conduit_crowdsec_blocked_total{by="appsec"} 0
+conduit_crowdsec_blocked_total{by="crowdsec"} 0
+# HELP conduit_crowdsec_decisions CrowdSec decisions held (addresses and ranges)
+# TYPE conduit_crowdsec_decisions gauge
+conduit_crowdsec_decisions 0
+# HELP conduit_crowdsec_last_pull_success_timestamp_seconds When decisions were last pulled successfully
+# TYPE conduit_crowdsec_last_pull_success_timestamp_seconds gauge
+conduit_crowdsec_last_pull_success_timestamp_seconds 0
+# HELP conduit_crowdsec_pulls_total Decision pulls from the CrowdSec local API by result
+# TYPE conduit_crowdsec_pulls_total counter
+conduit_crowdsec_pulls_total{result="failure"} 0
+conduit_crowdsec_pulls_total{result="success"} 0
+# HELP conduit_limit_refused_total Requests refused by rate_limit or concurrency, by site
+# TYPE conduit_limit_refused_total counter
+conduit_limit_refused_total{limit="rate_limit",site="proxy"} 0
+# HELP conduit_request_duration_seconds Time from the request header to the end of the response
+# TYPE conduit_request_duration_seconds histogram
+conduit_request_duration_seconds_bucket{site="-",le="0.0005"} 0
+conduit_request_duration_seconds_bucket{site="-",le="0.001"} 0
+conduit_request_duration_seconds_bucket{site="-",le="0.0025"} 0
+conduit_request_duration_seconds_bucket{site="-",le="0.005"} 0
+conduit_request_duration_seconds_bucket{site="-",le="0.01"} 0
+conduit_request_duration_seconds_bucket{site="-",le="0.025"} 0
+conduit_request_duration_seconds_bucket{site="-",le="0.05"} 0
+conduit_request_duration_seconds_bucket{site="-",le="0.1"} 0
+conduit_request_duration_seconds_bucket{site="-",le="0.25"} 0
+conduit_request_duration_seconds_bucket{site="-",le="0.5"} 0
+conduit_request_duration_seconds_bucket{site="-",le="1"} 0
+conduit_request_duration_seconds_bucket{site="-",le="2.5"} 0
+conduit_request_duration_seconds_bucket{site="-",le="5"} 0
+conduit_request_duration_seconds_bucket{site="-",le="10"} 0
+conduit_request_duration_seconds_bucket{site="-",le="30"} 0
+conduit_request_duration_seconds_bucket{site="-",le="60"} 0
+conduit_request_duration_seconds_bucket{site="-",le="+Inf"} 0
+conduit_request_duration_seconds_sum{site="-"} 0
+conduit_request_duration_seconds_count{site="-"} 0
+conduit_request_duration_seconds_bucket{site="cache",le="0.0005"} 119982
+conduit_request_duration_seconds_bucket{site="cache",le="0.001"} 119990
+conduit_request_duration_seconds_bucket{site="cache",le="0.0025"} 119999
+conduit_request_duration_seconds_bucket{site="cache",le="0.005"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="0.01"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="0.025"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="0.05"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="0.1"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="0.25"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="0.5"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="1"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="2.5"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="5"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="10"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="30"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="60"} 120000
+conduit_request_duration_seconds_bucket{site="cache",le="+Inf"} 120000
+conduit_request_duration_seconds_sum{site="cache"} 7.668504058999956
+conduit_request_duration_seconds_count{site="cache"} 120000
+conduit_request_duration_seconds_bucket{site="files",le="0.0005"} 68389
+conduit_request_duration_seconds_bucket{site="files",le="0.001"} 71974
+conduit_request_duration_seconds_bucket{site="files",le="0.0025"} 71996
+conduit_request_duration_seconds_bucket{site="files",le="0.005"} 71999
+conduit_request_duration_seconds_bucket{site="files",le="0.01"} 72000
+conduit_request_duration_seconds_bucket{site="files",le="0.025"} 72000
+conduit_request_duration_seconds_bucket{site="files",le="0.05"} 72000
+conduit_request_duration_seconds_bucket{site="files",le="0.1"} 72000
+conduit_request_duration_seconds_bucket{site="files",le="0.25"} 72000
+conduit_request_duration_seconds_bucket{site="files",le="0.5"} 72000
+conduit_request_duration_seconds_bucket{site="files",le="1"} 72000
+conduit_request_duration_seconds_bucket{site="files",le="2.5"} 72000
+conduit_request_duration_seconds_bucket{site="files",le="5"} 72000
+conduit_request_duration_seconds_bucket{site="files",le="10"} 72000
+conduit_request_duration_seconds_bucket{site="files",le="30"} 72000
+conduit_request_duration_seconds_bucket{site="files",le="60"} 72000
+conduit_request_duration_seconds_bucket{site="files",le="+Inf"} 72000
+conduit_request_duration_seconds_sum{site="files"} 13.22865285200001
+conduit_request_duration_seconds_count{site="files"} 72000
+conduit_request_duration_seconds_bucket{site="proxy",le="0.0005"} 28863
+conduit_request_duration_seconds_bucket{site="proxy",le="0.001"} 33918
+conduit_request_duration_seconds_bucket{site="proxy",le="0.0025"} 33968
+conduit_request_duration_seconds_bucket{site="proxy",le="0.005"} 33982
+conduit_request_duration_seconds_bucket{site="proxy",le="0.01"} 33982
+conduit_request_duration_seconds_bucket{site="proxy",le="0.025"} 33984
+conduit_request_duration_seconds_bucket{site="proxy",le="0.05"} 239988
+conduit_request_duration_seconds_bucket{site="proxy",le="0.1"} 240001
+conduit_request_duration_seconds_bucket{site="proxy",le="0.25"} 240001
+conduit_request_duration_seconds_bucket{site="proxy",le="0.5"} 240001
+conduit_request_duration_seconds_bucket{site="proxy",le="1"} 240001
+conduit_request_duration_seconds_bucket{site="proxy",le="2.5"} 240001
+conduit_request_duration_seconds_bucket{site="proxy",le="5"} 240001
+conduit_request_duration_seconds_bucket{site="proxy",le="10"} 240001
+conduit_request_duration_seconds_bucket{site="proxy",le="30"} 240001
+conduit_request_duration_seconds_bucket{site="proxy",le="60"} 240001
+conduit_request_duration_seconds_bucket{site="proxy",le="+Inf"} 240001
+conduit_request_duration_seconds_sum{site="proxy"} 8473.602769812072
+conduit_request_duration_seconds_count{site="proxy"} 240001
+conduit_request_duration_seconds_bucket{site="websocket",le="0.0005"} 0
+conduit_request_duration_seconds_bucket{site="websocket",le="0.001"} 133
+conduit_request_duration_seconds_bucket{site="websocket",le="0.0025"} 1059
+conduit_request_duration_seconds_bucket{site="websocket",le="0.005"} 1193
+conduit_request_duration_seconds_bucket{site="websocket",le="0.01"} 1197
+conduit_request_duration_seconds_bucket{site="websocket",le="0.025"} 1198
+conduit_request_duration_seconds_bucket{site="websocket",le="0.05"} 1198
+conduit_request_duration_seconds_bucket{site="websocket",le="0.1"} 1198
+conduit_request_duration_seconds_bucket{site="websocket",le="0.25"} 1198
+conduit_request_duration_seconds_bucket{site="websocket",le="0.5"} 1198
+conduit_request_duration_seconds_bucket{site="websocket",le="1"} 1198
+conduit_request_duration_seconds_bucket{site="websocket",le="2.5"} 1198
+conduit_request_duration_seconds_bucket{site="websocket",le="5"} 1198
+conduit_request_duration_seconds_bucket{site="websocket",le="10"} 1198
+conduit_request_duration_seconds_bucket{site="websocket",le="30"} 1198
+conduit_request_duration_seconds_bucket{site="websocket",le="60"} 1198
+conduit_request_duration_seconds_bucket{site="websocket",le="+Inf"} 1238
+conduit_request_duration_seconds_sum{site="websocket"} 24011.326096206005
+conduit_request_duration_seconds_count{site="websocket"} 1238
+# HELP conduit_requests_in_flight Requests being processed
+# TYPE conduit_requests_in_flight gauge
+conduit_requests_in_flight 0
+# HELP conduit_requests_total Responses sent, by site and status class
+# TYPE conduit_requests_total counter
+conduit_requests_total{code="1xx",site="-"} 0
+conduit_requests_total{code="1xx",site="cache"} 0
+conduit_requests_total{code="1xx",site="files"} 0
+conduit_requests_total{code="1xx",site="proxy"} 0
+conduit_requests_total{code="1xx",site="websocket"} 1238
+conduit_requests_total{code="2xx",site="-"} 0
+conduit_requests_total{code="2xx",site="cache"} 120000
+conduit_requests_total{code="2xx",site="files"} 72000
+conduit_requests_total{code="2xx",site="proxy"} 240001
+conduit_requests_total{code="2xx",site="websocket"} 0
+conduit_requests_total{code="3xx",site="-"} 0
+conduit_requests_total{code="3xx",site="cache"} 0
+conduit_requests_total{code="3xx",site="files"} 0
+conduit_requests_total{code="3xx",site="proxy"} 0
+conduit_requests_total{code="3xx",site="websocket"} 0
+conduit_requests_total{code="4xx",site="-"} 0
+conduit_requests_total{code="4xx",site="cache"} 0
+conduit_requests_total{code="4xx",site="files"} 0
+conduit_requests_total{code="4xx",site="proxy"} 0
+conduit_requests_total{code="4xx",site="websocket"} 0
+conduit_requests_total{code="5xx",site="-"} 0
+conduit_requests_total{code="5xx",site="cache"} 0
+conduit_requests_total{code="5xx",site="files"} 0
+conduit_requests_total{code="5xx",site="proxy"} 0
+conduit_requests_total{code="5xx",site="websocket"} 0
+conduit_requests_total{code="other",site="-"} 0
+conduit_requests_total{code="other",site="cache"} 0
+conduit_requests_total{code="other",site="files"} 0
+conduit_requests_total{code="other",site="proxy"} 0
+conduit_requests_total{code="other",site="websocket"} 0
+# HELP conduit_response_body_bytes_total Response body bytes sent to clients
+# TYPE conduit_response_body_bytes_total counter
+conduit_response_body_bytes_total{site="-"} 0
+conduit_response_body_bytes_total{site="cache"} 288000000
+conduit_response_body_bytes_total{site="files"} 176052000
+conduit_response_body_bytes_total{site="proxy"} 576002400
+conduit_response_body_bytes_total{site="websocket"} 1112747
+# HELP conduit_tls_certificate_expiry_timestamp_seconds notAfter of each configured certificate
+# TYPE conduit_tls_certificate_expiry_timestamp_seconds gauge
+conduit_tls_certificate_expiry_timestamp_seconds{name="active"} 1794388864
+# HELP conduit_upstream_header_duration_seconds Time from choosing a backend to receiving its response header
+# TYPE conduit_upstream_header_duration_seconds histogram
+conduit_upstream_header_duration_seconds_bucket{site="-",le="0.0005"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="0.001"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="0.0025"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="0.005"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="0.01"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="0.025"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="0.05"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="0.1"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="0.25"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="0.5"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="1"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="2.5"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="5"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="10"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="30"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="60"} 0
+conduit_upstream_header_duration_seconds_bucket{site="-",le="+Inf"} 0
+conduit_upstream_header_duration_seconds_sum{site="-"} 0
+conduit_upstream_header_duration_seconds_count{site="-"} 0
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="0.0005"} 0
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="0.001"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="0.0025"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="0.005"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="0.01"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="0.025"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="0.05"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="0.1"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="0.25"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="0.5"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="1"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="2.5"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="5"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="10"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="30"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="60"} 1
+conduit_upstream_header_duration_seconds_bucket{site="cache",le="+Inf"} 1
+conduit_upstream_header_duration_seconds_sum{site="cache"} 0.000584251
+conduit_upstream_header_duration_seconds_count{site="cache"} 1
+conduit_upstream_header_duration_seconds_bucket{site="files",le="0.0005"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="0.001"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="0.0025"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="0.005"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="0.01"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="0.025"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="0.05"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="0.1"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="0.25"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="0.5"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="1"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="2.5"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="5"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="10"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="30"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="60"} 0
+conduit_upstream_header_duration_seconds_bucket{site="files",le="+Inf"} 0
+conduit_upstream_header_duration_seconds_sum{site="files"} 0
+conduit_upstream_header_duration_seconds_count{site="files"} 0
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="0.0005"} 231782
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="0.001"} 239723
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="0.0025"} 239939
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="0.005"} 239983
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="0.01"} 239985
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="0.025"} 239989
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="0.05"} 240001
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="0.1"} 240001
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="0.25"} 240001
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="0.5"} 240001
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="1"} 240001
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="2.5"} 240001
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="5"} 240001
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="10"} 240001
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="30"} 240001
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="60"} 240001
+conduit_upstream_header_duration_seconds_bucket{site="proxy",le="+Inf"} 240001
+conduit_upstream_header_duration_seconds_sum{site="proxy"} 66.40610252700083
+conduit_upstream_header_duration_seconds_count{site="proxy"} 240001
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="0.0005"} 721
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="0.001"} 1121
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="0.0025"} 1218
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="0.005"} 1233
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="0.01"} 1238
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="0.025"} 1238
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="0.05"} 1238
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="0.1"} 1238
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="0.25"} 1238
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="0.5"} 1238
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="1"} 1238
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="2.5"} 1238
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="5"} 1238
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="10"} 1238
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="30"} 1238
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="60"} 1238
+conduit_upstream_header_duration_seconds_bucket{site="websocket",le="+Inf"} 1238
+conduit_upstream_header_duration_seconds_sum{site="websocket"} 0.7771369070000014
+conduit_upstream_header_duration_seconds_count{site="websocket"} 1238
+# HELP conduit_upstream_retries_total Requests sent to another backend after a connect failure
+# TYPE conduit_upstream_retries_total counter
+conduit_upstream_retries_total{pool="site:cache"} 0
+conduit_upstream_retries_total{pool="site:proxy"} 0
+conduit_upstream_retries_total{pool="site:websocket"} 0
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 72
+# HELP process_max_fds Maximum number of open file descriptors.
+# TYPE process_max_fds gauge
+process_max_fds 4096
+# HELP process_open_fds Number of open file descriptors.
+# TYPE process_open_fds gauge
+process_open_fds 84
+# HELP process_resident_memory_bytes Resident memory size in bytes.
+# TYPE process_resident_memory_bytes gauge
+process_resident_memory_bytes 37421056
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1794302464
+# HELP process_threads Number of OS threads in the process.
+# TYPE process_threads gauge
+process_threads 14
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 1884229632

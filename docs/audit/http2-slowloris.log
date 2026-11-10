@@ -1,0 +1,14 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
+    Finished `test` profile [unoptimized] target(s) in 0.36s
+     Running tests/e2e.rs (/tmp/conduit-audit-work/target/debug/deps/e2e-e6e7dbcaa1b7f1cb)
+
+running 1 test
+test slow_request_head_is_cut_off has been running for over 60 seconds
+test slow_request_head_is_cut_off ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 33 filtered out; finished in 62.06s
+

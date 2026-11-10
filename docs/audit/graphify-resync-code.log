@@ -1,0 +1,8 @@
+Updating code graph in . (no LLM needed)...
+[graphify watch] 13 file(s) not classified (no supported extension or shebang), skipped: .dockerignore, .gitattributes, .gitignore, .gitmodules, .graphifyignore, Dockerfile (+7 more)
+  AST cache: 0/64 files served from cache (0%); 64 to extract
+  warning: 10 code file(s) yielded no symbols (0.01 MB) — a data file, or source this extractor models no symbols for: Cargo.toml, fuzz/Cargo.toml, fuzz/fuzz_targets/access_log.rs, fuzz/fuzz_targets/block_exploits.rs, fuzz/fuzz_targets/body_replace.rs (+5 more)
+[graphify watch] Rebuilt: 2410 nodes, 5617 edges, 135 communities
+[graphify watch] graph.json, graph.html and GRAPH_REPORT.md updated in graphify-out
+Code graph updated. For doc/paper/image changes run /graphify --update in your AI assistant.
+Tip: set GEMINI_API_KEY or GOOGLE_API_KEY to use Gemini for semantic extraction.

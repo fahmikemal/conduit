@@ -1,0 +1,10 @@
+{"variant": "before", "scenario": "https", "round": 1, "rps": 53178.04423609016, "p99_ms": 2.6226629999999997, "cpu_ms_per_1k": 30.93333333333333, "errors": 0}
+{"variant": "after", "scenario": "https", "round": 1, "rps": 59437.40661588445, "p99_ms": 1.882605, "cpu_ms_per_1k": 27.66666666666667, "errors": 0}
+{"variant": "after", "scenario": "https", "round": 2, "rps": 60237.608717383366, "p99_ms": 1.781941, "cpu_ms_per_1k": 27.466666666666665, "errors": 0}
+{"variant": "before", "scenario": "https", "round": 2, "rps": 59906.29431085127, "p99_ms": 1.946226, "cpu_ms_per_1k": 27.53333333333333, "errors": 0}
+{"variant": "before", "scenario": "https", "round": 3, "rps": 56688.663446548264, "p99_ms": 2.022458, "cpu_ms_per_1k": 29.2, "errors": 0}
+{"variant": "after", "scenario": "https", "round": 3, "rps": 62468.4787179813, "p99_ms": 2.10145, "cpu_ms_per_1k": 26.333333333333336, "errors": 0}
+{"variant": "after", "scenario": "https", "round": 4, "rps": 59141.86457981385, "p99_ms": 1.947872, "cpu_ms_per_1k": 27.933333333333337, "errors": 0}
+{"variant": "before", "scenario": "https", "round": 4, "rps": 53303.80342423804, "p99_ms": 2.4450779999999996, "cpu_ms_per_1k": 30.93333333333333, "errors": 0}
+{"variant": "before", "scenario": "https", "round": 5, "rps": 56599.970066917165, "p99_ms": 2.1324, "cpu_ms_per_1k": 28.866666666666667, "errors": 0}
+{"variant": "after", "scenario": "https", "round": 5, "rps": 61210.31146409543, "p99_ms": 1.766826, "cpu_ms_per_1k": 27.0, "errors": 0}

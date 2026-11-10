@@ -1,0 +1,16 @@
+Graph: graphify-out/graph.json (2428 nodes) | Traversal: BFS depth=1 | Start (given): ['normalize_decoded()'] | 6 nodes found
+
+NODE normalize_decoded() [src=src/pathnorm.rs loc=L58 community=Request Path Normalization]
+NODE .find() [src=src/files.rs loc=L320 community=Static File Lookup and Listings]
+NODE normalize() [src=src/pathnorm.rs loc=L51 community=Request Path Normalization]
+NODE pathnorm.rs [src=src/pathnorm.rs loc=L1 community=Request Path Normalization]
+NODE PathError [src=src/pathnorm.rs loc=L7 community=Request Path Normalization]
+NODE F01: Single percent decoding policy and file lookup [src=docs/audit/FIX_VALIDATION.md loc=L11 community=Fix Validation and Regressions]
+EDGE .find() --calls [EXTRACTED context=call]--> normalize_decoded() at=src/files.rs:L340
+EDGE normalize() --calls [EXTRACTED context=call]--> normalize_decoded() at=src/pathnorm.rs:L53
+EDGE normalize_decoded() --references [EXTRACTED context=generic_arg]--> PathError at=src/pathnorm.rs:L58
+EDGE pathnorm.rs --contains [EXTRACTED]--> normalize_decoded() at=src/pathnorm.rs:L58
+EDGE F01: Single percent decoding policy and file lookup --references [EXTRACTED]--> normalize_decoded() at=docs/audit/FIX_VALIDATION.md:L11
+EDGE pathnorm.rs --contains [EXTRACTED]--> normalize() at=src/pathnorm.rs:L51
+EDGE pathnorm.rs --contains [EXTRACTED]--> PathError at=src/pathnorm.rs:L7
+EDGE normalize() --references [EXTRACTED context=generic_arg]--> PathError at=src/pathnorm.rs:L51

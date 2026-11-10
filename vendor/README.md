@@ -299,6 +299,15 @@ Other unreleased upstream fixes to bring along when moving to the next release:
 - `1adcb38`: a panic on a backend with weight 0. conduit already refuses weight 0 when loading the
   config.
 
-Open issues that do not affect conduit: #1024 (an HTTP/2 upstream pool leak; conduit only speaks
-HTTP/1 to upstreams). The zstd advisories (RUSTSEC-2026-0395/0402/0403) are already covered:
+HTTP/2 upstream support requires the local backport in
+[`pingora-h2-reuse.patch`](pingora-h2-reuse.patch), from
+[upstream PR #1025](https://github.com/cloudflare/pingora/pull/1025), addressing
+[issue #1024](https://github.com/cloudflare/pingora/issues/1024). The reuse path now takes
+`release_lock` and removes any existing entry before reinserting a connection, preventing
+duplicate `InUsePool` entries that would keep idle sockets open. The patch includes the
+upstream deterministic race test. Run `scripts/prepare-vendor.sh` after initializing or
+resetting the submodule; Docker and mise build/test entry points run it automatically.
+This is a checked-in patch over the pinned fork, not a dependency version upgrade.
+
+The zstd advisories (RUSTSEC-2026-0395/0402/0403) are already covered:
 `Cargo.lock` uses `zstd` 0.14.3 and `zstd-safe` 8.2.0.

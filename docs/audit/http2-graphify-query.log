@@ -1,0 +1,16 @@
+Graph: graphify-out/graph.json (2521 nodes) | Traversal: BFS depth=1 | Start (given): ['.peer()'] | 7 nodes found
+
+NODE .peer() [src=src/upstream.rs loc=L68 community=HTTP2 Pool Protocol Selection]
+NODE Target [src=src/upstream.rs loc=L45 community=Upstream Passive Ejection]
+NODE .run() [src=src/upstream.rs loc=L607 community=Health Probes]
+NODE Protocol isolation and HTTP/2 health checks [src=docs/configuration.md loc=L409 community=HTTP2 Pool Protocol Selection]
+NODE HTTP/2 connection stream limit [src=docs/configuration.md loc=L370 community=HTTP2 Pool Protocol Selection]
+NODE Cleartext HTTP/2 prior knowledge [src=docs/configuration.md loc=L405 community=HTTP2 Pool Protocol Selection]
+NODE HttpPeer [src= loc= community=HTTP2 Pool Protocol Selection]
+EDGE .run() --calls [EXTRACTED context=call]--> .peer() at=src/upstream.rs:L608
+EDGE .peer() --references [EXTRACTED context=return_type]--> HttpPeer at=src/upstream.rs:L68
+EDGE Target --method [EXTRACTED]--> .peer() at=src/upstream.rs:L68
+EDGE Protocol isolation and HTTP/2 health checks --conceptually_related_to [INFERRED]--> .peer() at=docs/configuration.md:L409
+EDGE HTTP/2 connection stream limit --conceptually_related_to [INFERRED]--> .peer() at=docs/configuration.md:L370
+EDGE Cleartext HTTP/2 prior knowledge --conceptually_related_to [INFERRED]--> .peer() at=docs/configuration.md:L405
+EDGE .run() --references [EXTRACTED context=parameter_type]--> Target at=src/upstream.rs:L607

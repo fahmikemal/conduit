@@ -150,6 +150,10 @@ upstreams:
       fall: 3                       # consecutive failures to go out
     # verify_tls: true              # for https:// backends
     # sni: app.internal             # default: the URL's host
+    # http_version: "1.1"          # "1.1" (default), "2" (required), auto (TLS ALPN)
+    # http2_max_streams: 128        # concurrent streams per upstream H2 connection
+    # For internal gRPC: backends: [h2c://127.0.0.1:50051], or http_version: "2"
+    # with http:// URLs. h2c:// implies required H2; auto uses H1 on plain HTTP.
 
   sessions:
     backends: [http://10.0.0.30:8080, http://10.0.0.31:8080, http://10.0.0.32:8080]

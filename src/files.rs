@@ -9,7 +9,7 @@
 //! Disk work runs on Tokio's blocking pool: one hop opens, stats and, for files up to one
 //! chunk, reads; larger files are read a chunk per hop while the previous chunk is written.
 
-use std::ffi::{CString, OsStr};
+use std::ffi::CString;
 use std::fs::{File, OpenOptions};
 use std::io;
 use std::os::fd::{AsRawFd, FromRawFd, RawFd};
@@ -337,7 +337,7 @@ impl Files {
         };
         for c in candidates {
             let expanded = c.expand(path);
-            let Ok(target) = pathnorm::normalize(&expanded) else {
+            let Ok(target) = pathnorm::normalize_decoded(&expanded) else {
                 continue;
             };
             if self.hidden(&target) {
@@ -390,7 +390,7 @@ impl Files {
                     }
                 }
                 if self.browse {
-                    return listing(&self.root, &target, &req.path, |name| {
+                    return listing(file, &req.path, |name| {
                         name.first() == Some(&b'.') || self.hide.iter().any(|h| h.hides(name))
                     });
                 }
@@ -620,7 +620,7 @@ fn open_beneath(root: &Path, rel: &[u8]) -> io::Result<File> {
         match e.raw_os_error() {
             Some(libc::ENOSYS | libc::EPERM) => {
                 log::warn!(
-                    "files: openat2 unavailable ({e}); checking paths with realpath instead"
+                    "files: openat2 unavailable ({e}); using descriptor traversal without symlinks"
                 );
                 NO_OPENAT2.store(true, Relaxed);
             }
@@ -629,14 +629,39 @@ fn open_beneath(root: &Path, rel: &[u8]) -> io::Result<File> {
             _ => return Err(e),
         }
     }
-    let real = std::fs::canonicalize(root.join(OsStr::from_bytes(rel)))?;
-    if !real.starts_with(std::fs::canonicalize(root)?) {
-        return Err(io::ErrorKind::NotFound.into());
-    }
-    OpenOptions::new()
+    // Pin each parent directory and never follow a symlink on the fallback path. A
+    // realpath check followed by open would let a replacement invalidate the check.
+    let mut dir = OpenOptions::new()
         .read(true)
-        .custom_flags(libc::O_NONBLOCK | libc::O_NOCTTY)
-        .open(real)
+        .custom_flags(libc::O_PATH | libc::O_DIRECTORY)
+        .open(root)?;
+    let mut parts = rel
+        .split(|b| *b == b'/')
+        .filter(|p| !p.is_empty())
+        .peekable();
+    while let Some(part) = parts.next() {
+        if part == b".." {
+            return Err(io::ErrorKind::NotFound.into());
+        }
+        let name = CString::new(part).map_err(|_| io::Error::from(io::ErrorKind::NotFound))?;
+        let last = parts.peek().is_none();
+        let flags = if last {
+            flags
+        } else {
+            libc::O_PATH | libc::O_DIRECTORY | libc::O_CLOEXEC
+        };
+        // SAFETY: dir owns a live fd, name is NUL terminated, and openat returns a new fd.
+        let fd = unsafe { libc::openat(dir.as_raw_fd(), name.as_ptr(), flags | libc::O_NOFOLLOW) };
+        if fd < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        let file = unsafe { File::from_raw_fd(fd) };
+        if last {
+            return Ok(file);
+        }
+        dir = file;
+    }
+    Err(io::ErrorKind::NotFound.into())
 }
 
 fn content_type(path: &[u8]) -> HeaderValue {
@@ -954,9 +979,10 @@ fn human_size(n: u64) -> String {
 }
 
 /// An HTML index of a directory without an index file.
-fn listing(root: &Path, dir: &[u8], shown: &[u8], hidden: impl Fn(&[u8]) -> bool) -> Found {
-    let rel = dir.strip_prefix(b"/").unwrap_or(dir);
-    let path = root.join(OsStr::from_bytes(rel));
+fn listing(dir: File, shown: &[u8], hidden: impl Fn(&[u8]) -> bool) -> Found {
+    // Keep the already verified directory open: reopening its original name could follow
+    // a replacement symlink. procfs exposes this exact owned descriptor on Linux.
+    let path = PathBuf::from(format!("/proc/self/fd/{}", dir.as_raw_fd()));
     let rd = match std::fs::read_dir(&path) {
         Ok(rd) => rd,
         Err(e) if e.kind() == io::ErrorKind::PermissionDenied => return Found::Status(403),
@@ -968,9 +994,13 @@ fn listing(root: &Path, dir: &[u8], shown: &[u8], hidden: impl Fn(&[u8]) -> bool
         if hidden(&name) {
             continue;
         }
-        let Ok(meta) = std::fs::metadata(entry.path()) else {
+        // DirEntry::metadata does not follow symlinks. Do not expose target metadata.
+        let Ok(meta) = entry.metadata() else {
             continue;
         };
+        if !meta.is_file() && !meta.is_dir() {
+            continue;
+        }
         entries.push((meta.is_dir(), name, meta.len(), meta.mtime().max(0) as u64));
     }
     entries.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.cmp(&b.1)));

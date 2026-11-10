@@ -1,0 +1,20 @@
+   Compiling conduit v0.1.0 (/tmp/conduit-audit-work)
+    Finished `test` profile [unoptimized] target(s) in 0.75s
+     Running tests/audit_recheck.rs (/tmp/conduit-audit-work/target/debug/deps/audit_recheck-f52b2ee3da64e9ec)
+
+running 4 tests
+test audit_recheck_f05_duration_overflow ... 
+thread 'audit_recheck_f05_duration_overflow' (54307) panicked at src/units.rs:41:36:
+attempt to multiply with overflow
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+F05: production parse_duration panics on overflowing input; ordinary control = 3600s
+ok
+test audit_recheck_f07_rate_admission_race ... F07: observed (0, 4) (trial, accepted) for configured 1/3600s; no test hook inside production code
+ok
+test audit_recheck_f08_wildcard_coverage_warning ... F08: actual runtime warning is ["site \"wild\": no certificate covers *.example.test"], although the wildcard certificate is selected for app.example.test
+ok
+test audit_recheck_f09_variance_collision ... F09: actual variance collides for deflate/identity; gzip control differs
+ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

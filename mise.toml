@@ -6,26 +6,27 @@ oha = "1.16.0"
 
 [tasks.test]
 description = "Run unit and integration tests"
-run = "cargo test --all-targets"
+run = "bash scripts/prepare-vendor.sh && cargo test --all-targets"
 
 [tasks.test-acme]
 description = "ACME end to end against Pebble, Let's Encrypt's test CA (needs docker)"
-run = "cargo test --test e2e acme_with_pebble -- --ignored --nocapture"
+run = "bash scripts/prepare-vendor.sh && cargo test --test e2e acme_with_pebble -- --ignored --nocapture"
 
 [tasks.test-crowdsec]
 description = "CrowdSec bouncer, AppSec and the access log parser against a real CrowdSec (needs docker)"
-run = "cargo test --test e2e crowdsec_bouncer_and_appsec -- --ignored --nocapture"
+run = "bash scripts/prepare-vendor.sh && cargo test --test e2e crowdsec_bouncer_and_appsec -- --ignored --nocapture"
 
 [tasks.lint]
 description = "Format check and clippy"
 run = """
+  bash scripts/prepare-vendor.sh
   cargo fmt --all --check
   cargo clippy --all-targets -- -D warnings
 """
 
 [tasks.bench]
 description = "conduit vs nginx (tuned, and without upstream keep-alive) on 2 CPUs, with a regression gate (needs docker)"
-run = "cargo build --release && scripts/bench.sh"
+run = "bash scripts/prepare-vendor.sh && cargo build --release && scripts/bench.sh"
 
 [tasks.compare]
 description = "dist/conduit vs nginx, Caddy, Apache, HAProxy, Traefik and Envoy on 2 CPUs (needs docker)"

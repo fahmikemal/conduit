@@ -12,6 +12,7 @@
 # Environment: LLVM_PROFDATA, PGO_SCALE and PGO_PORT_BASE (passed to pgo-train.sh).
 set -euo pipefail
 cd "$(dirname "$0")/.."
+bash scripts/prepare-vendor.sh
 
 out=target/pgo/conduit
 case "${1:-}" in

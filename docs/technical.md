@@ -26,6 +26,10 @@ exploit payloads). All of it is tested locally; the production rollout began in 
 - Routing by host (exact and `*.domain`); one site can have many hosts.
 - TLS with certificate selection per SNI (site override → exact SAN → wildcard → default),
   HTTP/2 to clients, certificates reloaded when their files change.
+- Upstream pools default to HTTP/1.1 and can select required HTTP/2, TLS auto negotiation,
+  or cleartext HTTP/2 prior knowledge (`h2c://`). HTTP/2 connections multiplex streams;
+  gRPC streaming and response trailers are forwarded. See the configuration reference for
+  `http_version` and `http2_max_streams`.
 - Force HTTPS, HSTS, body size limits, timeouts per site, a default page for unknown hosts, an
   ACME webroot.
 - HTTP/1.1 clients that sit idle between requests are disconnected after `keepalive_timeout`
@@ -163,8 +167,9 @@ bouncer
   (`["{path}", "/index.html"]`), `browse` for directory listings (HTML, escaped, at most 10,000
   entries), `hide` for names that must never be served.
 - Nothing outside `root` can be served: files are opened with `openat2(RESOLVE_BENEATH)`, so the
-  kernel refuses symlinks that lead outside the root; the fallback for old kernels canonicalizes and
-  checks the prefix (it logs `files: openat2 unavailable`). systemd's `RestrictSUIDSGID=yes` makes
+  kernel refuses symlinks that lead outside the root; the fallback walks pinned directory
+  descriptors with `O_NOFOLLOW` and rejects all symlinks, including in-root links (it logs
+  `files: openat2 unavailable`). systemd's `RestrictSUIDSGID=yes` makes
   openat2 fail with ENOSYS, so the unit in `deploy/` leaves it out. Dotfiles are hidden except
   `.well-known`. `..` above the root is refused during normalization (400). Only regular files are
   served, not FIFOs or devices (opened with `O_NONBLOCK`, so they cannot hang a thread).

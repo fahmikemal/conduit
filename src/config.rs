@@ -660,7 +660,7 @@ impl<'de> Deserialize<'de> for UpstreamRef {
 #[derive(Debug, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct PoolConfig {
-    /// `http://host:port` or `https://host:port`, or `{ url: ..., weight: 3 }`. A host name
+    /// `http://`, `https://` or `h2c://host:port`, or `{ url: ..., weight: 3 }`. A host name
     /// becomes one backend per address it resolves to.
     pub backends: Vec<BackendConfig>,
     #[serde(default)]
@@ -682,6 +682,12 @@ pub struct PoolConfig {
     /// SNI and certificate name for `https://` backends; defaults to the URL's host.
     #[serde(default)]
     pub sni: Option<String>,
+    /// Upstream protocol: 1.1 (default), 2 (required), or auto (TLS negotiation).
+    #[serde(default)]
+    pub http_version: Option<UpstreamHttpVersion>,
+    /// Concurrent streams allowed on one HTTP/2 upstream connection.
+    #[serde(default = "default_h2_streams")]
+    pub http2_max_streams: usize,
 }
 
 impl PoolConfig {
@@ -695,7 +701,70 @@ impl PoolConfig {
             retries: 1,
             verify_tls: true,
             sni: None,
+            http_version: None,
+            http2_max_streams: default_h2_streams(),
         }
+    }
+}
+
+fn default_h2_streams() -> usize {
+    128
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
+pub enum UpstreamHttpVersion {
+    #[default]
+    Http1,
+    Http2,
+    Auto,
+}
+
+impl UpstreamHttpVersion {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Http1 => "1.1",
+            Self::Http2 => "2",
+            Self::Auto => "auto",
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for UpstreamHttpVersion {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        struct V;
+        impl<'de> Visitor<'de> for V {
+            type Value = UpstreamHttpVersion;
+
+            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                f.write_str("upstream HTTP version 1.1, 2, or auto")
+            }
+
+            fn visit_str<E: de::Error>(self, s: &str) -> Result<Self::Value, E> {
+                match s {
+                    "1.1" => Ok(UpstreamHttpVersion::Http1),
+                    "2" => Ok(UpstreamHttpVersion::Http2),
+                    "auto" => Ok(UpstreamHttpVersion::Auto),
+                    _ => Err(E::custom("http_version must be 1.1, 2, or auto")),
+                }
+            }
+
+            fn visit_u64<E: de::Error>(self, n: u64) -> Result<Self::Value, E> {
+                if n == 2 {
+                    Ok(UpstreamHttpVersion::Http2)
+                } else {
+                    Err(E::custom("http_version must be 1.1, 2, or auto"))
+                }
+            }
+
+            fn visit_f64<E: de::Error>(self, n: f64) -> Result<Self::Value, E> {
+                if n == 1.1 {
+                    Ok(UpstreamHttpVersion::Http1)
+                } else {
+                    Err(E::custom("http_version must be 1.1, 2, or auto"))
+                }
+            }
+        }
+        d.deserialize_any(V)
     }
 }
 

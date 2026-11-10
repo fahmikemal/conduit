@@ -1025,9 +1025,26 @@ impl ProxyHttp for Conduit {
         }
         ctx.attempts += 1;
         let t = lease.target();
-        let mut peer = HttpPeer::new(t.addr, t.tls, t.sni.clone());
+        let upgrading = forwards_upgrade(site.upgrade, session);
+        if upgrading && t.http_version == crate::config::UpstreamHttpVersion::Http2 {
+            return Err(Error::explain(
+                ErrorType::HTTPStatus(400),
+                "HTTP/1 upgrades require http_version: 1.1 or auto",
+            ));
+        }
+        let mut peer = t.peer();
+        if upgrading {
+            peer.options.set_http_version(1, 1);
+            peer.options.max_h2_streams = 1;
+            // Keep upgrade connections separate from ordinary auto-negotiated H2 sessions.
+            if t.http_version == crate::config::UpstreamHttpVersion::Auto {
+                peer.group_key = 3;
+            }
+        }
         if self.shared.pool_per_worker {
-            peer.group_key = worker_pool_group();
+            // Preserve the original worker keys (and pool shard placement) for default H1.
+            // Reserve the top two bits for protocol/upgrade isolation instead.
+            peer.group_key = (peer.group_key << 62) | worker_pool_group();
         }
         let o = &mut peer.options;
         o.connection_timeout = Some(site.connect_timeout);
@@ -1039,7 +1056,7 @@ impl ProxyHttp for Conduit {
             UpgradeMode::Any => H1UpgradePolicy::Preserve,
             UpgradeMode::Off => H1UpgradePolicy::Deny,
         };
-        if forwards_upgrade(site.upgrade, session) {
+        if upgrading {
             // Once upgraded, each side's read timeout is the connection's idle limit: every
             // byte in either direction restarts both. Pingora's own default for the client
             // side is a fixed 60s.
@@ -1097,6 +1114,18 @@ impl ProxyHttp for Conduit {
         up: &mut RequestHeader,
         ctx: &mut Ctx,
     ) -> Result<()> {
+        // A TLS server can omit ALPN even when only h2 was offered. Pingora then creates
+        // an H1 session; enforce required H2 before any application request is written.
+        if up.version != http::Version::HTTP_2
+            && ctx.lease.as_ref().is_some_and(|lease| {
+                lease.target().http_version == crate::config::UpstreamHttpVersion::Http2
+            })
+        {
+            return Err(Error::explain(
+                ErrorType::HTTPStatus(502),
+                "upstream did not negotiate HTTP/2",
+            ));
+        }
         if session.is_upgrade_req()
             && ctx
                 .site
@@ -1350,6 +1379,13 @@ impl ProxyHttp for Conduit {
         // The same goes for an X-Forwarded-Host a trusted proxy passes on: upstreams build
         // links from it, and a client could otherwise poison the entry everyone gets.
         let mut identity: Vec<&[u8]> = Vec::new();
+        // Routing strips the port, but the origin receives the original authority in
+        // Host / X-Forwarded-Host. Preserve that input in the cache identity as well.
+        if let Some(host) = req.headers.get(header::HOST) {
+            identity.extend([b"\0authority".as_slice(), host.as_bytes()]);
+        } else if let Some(authority) = req.uri.authority() {
+            identity.extend([b"\0authority".as_slice(), authority.as_str().as_bytes()]);
+        }
         for (name, value) in &ctx.upstream_edits {
             identity.push(name.as_str().as_bytes());
             identity.push(value.as_ref().map_or(b"", |v| v.as_bytes()));

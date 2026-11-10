@@ -8,3 +8,18 @@ fuzz/seeds/
 # Brand artwork (logos and icons): images with nothing to extract.
 assets/**/*.svg
 assets/**/*.png
+# Audit snapshots, raw results and historical reports duplicate source or pre-fix state.
+# Keep FIX_VALIDATION.md and the executable Python audit harnesses in the current graph.
+docs/audit/SOURCE.html
+docs/audit/INVENTORY.md
+docs/audit/README.md
+docs/audit/FINDINGS.md
+docs/audit/RECHECK.md
+docs/audit/WALKTHROUGH.md
+docs/audit/*.json
+docs/audit/*.jsonl
+docs/audit/*.log
+docs/audit/fix-stability/
+docs/audit/*_snapshot.rs
+docs/audit/recheck_fallback.rs
+docs/audit/recheck_native.rs

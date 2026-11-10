@@ -1,0 +1,229 @@
+{
+  "version": "conduit 0.1.0",
+  "results": {
+    "F01": {
+      "responses": [
+        {
+          "status": 403,
+          "headers": {
+            "content-type": "text/html",
+            "content-length": "148",
+            "x-request-id": "66e119df0000000000000000",
+            "date": "Tue, 10 Nov 2026 11:01:38 GMT",
+            "connection": "close"
+          },
+          "body_hex": "3c68746d6c3e0d0a3c686561643e3c7469746c653e34303320466f7262696464656e3c2f7469746c653e3c2f686561643e0d0a3c626f64793e0d0a3c63656e7465723e3c68313e34303320466f7262696464656e3c2f68313e3c2f63656e7465723e0d0a3c68723e3c63656e7465723e636f6e647569743c2f63656e7465723e0d0a3c2f626f64793e0d0a3c2f68746d6c3e0d0a",
+          "body_text": "<html>\r\n<head><title>403 Forbidden</title></head>\r\n<body>\r\n<center><h1>403 Forbidden</h1></center>\r\n<hr><center>conduit</center>\r\n</body>\r\n</html>\r\n"
+        },
+        {
+          "status": 403,
+          "headers": {
+            "content-type": "text/html",
+            "content-length": "148",
+            "x-request-id": "66e119df0000000000000001",
+            "date": "Tue, 10 Nov 2026 11:01:38 GMT",
+            "connection": "close"
+          },
+          "body_hex": "3c68746d6c3e0d0a3c686561643e3c7469746c653e34303320466f7262696464656e3c2f7469746c653e3c2f686561643e0d0a3c626f64793e0d0a3c63656e7465723e3c68313e34303320466f7262696464656e3c2f68313e3c2f63656e7465723e0d0a3c68723e3c63656e7465723e636f6e647569743c2f63656e7465723e0d0a3c2f626f64793e0d0a3c2f68746d6c3e0d0a",
+          "body_text": "<html>\r\n<head><title>403 Forbidden</title></head>\r\n<body>\r\n<center><h1>403 Forbidden</h1></center>\r\n<hr><center>conduit</center>\r\n</body>\r\n</html>\r\n"
+        },
+        {
+          "status": 404,
+          "headers": {
+            "content-type": "text/html",
+            "content-length": "148",
+            "x-request-id": "66e119df0000000000001000",
+            "date": "Tue, 10 Nov 2026 11:01:38 GMT",
+            "connection": "close"
+          },
+          "body_hex": "3c68746d6c3e0d0a3c686561643e3c7469746c653e343034204e6f7420466f756e643c2f7469746c653e3c2f686561643e0d0a3c626f64793e0d0a3c63656e7465723e3c68313e343034204e6f7420466f756e643c2f68313e3c2f63656e7465723e0d0a3c68723e3c63656e7465723e636f6e647569743c2f63656e7465723e0d0a3c2f626f64793e0d0a3c2f68746d6c3e0d0a",
+          "body_text": "<html>\r\n<head><title>404 Not Found</title></head>\r\n<body>\r\n<center><h1>404 Not Found</h1></center>\r\n<hr><center>conduit</center>\r\n</body>\r\n</html>\r\n"
+        }
+      ],
+      "passed": true,
+      "classification": "closed"
+    },
+    "F03": {
+      "first": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "53",
+          "cache-control": "public, max-age=600",
+          "accept-ranges": "bytes",
+          "x-request-id": "66e119df0000000000001001",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 11:01:38 GMT",
+          "connection": "close"
+        },
+        "body_hex": "7b22686f7374223a202263616368652e746573743a38303830222c2022786668223a202263616368652e746573743a38303830227d",
+        "body_text": "{\"host\": \"cache.test:8080\", \"xfh\": \"cache.test:8080\"}"
+      },
+      "second": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "53",
+          "cache-control": "public, max-age=600",
+          "accept-ranges": "bytes",
+          "x-request-id": "66e119df0000000000002000",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 11:01:38 GMT",
+          "connection": "close"
+        },
+        "body_hex": "7b22686f7374223a202263616368652e746573743a39303930222c2022786668223a202263616368652e746573743a39303930227d",
+        "body_text": "{\"host\": \"cache.test:9090\", \"xfh\": \"cache.test:9090\"}"
+      },
+      "uncached_control": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "53",
+          "cache-control": "public, max-age=600",
+          "accept-ranges": "bytes",
+          "x-request-id": "66e119df0000000000001002",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 11:01:38 GMT",
+          "connection": "close"
+        },
+        "body_hex": "7b22686f7374223a202263616368652e746573743a39303930222c2022786668223a202263616368652e746573743a39303930227d",
+        "body_text": "{\"host\": \"cache.test:9090\", \"xfh\": \"cache.test:9090\"}"
+      },
+      "passed": true,
+      "classification": "closed"
+    },
+    "F09": {
+      "first": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "22",
+          "cache-control": "public, max-age=600",
+          "vary": "Accept-Encoding",
+          "content-encoding": "deflate",
+          "accept-ranges": "bytes",
+          "x-request-id": "66e119df0000000000001003",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 11:01:39 GMT",
+          "connection": "close"
+        },
+        "body_hex": "789c4b494dcb492c49d5cd2fca4ccfcc03002941058b",
+        "body_text": "x\ufffdKIM\ufffdI,I\ufffd\ufffd/\ufffdL\ufffd\ufffd\u0003\u0000)A\u0005\ufffd"
+      },
+      "second": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "15",
+          "cache-control": "public, max-age=600",
+          "vary": "Accept-Encoding",
+          "accept-ranges": "bytes",
+          "x-request-id": "66e119df0000000000000002",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 11:01:39 GMT",
+          "connection": "close"
+        },
+        "body_hex": "6964656e746974792d6f726967696e",
+        "body_text": "identity-origin"
+      },
+      "uncached_control": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "15",
+          "cache-control": "public, max-age=600",
+          "vary": "Accept-Encoding",
+          "accept-ranges": "bytes",
+          "x-request-id": "66e119df0000000000002001",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 11:01:39 GMT",
+          "connection": "close"
+        },
+        "body_hex": "6964656e746974792d6f726967696e",
+        "body_text": "identity-origin"
+      },
+      "passed": true,
+      "classification": "closed"
+    },
+    "F08": {
+      "wildcard_selected": "chosen",
+      "exact_control_selected": "chosen",
+      "configured_cert": "chosen",
+      "passed": true,
+      "classification": "closed"
+    },
+    "F10": {
+      "kind": "documented pass-through, README mismatch only",
+      "server_header_off_observed": "origin-marker",
+      "passed": true,
+      "classification": "documented_behavior_preserved"
+    },
+    "F04": {
+      "kind": "documented cache retention, not sufficient evidence of bug",
+      "before": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "8",
+          "cache-control": "public, max-age=600",
+          "accept-ranges": "bytes",
+          "x-request-id": "66e119df0000000000001004",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 11:01:39 GMT",
+          "connection": "close"
+        },
+        "body_hex": "6f726967696e2d41",
+        "body_text": "origin-A"
+      },
+      "after_reload": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "8",
+          "cache-control": "public, max-age=600",
+          "age": "0",
+          "accept-ranges": "bytes",
+          "x-request-id": "66e119df0000000000000003",
+          "cache-status": "conduit; hit",
+          "date": "Tue, 10 Nov 2026 11:01:39 GMT",
+          "connection": "close"
+        },
+        "body_hex": "6f726967696e2d41",
+        "body_text": "origin-A"
+      },
+      "after_purge": {
+        "status": 200,
+        "headers": {
+          "server": "origin-marker",
+          "content-type": "application/octet-stream",
+          "content-length": "8",
+          "cache-control": "public, max-age=600",
+          "accept-ranges": "bytes",
+          "x-request-id": "66e119df0000000000003000",
+          "cache-status": "conduit; fwd=miss; stored",
+          "date": "Tue, 10 Nov 2026 11:01:39 GMT",
+          "connection": "close"
+        },
+        "body_hex": "6f726967696e2d42",
+        "body_text": "origin-B"
+      },
+      "passed": true,
+      "classification": "documented_behavior_preserved"
+    },
+    "F06": {
+      "closed": true,
+      "check_returncode": 1,
+      "error": "conduit: tls.watch_interval must be positive and fit the runtime clock\n",
+      "passed": true,
+      "classification": "closed"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "binary_sha256": "9ddff7ca95a284e5aade957d6fb3353ac93ceabbefc4dc0ef0ef454b4247b18d",
+  "planned_seconds": 600,
+  "passed": true,
+  "elapsed_seconds": 617.79,
+  "http_requests": 432000,
+  "websocket": {
+    "ts": 1794303065,
+    "open": 40,
+    "msgs": 23960,
+    "errors": 0,
+    "reconnects": 0,
+    "short_ok": 1198,
+    "short_err": 0
+  },
+  "reloads_sent": 59,
+  "reloads_succeeded": 79,
+  "certificate_rotations_observed": 19,
+  "warmed_initial_rss_kib": 43032,
+  "warmed_final_rss_kib": 47560,
+  "max_rss_kib": 47728,
+  "max_fds": 212,
+  "max_threads": 22
+}

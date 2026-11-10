@@ -65,6 +65,7 @@ impl Admin {
                             "healthy": b.healthy,
                             "ejected": b.ejected,
                             "in_flight": b.in_flight,
+                            "http_version": b.http_version,
                         })
                     })
                     .collect();
